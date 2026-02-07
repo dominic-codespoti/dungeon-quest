@@ -1,4 +1,4 @@
-import {GameSnapshot, PlayerAction, GameEvent, Entity, Coord} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){

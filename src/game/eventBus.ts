@@ -1,4 +1,4 @@
-import {GameEvent} from './types'
+import type {GameEvent} from './types'
 
 type Subscriber = (e:GameEvent)=>void
 
