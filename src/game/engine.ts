@@ -1,4 +1,5 @@
 import {GameSnapshot, PlayerAction, GameEvent, Entity, Coord} from './types'
+import eventBus from './eventBus'
 
 function rng(seed:number){
   let s = seed >>> 0
@@ -22,7 +23,9 @@ export class Engine{
     this.entities.push({id:'p',type:'player',pos:{x:Math.floor(width/2),y:Math.floor(height/2)},hp:10})
     // place one monster
     this.entities.push({id:'m1',type:'monster',pos:{x:Math.floor(width/2)+3,y:Math.floor(height/2)},hp:5})
-    this.events.push({tick:this.tick,type:'init',payload:{width,height,entities:this.entities}})
+    const ev:GameEvent = {tick:this.tick,type:'init',payload:{width,height,entities:this.entities}}
+    this.events.push(ev)
+    eventBus.publish(ev)
   }
 
   getState(): GameSnapshot{
@@ -43,18 +46,26 @@ export class Engine{
         if(occ && occ.type==='monster'){
           // simple combat
           occ.hp = (occ.hp||1) - 3
-          this.events.push({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:3}})
+          const ev:GameEvent = {tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:3}}
+          this.events.push(ev)
+          eventBus.publish(ev)
           if((occ.hp||0) <=0){
-            this.events.push({tick:this.tick,type:'die',payload:{id:occ.id}})
+            const evd:GameEvent = {tick:this.tick,type:'die',payload:{id:occ.id}}
+            this.events.push(evd)
+            eventBus.publish(evd)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
           }
         } else {
           player.pos = nd
-          this.events.push({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
+          const evm:GameEvent = {tick:this.tick,type:'move',payload:{id:'p',to:nd}}
+          this.events.push(evm)
+          eventBus.publish(evm)
         }
       }
     } else {
-      this.events.push({tick:this.tick,type:'wait'})
+      const evw:GameEvent = {tick:this.tick,type:'wait'}
+    this.events.push(evw)
+    eventBus.publish(evw)
     }
 
     // monsters take a naive turn: move towards player if adjacent
@@ -66,7 +77,9 @@ export class Engine{
       if(nd.x===playerPos.x && nd.y===playerPos.y){
         // attack player
         player.hp = (player.hp||0) - 1
-        this.events.push({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:1}})
+        const evc:GameEvent = {tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:1}}
+        this.events.push(evc)
+        eventBus.publish(evc)
       } else {
         // move if not occupied
         const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y)
