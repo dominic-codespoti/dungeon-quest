@@ -1,4 +1,5 @@
 import React from 'react'
+import AdminPage from "./admin/AdminPage"
 
 export default function App(){
   return (
@@ -7,6 +8,8 @@ export default function App(){
       <p>Phaser canvas and game will mount below.</p>
       <div id="game-container"></div>
       <pre id="event-log" style={{height:300,overflow:'auto',background:'#111',color:'#0f0',padding:10}}></pre>
+      <hr/>
+      <AdminPage/>
     </div>
   )
 }
