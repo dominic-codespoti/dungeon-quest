@@ -14,8 +14,7 @@ export default function AdminPage(){
   },[])
 
   const download = ()=>{
-    const blob = new Blob([log.slice().reverse().join('
-')],{type:'application/x-ndjson'})
+    const blob = new Blob([log.slice().reverse().join('\n')],{type:'application/x-ndjson'})
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url; a.download = 'events.ndjson'; a.click(); URL.revokeObjectURL(url)
@@ -34,7 +33,7 @@ export default function AdminPage(){
         </div>
         <div style={{width:300}}>
           <h3>Controls</h3>
-          <p>Use console: window.game.step({type:'move',dir:'left'})</p>
+          <p>Use console: <code>window.game.step({{type:'move',dir:'left'}})</code></p>
         </div>
       </div>
     </div>
