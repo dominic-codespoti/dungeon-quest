@@ -7,6 +7,13 @@ export default function App(){
     <div style={{fontFamily: 'system-ui, sans-serif',padding:12}}>
       <h1>Dungeon Quest — WIP</h1>
       <p>Phaser canvas and game will mount below.</p>
+
+      <div style={{marginBottom:8}}>
+        <button onClick={() => { try{ (window as any).testStartBattle && (window as any).testStartBattle() }catch{} }}>
+          Start test battle
+        </button>
+      </div>
+
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
         <GameMount />
       </div>
