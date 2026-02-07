@@ -2,12 +2,30 @@ import React, {useEffect, useState} from 'react'
 import type {CombatEntity, BattleState, BattleAction} from '../game/types'
 import { createInitialBattleState, step, isPlayersTurn, applyAction } from '../game/battleEngine'
 
-export default function BattlePanel({onExit}:{onExit?:()=>void}){
+export default function BattlePanel({
+  entities,
+  onExit,
+  onFinished,
+}:{
+  entities: CombatEntity[]
+  onExit?: ()=>void
+  onFinished?: (state: BattleState)=>void
+}){
   const [state, setState] = useState<BattleState | null>(null)
 
+  // initialise or reset battle when entities change
   useEffect(()=>{
-    // noop
-  },[])
+    if(entities && entities.length > 0){
+      const initial = createInitialBattleState(entities, Date.now() & 0xffff)
+      // auto-step to first meaningful phase
+      let s: BattleState = initial
+      for(let i=0;i<10;i++){
+        s = step(s)
+        if(s.phase==='awaitingAction' || s.phase==='finished') break
+      }
+      setState(s)
+    }
+  },[JSON.stringify(entities)])
 
   if(!state) return (
     <div style={{padding:8}}>
@@ -17,6 +35,7 @@ export default function BattlePanel({onExit}:{onExit?:()=>void}){
 
   function doPlayerAttack(){
     if(!state) return
+    if(state.phase!=='awaitingAction' || !isPlayersTurn(state)) return
     const actorId = state.currentActorId
     if(!actorId) return
     // pick first enemy target
@@ -43,6 +62,9 @@ export default function BattlePanel({onExit}:{onExit?:()=>void}){
       if(s.phase==='awaitingAction' || s.phase==='finished') break
     }
     setState(s)
+    if(s.phase==='finished' && onFinished){
+      onFinished(s)
+    }
   }
 
   return (

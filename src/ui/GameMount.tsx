@@ -110,11 +110,32 @@ export default function GameMount(){
     }
   },[])
 
-  return <div>
+  return <div style={{position:'relative'}}>
     <div ref={ref} id="phaser-root"></div>
+
+    {/* debug: start test battle */}
+    {!inBattle ? (
+      <div style={{position:'absolute',left:12,top:60}}>
+        <button onClick={() => {
+          const player = { id: 'p', kind: 'player', name: 'Hero', hp: 10, maxHp:10, armor:0, attack:3, speed:10, tags: [], statuses: [], alive:true, actionsRemaining:1 }
+          const monster = { id: 'm_debug', kind: 'enemy', name: 'Debug Goblin', hp:5, maxHp:5, armor:0, attack:1, speed:5, tags: [], statuses: [], alive:true, actionsRemaining:1 }
+          setBattleEntities([player, monster])
+          setInBattle(true)
+        }}>Start test battle</button>
+      </div>
+    ) : null}
+
     {inBattle && battleEntities ? (
       <div style={{position:'absolute',right:12,top:60,width:360}}>
-        <BattlePanel onExit={()=>{ setInBattle(false); setBattleEntities(null) }} />
+        <BattlePanel
+          entities={battleEntities}
+          onExit={()=>{ setInBattle(false); setBattleEntities(null) }}
+          onFinished={(s)=>{
+            // simple end-of-battle behaviour: close panel
+            setInBattle(false)
+            setBattleEntities(null)
+          }}
+        />
       </div>
     ) : null }
   </div>
