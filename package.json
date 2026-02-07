@@ -4,6 +4,7 @@
   "description": "Roguelike project scaffold: TypeScript + React + Phaser + Zustand. Strict typing. Exposes a machine-friendly JSON event log and window.game API.",
   "main": "index.js",
   "scripts": {
+    "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
