@@ -24,6 +24,14 @@ export default function GameMount(){
         subscribe: (fn:Function)=>{ return eventBus.subscribe(fn) }
       }
 
+      // expose a test hook so the headed browser can start a battle deterministically
+      ;(window as any).testStartBattle = ()=>{
+        const player = { id: 'p', kind: 'player', name: 'Hero', hp: 10, maxHp:10, armor:0, attack:3, speed:10, tags: [], statuses: [], alive:true, actionsRemaining:1 }
+        const monster = { id: 'm_debug', kind: 'enemy', name: 'Debug Goblin', hp:5, maxHp:5, armor:0, attack:1, speed:5, tags: [], statuses: [], alive:true, actionsRemaining:1 }
+        setBattleEntities([player, monster])
+        setInBattle(true)
+      }
+
       // when the Phaser scene is ready, set up simple renderer
       const scene = g.scene.scenes[0]
       function setupScene(sc:any){
