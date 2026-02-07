@@ -1,0 +1,32 @@
+{
+  "name": "dungeon-quest",
+  "version": "1.0.0",
+  "description": "Roguelike project scaffold: TypeScript + React + Phaser + Zustand. Strict typing. Exposes a machine-friendly JSON event log and window.game API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dominic-codespoti/dungeon-quest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dominic-codespoti/dungeon-quest/issues"
+  },
+  "homepage": "https://github.com/dominic-codespoti/dungeon-quest#readme",
+  "dependencies": {
+    "phaser": "^3.90.0",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
