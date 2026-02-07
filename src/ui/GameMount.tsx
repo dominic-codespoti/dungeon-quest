@@ -1,10 +1,16 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { createGame } from '../game'
 import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
+import BattlePanel from './BattlePanel'
+import type {CombatEntity} from '../game/types'
+import { createInitialBattleState } from '../game/battleEngine'
 
 export default function GameMount(){
   const ref = useRef<HTMLDivElement | null>(null)
+  const [inBattle,setInBattle] = useState(false)
+  const [battleEntities,setBattleEntities] = useState<CombatEntity[] | null>(null)
+
   useEffect(()=>{
     let unsub:()=>void = ()=>{}
     if(ref.current){
@@ -56,6 +62,20 @@ export default function GameMount(){
               const id = e.payload.attacker
               const d = displays[id]
               if(d){ sc.tweens.add({targets:d,alpha:0.2,duration:80,yoyo:true,repeat:0}) }
+
+              // If player attacked a monster, start a quick battle with that monster
+              try{
+                const attacker = e.payload.attacker
+                const target = e.payload.target
+                if(attacker === 'p' && typeof target === 'string'){
+                  // build simple combat entities
+                  const player = { id: 'p', kind: 'player', name: 'Hero', hp: 10, maxHp: 10, armor: 0, attack: 3, speed: 10, tags: [], statuses: [], alive: true, actionsRemaining: 1 }
+                  const monster = { id: target, kind: 'enemy', name: target, hp: 5, maxHp: 5, armor: 0, attack: 1, speed: 5, tags: [], statuses: [], alive: true, actionsRemaining: 1 }
+                  setBattleEntities([player, monster])
+                  setInBattle(true)
+                }
+              }catch(_){ }
+
             }
           }
 
@@ -64,7 +84,7 @@ export default function GameMount(){
 
           // process existing events (so we don't miss the init already published)
           eventBus.getLines().forEach(l=>{
-            try{ handler(JSON.parse(l)) }catch(_){}
+            try{ handler(JSON.parse(l)) }catch(_){ }
           })
         }catch(err){
           console.error('renderer setup failed',err)
@@ -89,5 +109,13 @@ export default function GameMount(){
       return ()=>{ try{ unsub() }catch{}; g.destroy(true) }
     }
   },[])
-  return <div ref={ref} id="phaser-root"></div>
+
+  return <div>
+    <div ref={ref} id="phaser-root"></div>
+    {inBattle && battleEntities ? (
+      <div style={{position:'absolute',right:12,top:60,width:360}}>
+        <BattlePanel onExit={()=>{ setInBattle(false); setBattleEntities(null) }} />
+      </div>
+    ) : null }
+  </div>
 }
