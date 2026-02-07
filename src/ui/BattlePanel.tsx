@@ -48,15 +48,35 @@ export default function BattlePanel({
       targetingMode: 'single',
       effect: { damage: undefined }
     }
-    const next = applyAction(state, action)
-    const resolved = step(next)
-    setState(resolved)
+    // apply and then auto-resolve enemy turns until awaitingAction or finished
+    let s = applyAction(state, action)
+    s = step(s)
+    // now auto-run until opponent awaits action or finished
+    for(let i=0;i<20;i++){
+      if(s.phase==='finished' || (s.phase==='awaitingAction' && isPlayersTurn(s))) break
+      // if awaitingAction and it's enemy's turn, build simple AI action
+      if(s.phase==='awaitingAction' && !isPlayersTurn(s)){
+        const aiActor = s.currentActorId
+        const playerTargets = Object.values(s.entities).filter(e=>e.kind==='player' && e.alive).map(e=>e.id)
+        if(playerTargets.length>0 && aiActor){
+          const aiAction: BattleAction = { kind:'basicAttack', actorId: aiActor, targets:[playerTargets[0]], targetingMode:'single', effect:{damage: undefined} }
+          s = applyAction(s, aiAction)
+          s = step(s)
+          continue
+        }
+      }
+      s = step(s)
+    }
+    setState(s)
+    if(s.phase==='finished' && onFinished){
+      onFinished(s)
+    }
   }
 
   function continueTurn(){
+    // deprecated by auto-resolve; keep for safety
     if(!state) return
     let s = state
-    // advance until awaitingAction or finished
     for(let i=0;i<10;i++){
       s = step(s)
       if(s.phase==='awaitingAction' || s.phase==='finished') break
@@ -103,7 +123,7 @@ export default function BattlePanel({
         {state.phase==='awaitingAction' && isPlayersTurn(state) ? (
           <button onClick={doPlayerAttack}>Basic Attack</button>
         ) : (
-          <button onClick={continueTurn}>Advance</button>
+          <div style={{color:'#aaa'}}>Resolving...</div>
         )}
       </div>
     </div>
