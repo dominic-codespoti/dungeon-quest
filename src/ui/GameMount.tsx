@@ -7,12 +7,12 @@ export default function GameMount(){
   useEffect(()=>{
     if(ref.current){
       const g = createGame(ref.current)
-      // attach engine to window for debugging
+      // attach engine to window for automation/debugging
       const eng = new Engine(30,30,1)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
-        subscribe: (fn:Function)=>{ /* no-op for now */ }
+        subscribe: (fn:Function)=>{ return eventBus.subscribe(fn) }
       }
       return ()=> g.destroy(true)
     }
