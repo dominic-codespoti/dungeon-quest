@@ -80,6 +80,7 @@ export default function GameMount(){
               if(ent.kind==='boss') return TEX_KEYS.brute
               if(ent.kind==='brute') return TEX_KEYS.brute
               if(ent.kind==='skitter') return TEX_KEYS.skitter
+              if(ent.kind==='spitter') return TEX_KEYS.skitter
               return TEX_KEYS.chaser
             }
             if(ent.kind==='stairs') return TEX_KEYS.stairs
@@ -163,6 +164,7 @@ export default function GameMount(){
               else d.setAlpha(vis.has(k) ? 1 : 0)
               d.clearTint()
               if(ent.kind==='boss') d.setTint(0xff8a66)
+              if(ent.kind==='spitter') d.setTint(0x7dff9a)
               if(ent.kind==='chest') d.setTint(0xffd36b)
               if(ent.kind==='shrine') d.setTint(0x9a77ff)
             })
@@ -198,6 +200,7 @@ export default function GameMount(){
               const s = sc.add.image(p.x,p.y,textureForEntity(ent)).setOrigin(0.5)
               s.setDisplaySize(tileSize-2, tileSize-2)
               if(ent.kind==='boss') s.setTint(0xff8a66)
+              if(ent.kind==='spitter') s.setTint(0x7dff9a)
               if(ent.kind==='chest') s.setTint(0xffd36b)
               if(ent.kind==='shrine') s.setTint(0x9a77ff)
               displays[ent.id] = s

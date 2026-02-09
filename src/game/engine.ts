@@ -93,8 +93,8 @@ export class Engine{
 
     for(let i=0;i<monsterCount;i++){
       const kind = this.rollMonsterKind()
-      const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
-      const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : 1.2
+      const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : kind==='spitter' ? 4 + Math.floor((this.floor-1)/4) : 3 + Math.floor((this.floor-1)/3)
+      const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : kind==='spitter' ? 1.8 : 1.2
       if(i>1 && threat + cost > threatCap) continue
       this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp)
       threat += cost
@@ -142,8 +142,9 @@ export class Engine{
     return 'none'
   }
 
-  private rollMonsterKind(): 'chaser'|'brute'|'skitter' {
+  private rollMonsterKind(): 'chaser'|'brute'|'skitter'|'spitter' {
     const pick = this.rand()
+    if(this.floor >= 4 && pick > 0.86) return 'spitter'
     if(this.floorModifier==='brute-heavy') return pick < 0.45 ? 'brute' : pick < 0.75 ? 'chaser' : 'skitter'
     if(this.floorModifier==='swarm') return pick < 0.2 ? 'brute' : pick < 0.5 ? 'chaser' : 'skitter'
     return pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
@@ -303,7 +304,7 @@ export class Engine{
     return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
   }
 
-  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'boss',hp:number){
+  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'boss',hp:number){
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
@@ -463,7 +464,7 @@ export class Engine{
           this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.maybeBossLoot(occ)
-          this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+          this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
             this.emit({tick:this.tick,type:'dash_refresh',payload:{cooldown:this.dashCooldown}})
@@ -541,7 +542,7 @@ export class Engine{
             this.bossCharged.delete(m.id)
             this.entities = this.entities.filter(e=>e.id!==m.id)
             this.maybeBossLoot(m)
-            this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='skitter' ? 120 : 100
+            this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='spitter' ? 140 : m.kind==='skitter' ? 120 : 100
           }
         }
         this.score += 40 + hits*25
@@ -647,7 +648,7 @@ export class Engine{
             this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.maybeBossLoot(occ)
-            this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+            this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
           }
         }
       }
@@ -701,6 +702,15 @@ export class Engine{
           this.emit({tick:this.tick,type:'boss_slam',payload:{id:m.id,damage:slam}})
           return
         }
+      }
+
+      if(kind==='spitter' && distance<=4 && distance>1 && this.hasLineOfSight(m.pos, playerPos)){
+        let spit = Math.max(0, 1 - this.defenseBonus)
+        if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
+        player.hp = (player.hp||0) - spit
+        this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:spit,kind,via:'spit'}})
+        this.emit({tick:this.tick,type:'spit_used',payload:{id:m.id,damage:spit}})
+        return
       }
 
       if(distance===1){
