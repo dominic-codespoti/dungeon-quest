@@ -33,6 +33,7 @@ const checks = [
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
   ["create tooltip: start daily preset intent", "title='D · launch daily preset now'"],
   ["create tooltip: start last-run preset intent", "title='L · launch last-run preset now'"],
+  ["create start-adventure button uses launcher", "launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})"],
   ["daily row action: open build", ">Open Build</button>"],
   ["daily row tooltip: open build intent", "title='Z · open daily build in create'"],
   ["records action: play daily", ">Play Daily Challenge</button>"],
