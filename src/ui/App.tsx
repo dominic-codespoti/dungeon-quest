@@ -188,6 +188,21 @@ export default function App(){
   },[screen])
 
   useEffect(()=>{
+    if(screen!=='create') return
+    const onCreateKey = (ev:KeyboardEvent)=>{
+      if(ev.key==='1') setKlass('knight')
+      if(ev.key==='2') setKlass('rogue')
+      if(ev.key==='q' || ev.key==='Q') setRace('human')
+      if(ev.key==='w' || ev.key==='W') setRace('elf')
+      if(ev.key==='e' || ev.key==='E') setRace('dwarf')
+      if(ev.key==='Enter') navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})
+      if(ev.key==='Escape') navigate({screen:'menu'})
+    }
+    window.addEventListener('keydown', onCreateKey)
+    return ()=> window.removeEventListener('keydown', onCreateKey)
+  },[screen,klass,race])
+
+  useEffect(()=>{
     if(!snapshot?.gameOver) return
     const score = snapshot.score ?? 0
     const floor = snapshot.floor ?? 0
@@ -408,6 +423,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · Enter start · Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
