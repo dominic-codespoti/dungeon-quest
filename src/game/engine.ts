@@ -30,6 +30,7 @@ export class Engine{
   backstepCooldown = 0
   guardCooldown = 0
   guardActive = false
+  bossCharged = new Set<string>()
   gameOver = false
   outcome: 'victory'|'defeat'|undefined
   private rand: ()=>number
@@ -78,6 +79,7 @@ export class Engine{
     this.backstepCooldown = 0
     this.guardCooldown = 0
     this.guardActive = false
+    this.bossCharged.clear()
     this.discovered.clear()
     this.walls = new Set<string>()
     this.generateWalls()
@@ -446,6 +448,7 @@ export class Engine{
         this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage,via:moveType}})
         if((occ.hp||0) <=0){
           this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
+          this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           if(this.playerClass==='rogue' && moveType==='dash'){
@@ -564,6 +567,7 @@ export class Engine{
           this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:bashDmg,via:'bash',pushed:canPush}})
           if((occ.hp||0) <=0){
             this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
+            this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           }
@@ -602,6 +606,23 @@ export class Engine{
           }
         }
         return
+      }
+
+      if(kind==='boss'){
+        if(distance<=2 && !this.bossCharged.has(m.id) && this.tick % 3 === 0){
+          this.bossCharged.add(m.id)
+          this.emit({tick:this.tick,type:'boss_charge',payload:{id:m.id,pos:m.pos}})
+          return
+        }
+        if(distance===1 && this.bossCharged.has(m.id)){
+          let slam = Math.max(0, 5 - this.defenseBonus)
+          if(this.guardActive){ slam = Math.max(0, slam-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
+          player.hp = (player.hp||0) - slam
+          this.bossCharged.delete(m.id)
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:slam,kind,via:'slam'}})
+          this.emit({tick:this.tick,type:'boss_slam',payload:{id:m.id,damage:slam}})
+          return
+        }
       }
 
       if(distance===1){

@@ -229,6 +229,14 @@ export default function GameMount(){
               if(attacker){ sc.tweens.add({targets:attacker,alpha:0.25,duration:70,yoyo:true}) }
               if(target){ sc.tweens.add({targets:target,scale:1.22,duration:70,yoyo:true}) }
               if(e.payload.target==='p') flashDamage()
+            } else if(e.type==='boss_charge'){
+              const boss = displays[e.payload?.id]
+              if(boss){
+                boss.setTint(0xff3333)
+                sc.tweens.add({targets:boss, scale:1.25, duration:120, yoyo:true, repeat:1, onComplete:()=>boss.setTint(0xff8a66)})
+              }
+            } else if(e.type==='boss_slam'){
+              try{ sc.cameras.main.shake(140, 0.005) }catch{}
             } else if(e.type==='pickup'){
               const st = (window as any).game?.getState?.()
               const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
