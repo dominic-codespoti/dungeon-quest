@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "tsc --noEmit",
-    "test:smoke": "node scripts/smoke-ui.mjs"
+    "test:smoke": "node scripts/smoke-ui.mjs",
+    "test:all": "npm test && npm run test:smoke"
   },
   "repository": {
     "type": "git",

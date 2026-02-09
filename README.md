@@ -12,8 +12,7 @@ npm run dev
 ## Build + Typecheck
 
 ```bash
-npm test          # tsc --noEmit
-npm run test:smoke
+npm run test:all  # typecheck + UI smoke checks
 npm run build
 ```
 
