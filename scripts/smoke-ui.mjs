@@ -14,6 +14,8 @@ const checks = [
   ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun){"],
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
+  ["daily row action: open build", ">Open Build</button>"],
+  ["daily row tooltip: open build intent", "title='Z · open daily build in create'"],
   ["records action: play daily", ">Play Daily Challenge</button>"],
   ["records action: open daily in create", ">Open Daily in Create</button>"],
   ["records hint strip", "Quick keys:"],
