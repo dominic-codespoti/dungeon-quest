@@ -441,7 +441,10 @@ export default function App(){
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
           <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
-          <div style={{fontSize:11,opacity:0.65, marginBottom:8}}>Daily seed: {getDailySeed()}</div>
+          <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8}}>
+            <span>Daily seed: {getDailySeed()}</span>
+            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy</button>
+          </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
