@@ -45,6 +45,7 @@ export default function App(){
       if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} (${e.payload?.modifier || 'none'})`)
       if(e.type==='dash_used') setStatus('💨 Rogue dash.')
       if(e.type==='dash_blocked') setStatus(`⏳ Dash cooldown: ${e.payload?.cooldown}`)
+      if(e.type==='dash_refresh') setStatus('⚡ Dash refreshed on kill.')
       if(e.type==='guard_used') setStatus('🛡️ Guard up (Knight).')
       if(e.type==='guard_triggered') setStatus('🛡️ Guard absorbed damage.')
       if(e.type==='guard_blocked') setStatus(`⏳ Guard cooldown: ${e.payload?.cooldown}`)

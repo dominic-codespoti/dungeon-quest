@@ -150,8 +150,25 @@ Interpretation:
 - Knight currently has much stronger survival/control in this sim profile.
 - Rogue feels high-variance and fragile; dash skill ceiling exists but baseline consistency is lower.
 
+## Tightening Pass — Class Parity (Now)
+Applied now:
+- **Knight toned down**
+  - Guard cooldown increased: 4 → 5
+  - Bash damage reduced: 4 → 3
+- **Rogue tightened up**
+  - Dash cooldown reduced: 5 → 4
+  - New rogue perk: dash kill refunds 1 cooldown (`dash_refresh`)
+
+### Fresh class test run (6 seeds each)
+- **Knight:** avg floor **3.50**, avg score **2504**, max floor **4**
+- **Rogue:** avg floor **2.17**, avg score **1179**, max floor **3**
+
+Interpretation:
+- Gap narrowed (Knight still ahead on depth, Rogue improved in scoring/tempo).
+- Better parity baseline for adding rogue secondary skill next.
+
 ## Suggested next changes
-1. Add rogue secondary skill (**Smoke** or **Backstep**) to close class parity.
-2. Slightly buff rogue sustain (e.g., relic-to-heal conversion or lower dash cooldown on kill).
-3. Add class-specific starter perk text/tooltips in UI.
+1. Add rogue secondary skill (**Smoke** or **Backstep**) to close remaining parity gap.
+2. Add class-specific starter perk text/tooltips in UI.
+3. Add one explicit anti-spike safeguard for floor 4+ (threat burst limiter).
 4. Fix deployment/runtime serving path so headed browser playtests can be consistently executed.

@@ -242,13 +242,17 @@ export class Engine{
 
       const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
       if(occ?.type==='monster'){
-        const damage = moveType==='dash' ? 4 : 3
+        const damage = moveType==='dash' ? 5 : 3
         occ.hp = (occ.hp||1) - damage
         this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage,via:moveType}})
         if((occ.hp||0) <=0){
           this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+          if(this.playerClass==='rogue' && moveType==='dash'){
+            this.dashCooldown = Math.max(0, this.dashCooldown - 1)
+            this.emit({tick:this.tick,type:'dash_refresh',payload:{cooldown:this.dashCooldown}})
+          }
         }
         return {changedFloor:false,stopped:true}
       }
@@ -272,7 +276,7 @@ export class Engine{
       else if(this.dashCooldown>0) this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
       else {
         const delta = d[action.dir]
-        this.dashCooldown = 5
+        this.dashCooldown = 4
         this.emit({tick:this.tick,type:'dash_used',payload:{dir:action.dir,cooldown:this.dashCooldown}})
         for(let i=0;i<2;i++){
           const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'dash')
@@ -283,7 +287,7 @@ export class Engine{
     } else if(action.type==='guard'){
       if(this.playerClass!=='knight') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'guard',class:this.playerClass}})
       else if(this.guardCooldown>0) this.emit({tick:this.tick,type:'guard_blocked',payload:{cooldown:this.guardCooldown}})
-      else { this.guardActive = true; this.guardCooldown = 4; this.emit({tick:this.tick,type:'guard_used',payload:{cooldown:this.guardCooldown}}) }
+      else { this.guardActive = true; this.guardCooldown = 5; this.emit({tick:this.tick,type:'guard_used',payload:{cooldown:this.guardCooldown}}) }
     } else if(action.type==='bash'){
       if(this.playerClass!=='knight') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'bash',class:this.playerClass}})
       else {
@@ -292,11 +296,11 @@ export class Engine{
         const occ = this.entities.find(e=>e.type==='monster' && e.pos.x===target.x && e.pos.y===target.y)
         if(!occ){ this.emit({tick:this.tick,type:'bash_miss'}) }
         else {
-          occ.hp = (occ.hp||1) - 4
+          occ.hp = (occ.hp||1) - 3
           const push = {x:target.x + delta.x, y:target.y + delta.y}
           const canPush = !this.isWall(push) && !this.entities.some(e=>e.id!==occ.id && e.pos.x===push.x && e.pos.y===push.y)
           if(canPush) occ.pos = push
-          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:4,via:'bash',pushed:canPush}})
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:3,via:'bash',pushed:canPush}})
           if((occ.hp||0) <=0){
             this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
             this.entities = this.entities.filter(e=>e.id!==occ.id)
