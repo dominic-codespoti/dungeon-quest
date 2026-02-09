@@ -67,7 +67,7 @@ export default function GameMount(){
           const displays: Record<string, any> = {}
           const wallDisplays: Record<string, any> = {}
           const floorDisplays: Record<string, any> = {}
-          const hpBars: Record<string, {bg:any, fg:any}> = {}
+          const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}
           let bossBarWrap: any
           let bossBarBg: any
           let bossBarFill: any
@@ -237,7 +237,7 @@ export default function GameMount(){
                 if(!hpBars[ent.id]){
                   const bg = sc.add.rectangle(d.x, d.y + tileSize*0.56, tileSize*0.74, 4, 0x1a1a1a, 0.86).setDepth(360)
                   const fg = sc.add.rectangle(d.x - (tileSize*0.74)/2 + 1, d.y + tileSize*0.56, tileSize*0.74 - 2, 2, 0x87e08a, 0.95).setOrigin(0,0.5).setDepth(361)
-                  hpBars[ent.id] = {bg, fg}
+                  hpBars[ent.id] = {bg, fg, lastHp: Number(ent.hp)}
                 }
                 const bar = hpBars[ent.id]
                 if(bar){
@@ -247,6 +247,12 @@ export default function GameMount(){
                   bar.fg.width = Math.max(1, (tileSize*0.74 - 2) * ratio)
                   bar.fg.fillColor = ratio < 0.34 ? 0xff7a7a : ratio < 0.67 ? 0xffcc66 : 0x87e08a
                   bar.fg.setAlpha(0.98)
+                  const hpNow = Number(ent.hp)
+                  if(Number.isFinite(bar.lastHp) && hpNow < Number(bar.lastHp)){
+                    bar.bg.setFillStyle(0x562222, 0.98)
+                    sc.tweens.add({targets:bar.bg, alpha:0.78, duration:90, yoyo:true, onComplete:()=>bar.bg.setFillStyle(0x1a1a1a, 0.86)})
+                  }
+                  bar.lastHp = hpNow
                 }
               } else {
                 const bar = hpBars[ent.id]
