@@ -785,7 +785,7 @@ export default function App(){
           <div className='dq-controls'>
             <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button><button onClick={()=> targetSkill ? setTargetDir('left') : move('left')}>←</button>
             <button onClick={()=> targetSkill ? setTargetDir('down') : move('down')}>↓</button><button onClick={()=> targetSkill ? setTargetDir('right') : move('right')}>→</button>
-            <button onClick={wait}>Wait</button><button onClick={()=>(window as any).game?.step?.({type:'interact'})}>Interact (E)</button><button onClick={newSeed}>New Run</button><button onClick={openCreateForCurrent}>Pregame (P)</button>
+            <button onClick={wait} title='Space'>Wait</button><button onClick={()=>(window as any).game?.step?.({type:'interact'})} title='E'>Interact (E)</button><button onClick={newSeed} title='R'>New Run</button><button onClick={openCreateForCurrent} title='P'>Pregame (P)</button>
           </div>
 
           <div className='dq-skillrow'>
