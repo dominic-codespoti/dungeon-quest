@@ -179,6 +179,7 @@ export default function App(){
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
+  const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
   const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
@@ -349,6 +350,7 @@ export default function App(){
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
+            <div className='dq-stat'>Streak Reward<b>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
