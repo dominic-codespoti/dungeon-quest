@@ -83,6 +83,7 @@ export default function App(){
   const [targetDir,setTargetDir] = useState<Dir>('up')
   const [showHelp,setShowHelp] = useState(false)
   const [showPatchNotes,setShowPatchNotes] = useState(false)
+  const [showRunPrimer,setShowRunPrimer] = useState(false)
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -268,6 +269,7 @@ export default function App(){
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
+            <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
           </div>
         </div>
 
@@ -285,6 +287,22 @@ export default function App(){
                 <li>Run goal: clear floor 10 to win</li>
               </ul>
               <button onClick={()=>setShowPatchNotes(false)}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {showRunPrimer && (
+          <div className='dq-overlay'>
+            <div className='box'>
+              <h2 style={{marginTop:0}}>Run Primer</h2>
+              <ul style={{marginTop:0,paddingLeft:18}}>
+                <li>Early floors: farm safe streaks and gear.</li>
+                <li>Boss floors (every 3): stairs sealed until boss dies.</li>
+                <li>Use danger/threat HUD before committing to melee.</li>
+                <li>Save mobility items (Blink/Rift) for spike turns.</li>
+                <li>Target floor 10 clear, not endless score greed.</li>
+              </ul>
+              <button onClick={()=>setShowRunPrimer(false)}>Close</button>
             </div>
           </div>
         )}
