@@ -218,6 +218,12 @@ export default function App(){
       if(ev.key==='q' || ev.key==='Q') setRace('human')
       if(ev.key==='w' || ev.key==='W') setRace('elf')
       if(ev.key==='e' || ev.key==='E') setRace('dwarf')
+      if(ev.key==='s' || ev.key==='S'){
+        const classes: PlayerClass[] = ['knight','rogue']
+        const races: PlayerRace[] = ['human','elf','dwarf']
+        setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
+        setRace(races[Math.floor(Math.random()*races.length)] || 'human')
+      }
       if(ev.key==='Enter') navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})
       if(ev.key==='Escape') navigate({screen:'menu'})
     }
@@ -477,7 +483,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
-          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · Enter start · Esc back</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · Enter start · Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
@@ -506,8 +512,16 @@ export default function App(){
             <div style={{fontSize:12}}>Dash CD: <b>{preview.dashCd}</b> · Skills: <b>{preview.skills}</b></div>
           </div>
 
-          <div style={{display:'flex', gap:8, marginTop:14}}>
+          <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'menu'})}>Back</button>
+            <button onClick={()=>{
+              const classes: PlayerClass[] = ['knight','rogue']
+              const races: PlayerRace[] = ['human','elf','dwarf']
+              const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
+              const r = races[Math.floor(Math.random()*races.length)] || 'human'
+              setKlass(c)
+              setRace(r)
+            }}>Surprise Me</button>
             <button onClick={()=>navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})}>Start Adventure</button>
           </div>
         </div>
