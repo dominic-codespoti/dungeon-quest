@@ -37,7 +37,7 @@ npm run verify
 - `I` Copy Link Bundle
 - `J` Copy Daily Link
 - `K` Copy Profile Summary
-- `P` / `R` / `?` Run Primer
+- `P` / `R` / `H` / `?` Run Primer
 - `N` Patch Notes
 - `L` Legend
 - `O` Records
