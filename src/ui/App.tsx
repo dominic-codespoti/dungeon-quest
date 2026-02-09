@@ -100,12 +100,15 @@ export default function App(){
   const [customSeed,setCustomSeed] = useState(()=> (getParams().get('seed') || '').replace(/[^0-9]/g,''))
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
+  const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
 
   useEffect(()=>{
     try{
       setBestScore(Number(localStorage.getItem('dq_best_score') || '0'))
       setBestFloor(Number(localStorage.getItem('dq_best_floor') || '0'))
+      const raw = localStorage.getItem('dq_last_run')
+      if(raw) setLastRun(JSON.parse(raw))
     }catch{}
     const poll = setInterval(()=>{
       const g = (window as any).game
@@ -261,7 +264,11 @@ export default function App(){
       try{ localStorage.setItem('dq_best_floor', String(floor)) }catch{}
     }
     setNewRecord(recordMsg.length ? `New record: ${recordMsg.join(' + ')}` : null)
-  },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor])
+
+    const lr = {score, floor, seed:String(seed ?? '-'), klass, race}
+    setLastRun(lr)
+    try{ localStorage.setItem('dq_last_run', JSON.stringify(lr)) }catch{}
+  },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor, seed, klass, race])
 
   useEffect(()=>{
     if(snapshot?.gameOver) return
@@ -479,6 +486,7 @@ export default function App(){
               <h2 style={{marginTop:0}}>Records</h2>
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
+              {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8}}>
                 <button onClick={resetRecords}>Reset</button>
                 <button onClick={()=>setShowMeta(false)}>Close</button>
