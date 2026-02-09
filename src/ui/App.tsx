@@ -205,6 +205,16 @@ export default function App(){
     return {total:mons.length,boss,spitter,sentinel,other}
   },[snapshot])
 
+  const nearby = useMemo(()=>{
+    if(!snapshot) return {items:0,monsters:0}
+    const p = snapshot.entities.find(e=>e.id==='p')?.pos
+    if(!p) return {items:0,monsters:0}
+    const dist = (x:number,y:number)=>Math.abs(x-p.x)+Math.abs(y-p.y)
+    const items = snapshot.entities.filter(e=>e.type==='item' && e.pos && dist(e.pos.x,e.pos.y)<=1).length
+    const monsters = snapshot.entities.filter(e=>e.type==='monster' && e.pos && dist(e.pos.x,e.pos.y)<=1).length
+    return {items,monsters}
+  },[snapshot])
+
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
   const computeTargetTiles = (skill:TargetSkill, selectedDir:Dir)=>{
@@ -384,6 +394,7 @@ export default function App(){
             <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
             <div className='dq-stat'>Bosses<b>{bossCount}</b></div>
             <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>
+            <div className='dq-stat'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></div>
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
