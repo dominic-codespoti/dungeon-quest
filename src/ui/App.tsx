@@ -97,6 +97,7 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
+  const [customSeed,setCustomSeed] = useState('')
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [newRecord,setNewRecord] = useState<string | null>(null)
@@ -224,12 +225,15 @@ export default function App(){
         setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
         setRace(races[Math.floor(Math.random()*races.length)] || 'human')
       }
-      if(ev.key==='Enter') navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})
+      if(ev.key==='Enter'){
+        const chosenSeed = Number(customSeed)
+        navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
+      }
       if(ev.key==='Escape') navigate({screen:'menu'})
     }
     window.addEventListener('keydown', onCreateKey)
     return ()=> window.removeEventListener('keydown', onCreateKey)
-  },[screen,klass,race])
+  },[screen,klass,race,customSeed])
 
   useEffect(()=>{
     if(!snapshot?.gameOver) return
@@ -512,6 +516,11 @@ export default function App(){
             <div style={{fontSize:12}}>Dash CD: <b>{preview.dashCd}</b> · Skills: <b>{preview.skills}</b></div>
           </div>
 
+          <div style={{marginTop:10}}>
+            <div style={{fontSize:12,marginBottom:4}}>Seed (optional)</div>
+            <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
+          </div>
+
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'menu'})}>Back</button>
             <button onClick={()=>{
@@ -522,7 +531,10 @@ export default function App(){
               setKlass(c)
               setRace(r)
             }}>Surprise Me</button>
-            <button onClick={()=>navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})}>Start Adventure</button>
+            <button onClick={()=>{
+              const chosenSeed = Number(customSeed)
+              navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
+            }}>Start Adventure</button>
           </div>
         </div>
       </div>
