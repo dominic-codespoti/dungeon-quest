@@ -344,6 +344,7 @@ export default function App(){
           <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
           {nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
           {isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
+          {(snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
           <div style={{margin:'4px 0 6px'}}>
             <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
