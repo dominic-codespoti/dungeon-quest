@@ -134,8 +134,10 @@ export default function App(){
 
   useEffect(()=>{
     try{
-      setBestScore(Number(localStorage.getItem('dq_best_score') || '0'))
-      setBestFloor(Number(localStorage.getItem('dq_best_floor') || '0'))
+      const bs = Number(localStorage.getItem('dq_best_score') || '0')
+      const bf = Number(localStorage.getItem('dq_best_floor') || '0')
+      setBestScore(Number.isFinite(bs) && bs >= 0 ? bs : 0)
+      setBestFloor(Number.isFinite(bf) && bf >= 0 ? bf : 0)
       const raw = localStorage.getItem('dq_last_run')
       if(raw){
         const parsed = JSON.parse(raw)
