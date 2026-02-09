@@ -103,6 +103,11 @@ function randomClassRace(){
   }
 }
 
+function resolveChosenSeed(seedInput:string){
+  const chosenSeed = Number(seedInput)
+  return Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()
+}
+
 function getDailyPreset(){
   const seed = getDailySeed()
   const classes: PlayerClass[] = ['knight','rogue']
@@ -325,10 +330,7 @@ export default function App(){
         const rr = randomClassRace()
         navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
       }
-      if(ev.key==='Enter'){
-        const chosenSeed = Number(customSeed)
-        launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
-      }
+      if(ev.key==='Enter') launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})
       if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
     }
     window.addEventListener('keydown', onCreateKey)
@@ -781,10 +783,7 @@ export default function App(){
               const rr = randomClassRace()
               navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random build + seed and launch'>Quick Start</button>
-            <button onClick={()=>{
-              const chosenSeed = Number(customSeed)
-              launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
-            }} title='Enter'>Start Adventure</button>
+            <button onClick={()=>launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})} title='Enter'>Start Adventure</button>
           </div>
         </div>
       </div>

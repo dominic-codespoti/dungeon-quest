@@ -7,6 +7,7 @@ const src = readFileSync(appPath, 'utf8')
 const checks = [
   ["shared helper: random seed", "function randomSeed(){"],
   ["shared helper: random class/race", "function randomClassRace(){"],
+  ["shared helper: resolve chosen seed", "function resolveChosenSeed(seedInput:string){"],
   ["shared helper: apply preset to create", "const applyPresetToCreate = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string}, label:'Daily'|'Last-run')=>{"],
   ["shared helper: apply daily preset", "const applyDailyPresetToCreate = ()=>{"],
   ["shared helper: apply last-run preset", "const applyLastRunPresetToCreate = ()=>{"],
@@ -39,7 +40,7 @@ const checks = [
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
   ["create tooltip: start daily preset intent", "title='D · launch daily preset now'"],
   ["create tooltip: start last-run preset intent", "title='L · launch last-run preset now'"],
-  ["create start-adventure button uses launcher", "launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})"],
+  ["create start-adventure button uses launcher", "launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})"],
   ["daily row action: open build", ">Open Build</button>"],
   ["daily row tooltip: open build intent", "title='Z · open daily build in create'"],
   ["records action: play daily", ">Play Daily Challenge</button>"],
