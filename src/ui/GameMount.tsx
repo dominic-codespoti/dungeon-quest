@@ -92,6 +92,7 @@ export default function GameMount(){
             if(ent.kind==='chest') return TEX_KEYS.relic
             if(ent.kind==='shrine') return TEX_KEYS.idol
             if(ent.kind==='fountain') return TEX_KEYS.potion
+            if(ent.kind==='rift-orb') return TEX_KEYS.relic
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -183,6 +184,7 @@ export default function GameMount(){
               if(ent.kind==='chest') d.setTint(0xffd36b)
               if(ent.kind==='shrine') d.setTint(0x9a77ff)
               if(ent.kind==='fountain') d.setTint(0x63d6ff)
+              if(ent.kind==='rift-orb') d.setTint(0xc27dff)
             })
             drawTargeting()
           }
@@ -221,6 +223,7 @@ export default function GameMount(){
               if(ent.kind==='chest') s.setTint(0xffd36b)
               if(ent.kind==='shrine') s.setTint(0x9a77ff)
               if(ent.kind==='fountain') s.setTint(0x63d6ff)
+              if(ent.kind==='rift-orb') s.setTint(0xc27dff)
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })
@@ -288,6 +291,11 @@ export default function GameMount(){
                 sc.tweens.add({targets:p, alpha:1, duration:120})
                 fxBurstAt(to, 0xbad0ff)
               }
+            } else if(e.type==='rift_used'){
+              const st = (window as any).game?.getState?.()
+              const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
+              if(p) fxBurstAt(p, 0xc27dff)
+              try{ sc.cameras.main.shake(90, 0.003) }catch{}
             } else if(e.type==='pickup'){
               const st = (window as any).game?.getState?.()
               const p = st?.entities?.find((x:any)=>x.id==='p')?.pos

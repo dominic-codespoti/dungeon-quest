@@ -124,6 +124,7 @@ export class Engine{
     if(this.floor >= 3 && this.rand() < 0.25) this.spawnItem(`i${this.floor}-c2`,'chest')
     if(this.floor >= 4 && this.rand() < 0.22) this.spawnItem(`i${this.floor}-h1`,'shrine')
     if(this.floor >= 5 && this.rand() < 0.18) this.spawnItem(`i${this.floor}-f1`,'fountain')
+    if(this.floor >= 5 && this.rand() < 0.2) this.spawnItem(`i${this.floor}-r1`,'rift-orb')
 
     // Generated gear system (item classes + rarity + enchantments)
     const gearDrops = this.floor >= 2 ? 2 : 1
@@ -315,7 +316,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -605,6 +606,23 @@ export class Engine{
         this.guardCooldown = 0
         this.score += 130
         this.emit({tick:this.tick,type:'fountain_used',payload:{hp:this.maxHp,clears:['dash','backstep','guard']}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='rift-orb'){
+        const adj: Coord[] = [
+          {x:player.pos.x+1,y:player.pos.y},{x:player.pos.x-1,y:player.pos.y},{x:player.pos.x,y:player.pos.y+1},{x:player.pos.x,y:player.pos.y-1}
+        ]
+        let pulled = 0
+        for(const m of this.entities.filter(e=>e.type==='monster')){
+          const target = adj.find(a=>!this.isWall(a) && !this.entities.some(e=>e.id!==m.id && e.id!=='p' && e.pos.x===a.x && e.pos.y===a.y) && !(a.x===player.pos.x && a.y===player.pos.y))
+          if(!target) continue
+          if(Math.abs(m.pos.x-player.pos.x)+Math.abs(m.pos.y-player.pos.y) > 6) continue
+          m.pos = {x:target.x,y:target.y}
+          this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:m.pos,via:'rift'}})
+          pulled++
+          if(pulled>=3) break
+        }
+        this.score += 80 + pulled*10
+        this.emit({tick:this.tick,type:'rift_used',payload:{pulled}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25
