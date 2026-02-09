@@ -85,6 +85,7 @@ export default function App(){
   const [showHelp,setShowHelp] = useState(false)
   const [showPatchNotes,setShowPatchNotes] = useState(false)
   const [showRunPrimer,setShowRunPrimer] = useState(false)
+  const [showLegend,setShowLegend] = useState(false)
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [newRecord,setNewRecord] = useState<string | null>(null)
@@ -330,6 +331,7 @@ export default function App(){
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
+            <button onClick={()=>setShowLegend(true)}>Legend</button>
           </div>
         </div>
 
@@ -363,6 +365,22 @@ export default function App(){
                 <li>Target floor 10 clear, not endless score greed.</li>
               </ul>
               <button onClick={()=>setShowRunPrimer(false)}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {showLegend && (
+          <div className='dq-overlay'>
+            <div className='box'>
+              <h2 style={{marginTop:0}}>Legend</h2>
+              <ul style={{marginTop:0,paddingLeft:18}}>
+                <li>Orange brute/boss hues: heavy melee pressure.</li>
+                <li>Green enemies: ranged spitters.</li>
+                <li>Purple objects: shrine / rift-orb utility.</li>
+                <li>Cyan object: fountain reset node.</li>
+                <li>Gold object: chest/vault reward source.</li>
+              </ul>
+              <button onClick={()=>setShowLegend(false)}>Close</button>
             </div>
           </div>
         )}
