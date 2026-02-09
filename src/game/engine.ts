@@ -21,6 +21,7 @@ export class Engine{
   walls = new Set<string>()
   score = 0
   killStreak = 0
+  streakRewardClaimed = false
   attackBonus = 0
   defenseBonus = 0
   maxHp = 12
@@ -81,6 +82,7 @@ export class Engine{
     this.guardCooldown = 0
     this.guardActive = false
     this.bossCharged.clear()
+    this.streakRewardClaimed = false
     this.discovered.clear()
     this.walls = new Set<string>()
     this.generateWalls()
@@ -671,6 +673,12 @@ export class Engine{
       if(bonus > 0){
         this.score += bonus
         this.emit({tick:this.tick,type:'streak_bonus',payload:{streak:this.killStreak,bonus}})
+      }
+      if(this.killStreak >= 4 && !this.streakRewardClaimed){
+        this.streakRewardClaimed = true
+        const reward = this.rand() < 0.5 ? 'bomb' : 'blink-shard'
+        this.entities.push({id:`i${this.floor}-streak-${this.tick}`,type:'item',kind:reward as any,pos:{x:player.pos.x,y:player.pos.y}})
+        this.emit({tick:this.tick,type:'streak_reward',payload:{streak:this.killStreak,reward}})
       }
     } else {
       this.killStreak = 0

@@ -103,6 +103,7 @@ export default function App(){
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='shrine_boon') setStatus(`Shrine grants ${e.payload?.boon}.`)
       if(e.type==='streak_bonus') setStatus(`Kill streak x${e.payload?.streak}: +${e.payload?.bonus} bonus score.`)
+      if(e.type==='streak_reward') setStatus(`Streak reward! Spawned ${e.payload?.reward}.`)
       if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)
       if(e.type==='blink_used') setStatus('Blink shard warps you to safer ground.')
       if(e.type==='defeat') setStatus('Defeat.')
