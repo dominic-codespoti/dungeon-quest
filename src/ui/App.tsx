@@ -226,6 +226,7 @@ export default function App(){
         setRace(races[Math.floor(Math.random()*races.length)] || 'human')
       }
       if(ev.key==='x' || ev.key==='X') setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+      if(ev.key==='c' || ev.key==='C') setCustomSeed('')
       if(ev.key==='Enter'){
         const chosenSeed = Number(customSeed)
         navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
@@ -488,7 +489,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
-          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · X random seed · Enter start · Esc back</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · X random seed · C clear seed · Enter start · Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
