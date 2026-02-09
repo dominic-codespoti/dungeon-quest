@@ -280,7 +280,7 @@ export default function App(){
       if(ev.key==='Enter') navigate({screen:'create'})
       if(ev.key==='a' || ev.key==='A'){
         const rr = randomClassRace()
-        navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
+        launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
       }
       if(ev.key==='p' || ev.key==='P') toggleMenuModal('primer')
       if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')
@@ -328,7 +328,7 @@ export default function App(){
       if(ev.key==='c' || ev.key==='C') setCustomSeed('')
       if(ev.key==='a' || ev.key==='A'){
         const rr = randomClassRace()
-        navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
+        launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
       }
       if(ev.key==='Enter') launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})
       if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
@@ -617,7 +617,7 @@ export default function App(){
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
             <button onClick={()=>{
               const rr = randomClassRace()
-              navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
+              launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random class/race/seed'>Quick Start</button>
             {lastRun && <button onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>}
             {lastRun && <button onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G · prefill create from last run'>Last Build</button>}
@@ -781,7 +781,7 @@ export default function App(){
             <button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{
               const rr = randomClassRace()
-              navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
+              launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random build + seed and launch'>Quick Start</button>
             <button onClick={()=>launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})} title='Enter'>Start Adventure</button>
           </div>

@@ -25,6 +25,7 @@ const checks = [
   ["menu button: daily build uses create helper", "<button onClick={()=>openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='Z · prefill create from daily preset'>Daily Build</button>"],
   ["menu button: resume last uses launcher", "<button onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>"],
   ["menu tooltip: quick start intent", "title='A · random class/race/seed'"],
+  ["hotkey: A quick start uses launcher", "if(ev.key==='a' || ev.key==='A'){\n        const rr = randomClassRace()\n        launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})\n      }"],
   ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],
   ["create status: surprise feedback", "setStatus('Surprise class/race applied.')"],
