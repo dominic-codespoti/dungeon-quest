@@ -169,6 +169,8 @@ export default function App(){
     },0)
   },[snapshot])
 
+  const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
+
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
   const computeTargetTiles = (skill:TargetSkill, selectedDir:Dir)=>{
@@ -297,11 +299,12 @@ export default function App(){
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
-            <div className='dq-stat'>Danger<b>{danger}</b></div>
+            <div className='dq-stat'>Danger<b>{danger} ({dangerLabel})</b></div>
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
           <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
+          {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
