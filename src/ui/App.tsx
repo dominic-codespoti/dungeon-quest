@@ -247,7 +247,7 @@ export default function App(){
       if(ev.key==='p' || ev.key==='P') setShowRunPrimer(true)
       if(ev.key==='n' || ev.key==='N') setShowPatchNotes(true)
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
-      if(ev.key==='o' || ev.key==='O') setShowMeta(true)
+      if(ev.key==='o' || ev.key==='O') setShowMeta(v=>!v)
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if((ev.key==='u' || ev.key==='U') && lastRun) copyLastRunSeed()
