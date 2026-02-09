@@ -581,10 +581,10 @@ export default function App(){
             {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G'>Last Build</button>}
             <button onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='Z'>Daily Build</button>
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D'>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
-            <button onClick={()=>toggleMenuModal('patch')}>Patch Notes</button>
-            <button onClick={()=>toggleMenuModal('primer')}>Run Primer</button>
-            <button onClick={()=>toggleMenuModal('legend')}>Legend</button>
-            <button onClick={()=>toggleMenuModal('meta')}>Records</button>
+            <button onClick={()=>toggleMenuModal('patch')} title='N'>Patch Notes</button>
+            <button onClick={()=>toggleMenuModal('primer')} title='P / R / ?'>Run Primer</button>
+            <button onClick={()=>toggleMenuModal('legend')} title='L'>Legend</button>
+            <button onClick={()=>toggleMenuModal('meta')} title='O'>Records</button>
           </div>
         </div>
 
