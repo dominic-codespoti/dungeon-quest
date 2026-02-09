@@ -50,6 +50,7 @@ export type GameSnapshot = {
   backstepCooldown: number
   guardCooldown: number
   guardActive: boolean
+  bossCharging: number
   gameOver: boolean
   outcome?: 'victory'|'defeat'
 }

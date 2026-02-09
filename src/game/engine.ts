@@ -410,6 +410,7 @@ export class Engine{
       backstepCooldown:this.backstepCooldown,
       guardCooldown:this.guardCooldown,
       guardActive:this.guardActive,
+      bossCharging:this.bossCharged.size,
       gameOver:this.gameOver,
       ...(this.outcome ? { outcome: this.outcome } : {})
     }
