@@ -186,6 +186,13 @@ export default function App(){
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
   const bossAlive = bossCount > 0
+  const objectiveText = snapshot
+    ? (snapshot.floor >= 10
+      ? 'Use stairs to complete the run.'
+      : (isBossFloor && bossAlive
+        ? 'Defeat the boss to unseal stairs.'
+        : 'Clear threats, collect power, and push to floor 10.'))
+    : 'Initialize run...'
 
   const visibleThreats = useMemo(()=>{
     if(!snapshot) return {total:0,boss:0,spitter:0,sentinel:0,other:0}
@@ -360,6 +367,7 @@ export default function App(){
         <aside className='dq-side'>
           <h1 className='dq-title'>Dungeon Quest</h1>
           <p className='dq-sub'>{status}</p>
+          <div style={{fontSize:12,color:'#a9c8ff',marginBottom:6}}>Objective: {objectiveText}</div>
 
           <div className='dq-stats'>
             <div className='dq-stat'>Class<b>{klass}</b></div>
