@@ -9,6 +9,7 @@ const checks = [
   ["shared helper: random class/race", "function randomClassRace(){"],
   ["shared helper: apply daily preset", "const applyDailyPresetToCreate = ()=>{"],
   ["shared helper: apply last-run preset", "const applyLastRunPresetToCreate = ()=>{"],
+  ["shared helper: apply random class/race in create", "const applyRandomClassRaceToCreate = (withSeed=false)=>{"],
   ["menu hotkey: Z daily build", "if(ev.key==='z' || ev.key==='Z') navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: D daily challenge", "if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: H primer alias", "if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')"],
