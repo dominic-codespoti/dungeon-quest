@@ -615,6 +615,7 @@ export default function App(){
                 <button title='daily seed + class/race' onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Daily Preset</button>
                 <button title='J' onClick={copyDailyLink}>Copy Daily Link</button>
                 <button title='I' onClick={copyBundleLinks}>Copy Link Bundle</button>
+                {lastRun && <button title='Y' onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
