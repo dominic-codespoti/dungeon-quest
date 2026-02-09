@@ -90,6 +90,10 @@ function getDailySeed(){
   return y*10000 + m*100 + day
 }
 
+function randomSeed(){
+  return Math.floor(Math.random()*1_000_000)+1
+}
+
 function randomClassRace(){
   const classes: PlayerClass[] = ['knight','rogue']
   const races: PlayerRace[] = ['human','elf','dwarf']
@@ -271,7 +275,7 @@ export default function App(){
       if(ev.key==='Enter') navigate({screen:'create'})
       if(ev.key==='a' || ev.key==='A'){
         const rr = randomClassRace()
-        navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+        navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
       }
       if(ev.key==='p' || ev.key==='P') toggleMenuModal('primer')
       if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')
@@ -313,7 +317,7 @@ export default function App(){
         const rr = randomClassRace()
         setKlass(rr.klass)
         setRace(rr.race)
-        setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+        setCustomSeed(String(randomSeed()))
         setStatus('Rerolled class, race, and seed.')
       }
       if(ev.key==='z' || ev.key==='Z'){
@@ -330,15 +334,15 @@ export default function App(){
       }
       if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
-      if(ev.key==='x' || ev.key==='X') setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+      if(ev.key==='x' || ev.key==='X') setCustomSeed(String(randomSeed()))
       if(ev.key==='c' || ev.key==='C') setCustomSeed('')
       if(ev.key==='a' || ev.key==='A'){
         const rr = randomClassRace()
-        navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+        navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
       }
       if(ev.key==='Enter'){
         const chosenSeed = Number(customSeed)
-        navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
+        navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
       }
       if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
     }
@@ -601,7 +605,7 @@ export default function App(){
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
             <button onClick={()=>{
               const rr = randomClassRace()
-              navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+              navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random class/race/seed'>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>}
             {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G · prefill create from last run'>Last Build</button>}
@@ -744,7 +748,7 @@ export default function App(){
             <div style={{fontSize:12,marginBottom:4}}>Seed (optional)</div>
             <div style={{display:'flex',gap:8}}>
               <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
-              <button onClick={()=>setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))} title='X'>Random</button>
+              <button onClick={()=>setCustomSeed(String(randomSeed()))} title='X'>Random</button>
               <button onClick={()=>setCustomSeed('')} title='C'>Clear</button>
             </div>
           </div>
@@ -760,7 +764,7 @@ export default function App(){
               const rr = randomClassRace()
               setKlass(rr.klass)
               setRace(rr.race)
-              setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+              setCustomSeed(String(randomSeed()))
               setStatus('Rerolled class, race, and seed.')
             }} title='R'>Reroll Build+Seed</button>
             <button onClick={()=>{
@@ -779,11 +783,11 @@ export default function App(){
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{
               const rr = randomClassRace()
-              navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+              navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A'>Quick Start</button>
             <button onClick={()=>{
               const chosenSeed = Number(customSeed)
-              navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
+              navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
             }} title='Enter'>Start Adventure</button>
           </div>
         </div>
