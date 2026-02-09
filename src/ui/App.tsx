@@ -227,6 +227,7 @@ export default function App(){
   const wait = ()=> (window as any).game?.step?.({type:'wait'})
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
+  const backToMenu = ()=> navigate({screen:'menu'})
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -237,6 +238,7 @@ export default function App(){
         <div className='dq-menu-card'>
           <h1>Dungeon Quest</h1>
           <p>A tactical dungeon crawler roguelike.</p>
+          <p style={{fontSize:12,opacity:0.8}}>Run goal: clear floor 10 to win.</p>
           <button onClick={()=>navigate({screen:'create'})}>Play</button>
         </div>
       </div>
@@ -249,6 +251,7 @@ export default function App(){
         <div className='dq-menu-card'>
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
+          <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
@@ -352,7 +355,11 @@ export default function App(){
           <div className='box'>
             <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
             <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p>
-            <div style={{display:'flex', gap:8}}><button onClick={sameSeed}>Restart same seed</button><button onClick={newSeed}>New seed</button></div>
+            <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+              <button onClick={sameSeed}>Restart same seed</button>
+              <button onClick={newSeed}>New seed</button>
+              <button onClick={backToMenu}>Main menu</button>
+            </div>
           </div>
         </div>
       )}
