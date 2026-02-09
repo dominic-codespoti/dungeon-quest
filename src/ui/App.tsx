@@ -520,6 +520,7 @@ export default function App(){
             <div style={{fontSize:12,marginBottom:4}}>Seed (optional)</div>
             <div style={{display:'flex',gap:8}}>
               <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
+              <button onClick={()=>setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))}>Random</button>
               <button onClick={()=>setCustomSeed('')}>Clear</button>
             </div>
           </div>
