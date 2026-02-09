@@ -85,8 +85,10 @@ export default function App(){
   const [showHelp,setShowHelp] = useState(false)
   const [showPatchNotes,setShowPatchNotes] = useState(false)
   const [showRunPrimer,setShowRunPrimer] = useState(false)
+  const [bestScore,setBestScore] = useState<number>(0)
 
   useEffect(()=>{
+    try{ setBestScore(Number(localStorage.getItem('dq_best_score') || '0')) }catch{}
     const poll = setInterval(()=>{
       const g = (window as any).game
       if(g?.getState){
@@ -162,6 +164,15 @@ export default function App(){
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
   },[screen,targetSkill,targetDir])
+
+  useEffect(()=>{
+    if(!snapshot?.gameOver) return
+    const score = snapshot.score ?? 0
+    if(score > bestScore){
+      setBestScore(score)
+      try{ localStorage.setItem('dq_best_score', String(score)) }catch{}
+    }
+  },[snapshot?.gameOver, snapshot?.score, bestScore])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
@@ -387,6 +398,7 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>Best<b>{bestScore}</b></div>
             <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
