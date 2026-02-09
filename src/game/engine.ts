@@ -424,52 +424,63 @@ export class Engine{
 
       player.pos = nd
       if(occ?.type==='item'){
-        if(occ.kind==='potion'){
-          player.hp = Math.min(12, (player.hp||0) + 4)
-          this.score += 25
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        }
-        else if(occ.kind==='relic'){
-          this.score += 200
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        }
-        else if(occ.kind==='elixir'){
-          player.hp = Math.min(12, (player.hp||0) + 2)
-          this.dashCooldown = Math.max(0, this.dashCooldown - 1)
-          this.guardCooldown = Math.max(0, this.guardCooldown - 1)
-          this.score += 60
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,effects:['heal+2','cooldowns-1']}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        }
-        else if(occ.kind==='cursed-idol'){
-          player.hp = (player.hp||0) - 2
-          this.score += 350
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,effects:['hp-2','score+350']}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        }
-        else if(occ.kind==='gear'){
-          const gear = occ.loot
-          if(gear){
-            this.equipGear(gear, player)
-            this.score += gear.scoreValue
-            this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,gear}})
-          } else {
-            this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-          }
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        }
-        else if(occ.kind==='stairs'){
-          this.score += 150 + this.floor * 25
-          this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
-          this.floor += 1
-          this.setupFloor(false)
-          return {changedFloor:true,stopped:true}
-        }
+        this.emit({tick:this.tick,type:'item_here',payload:{id:occ.id,kind:occ.kind,used:!!occ.used}})
       }
       this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:moveType}})
       return {changedFloor:false,stopped:false}
+    }
+
+    const interactAtPlayer = (): {changedFloor:boolean} => {
+      const item = this.entities.find(e=>e.type==='item' && e.pos.x===player.pos.x && e.pos.y===player.pos.y)
+      if(!item){
+        this.emit({tick:this.tick,type:'interact_none'})
+        return {changedFloor:false}
+      }
+      if(item.used && item.kind!=='stairs'){
+        this.emit({tick:this.tick,type:'interact_spent',payload:{id:item.id,kind:item.kind}})
+        return {changedFloor:false}
+      }
+
+      if(item.kind==='potion'){
+        player.hp = Math.min(12, (player.hp||0) + 4)
+        this.score += 25
+        item.used = true
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+      } else if(item.kind==='relic'){
+        this.score += 200
+        item.used = true
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+      } else if(item.kind==='elixir'){
+        player.hp = Math.min(12, (player.hp||0) + 2)
+        this.dashCooldown = Math.max(0, this.dashCooldown - 1)
+        this.guardCooldown = Math.max(0, this.guardCooldown - 1)
+        this.score += 60
+        item.used = true
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['heal+2','cooldowns-1'],used:true}})
+      } else if(item.kind==='cursed-idol'){
+        player.hp = (player.hp||0) - 2
+        this.score += 350
+        item.used = true
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['hp-2','score+350'],used:true}})
+      } else if(item.kind==='gear'){
+        const gear = item.loot
+        if(gear){
+          this.equipGear(gear, player)
+          this.score += gear.scoreValue
+          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,gear,used:true}})
+        } else {
+          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+        }
+        item.used = true
+      } else if(item.kind==='stairs'){
+        this.score += 150 + this.floor * 25
+        this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
+        this.floor += 1
+        this.setupFloor(false)
+        return {changedFloor:true}
+      }
+
+      return {changedFloor:false}
     }
 
     if(action.type==='move'){
@@ -514,6 +525,9 @@ export class Engine{
           }
         }
       }
+    } else if(action.type==='interact'){
+      const res = interactAtPlayer()
+      if(res.changedFloor) return this.getState()
     } else {
       this.emit({tick:this.tick,type:'wait'})
     }

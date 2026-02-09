@@ -65,6 +65,7 @@ export default function App(){
       if(ev.shiftKey && (ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A')) g.step({type:'dash',dir:'left'})
       if(ev.shiftKey && (ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D')) g.step({type:'dash',dir:'right'})
       if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})
+      if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
     }
     window.addEventListener('keydown', onKey)
@@ -120,7 +121,7 @@ export default function App(){
           <div className='dq-controls'>
             <button onClick={()=>move('up')}>↑</button><button onClick={()=>move('left')}>←</button>
             <button onClick={()=>move('down')}>↓</button><button onClick={()=>move('right')}>→</button>
-            <button onClick={wait}>Wait</button><button onClick={newSeed}>New Run</button>
+            <button onClick={wait}>Wait</button><button onClick={()=>(window as any).game?.step?.({type:'interact'})}>Interact (E)</button><button onClick={newSeed}>New Run</button>
           </div>
 
           <div className='dq-skillrow'>

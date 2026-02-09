@@ -46,9 +46,12 @@ function shortestFirstStep(state, start, goal){
 function chooseAction(state){
   const p = state.entities.find(e=>e.id==='p')
   const monsters = state.entities.filter(e=>e.type==='monster')
-  const stairs = state.entities.find(e=>e.type==='item' && e.kind==='stairs')
-  const potion = state.entities.find(e=>e.type==='item' && e.kind==='potion')
-  const gear = state.entities.filter(e=>e.type==='item' && e.kind==='gear')
+  const stairs = state.entities.find(e=>e.type==='item' && e.kind==='stairs' && !e.used)
+  const potion = state.entities.find(e=>e.type==='item' && e.kind==='potion' && !e.used)
+  const gear = state.entities.filter(e=>e.type==='item' && e.kind==='gear' && !e.used)
+
+  const standingItem = state.entities.find(e=>e.type==='item' && e.pos.x===p.pos.x && e.pos.y===p.pos.y && !e.used)
+  if(standingItem) return {type:'interact'}
 
   if(state.playerClass==='knight'){
     if((p.hp||0)<=5 && (state.guardCooldown||0)===0) return {type:'guard'}

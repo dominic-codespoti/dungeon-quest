@@ -23,6 +23,7 @@ export type Entity = {
   pos: Coord
   hp?: number
   loot?: GeneratedItem
+  used?: boolean
 }
 
 export type GameSnapshot = {
@@ -52,6 +53,7 @@ export type PlayerAction =
   | {type:'dash',dir: 'up'|'down'|'left'|'right'}
   | {type:'guard'}
   | {type:'bash',dir:'up'|'down'|'left'|'right'}
+  | {type:'interact'}
   | {type:'wait'}
 
 export type GameEvent = {
