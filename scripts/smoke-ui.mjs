@@ -43,6 +43,7 @@ const checks = [
   ["records button: play daily uses launcher", "title='D · launch daily challenge immediately from records' onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}"],
   ["records tooltip: play daily intent", "title='D · launch daily challenge immediately from records'"],
   ["records action: open daily in create", ">Open Daily in Create</button>"],
+  ["records button: resume-last uses launcher", "{lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}"],
   ["records hint strip", "Quick keys:"],
 ]
 
