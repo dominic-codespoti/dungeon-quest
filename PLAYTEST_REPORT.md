@@ -104,8 +104,30 @@ Interpretation:
 - Local browser session loaded an empty document body (`<body></body>`), and live Pages still showed asset mismatch 404 in prior checks.
 - Continued with deterministic automated playtest + compile/build validation while the browser serving issue is unresolved.
 
+## Follow-up Pass — Floor Modifiers + Spawn Pacing
+Implemented in this pass:
+- Added rotating floor modifiers:
+  - `swarm` (more total mobs, lighter wall density)
+  - `brute-heavy` (higher brute mix)
+  - `scarce-potions` (healing pressure)
+  - `none` baseline floors
+- Added spawn pacing guard via **threat budget cap** per floor to avoid runaway spike spawns.
+- Smoothed base monster ramp and potion allocation rules.
+- Surfaced modifier in HUD and floor transition text.
+
+### Updated automated playtest (8 seeded runs)
+- Average floor reached: **2.13**
+- Average score: **1141** (up from 1059)
+- Max floor: **3**
+- Defeats: **7/8**
+
+Interpretation:
+- Variety improved: runs now have clearer identity floor-to-floor.
+- Score progression improved without raising average floor yet.
+- Difficulty remains harsh; major survivability spikes still occur on unlucky aggro patterns.
+
 ## Suggested next changes
-1. Add **floor modifiers** every 2 floors (e.g., “Brute-heavy”, “Low potion”).
-2. Add **spawn pacing guards** to reduce extreme spike floors.
-3. Tune dash with **i-frames or knockback** to improve survivability feel.
+1. Tune dash with **1-turn brief i-frames or knockback** to convert skillful use into survival gains.
+2. Add **adaptive potion pity rule** (e.g., guaranteed potion on next floor after low-HP finish).
+3. Add **telegraphed elite turns** for brute-heavy floors to increase fairness.
 4. Fix deployment/runtime serving path so headed browser playtests can be consistently executed.

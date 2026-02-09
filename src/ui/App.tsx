@@ -5,6 +5,7 @@ import GameMount from './GameMount'
 type Snapshot = {
   tick:number
   floor:number
+  floorModifier?: string
   score:number
   dashCooldown:number
   gameOver:boolean
@@ -34,7 +35,7 @@ export default function App(){
       if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
       if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
       if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
-      if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} — enemies are getting tougher.`)
+      if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} (${e.payload?.modifier || 'none'}) — enemies are getting tougher.`)
       if(e.type==='dash_used') setStatus('💨 Dash! Repositioning with momentum.')
       if(e.type==='dash_blocked') setStatus(`⏳ Dash recharging (${e.payload?.cooldown})`)
     })
@@ -73,6 +74,7 @@ export default function App(){
       <div style={{display:'flex',gap:12,marginBottom:8,flexWrap:'wrap'}}>
         <strong>Seed: {seed ?? '-'}</strong>
         <strong>Floor: {snapshot?.floor ?? '-'}</strong>
+        <strong>Modifier: {snapshot?.floorModifier ?? 'none'}</strong>
         <strong>HP: {String(playerHp)}</strong>
         <strong>Monsters: {String(monstersLeft)}</strong>
         <strong>Tick: {snapshot?.tick ?? '-'}</strong>

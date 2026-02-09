@@ -11,6 +11,7 @@ export type Entity = {
 export type GameSnapshot = {
   tick: number
   floor: number
+  floorModifier?: string
   width: number
   height: number
   walls: Coord[]

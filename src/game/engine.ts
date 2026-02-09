@@ -11,6 +11,7 @@ const key = (p:Coord)=> `${p.x},${p.y}`
 export class Engine{
   tick = 0
   floor = 1
+  floorModifier: 'none'|'brute-heavy'|'swarm'|'scarce-potions' = 'none'
   width:number
   height:number
   entities: Entity[] = []
@@ -33,36 +34,62 @@ export class Engine{
     const currentHp = this.entities.find(e=>e.id==='p')?.hp ?? 12
     const preservedHp = initial ? 12 : Math.min(12, currentHp + 1)
 
+    this.floorModifier = this.getModifierForFloor(this.floor)
+
     this.entities = [{id:'p',type:'player',pos:{x:Math.floor(this.width/2),y:Math.floor(this.height/2)},hp:preservedHp}]
     this.dashCooldown = 0
     this.walls = new Set<string>()
     this.generateWalls()
 
     const baseCount = 4
-    const monsterCount = Math.min(10, baseCount + (this.floor - 1) * 2)
+    const scaledCount = baseCount + Math.floor((this.floor - 1) * 1.5)
+    const monsterCount = Math.min(12, scaledCount + (this.floorModifier==='swarm' ? 2 : 0))
+
+    const threatCap = 8 + this.floor * 1.8
+    let threat = 0
+
     for(let i=0;i<monsterCount;i++){
-      const pick = this.rand()
-      const kind = pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
+      const kind = this.rollMonsterKind()
       const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
+      const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : 1.2
+      if(i>1 && threat + cost > threatCap) continue
       this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp)
+      threat += cost
     }
 
-    this.spawnItem(`i${this.floor}-p1`,'potion')
+    const potionCount = this.floorModifier==='scarce-potions' ? 0 : this.floor>=4 ? 2 : 1
+    for(let i=0;i<potionCount;i++) this.spawnItem(`i${this.floor}-p${i+1}`,'potion')
     this.spawnItem(`i${this.floor}-r1`,'relic')
 
     if(!initial){
-      this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor}})
+      this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
     }
     this.emit({
       tick:this.tick,
       type:'init',
-      payload:{floor:this.floor,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
+      payload:{floor:this.floor,modifier:this.floorModifier,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
     })
+  }
+
+  private getModifierForFloor(floor:number): 'none'|'brute-heavy'|'swarm'|'scarce-potions' {
+    if(floor < 2) return 'none'
+    if(floor % 4 === 0) return 'brute-heavy'
+    if(floor % 3 === 0) return 'scarce-potions'
+    if(floor % 2 === 0) return 'swarm'
+    return 'none'
+  }
+
+  private rollMonsterKind(): 'chaser'|'brute'|'skitter' {
+    const pick = this.rand()
+    if(this.floorModifier==='brute-heavy') return pick < 0.45 ? 'brute' : pick < 0.75 ? 'chaser' : 'skitter'
+    if(this.floorModifier==='swarm') return pick < 0.2 ? 'brute' : pick < 0.5 ? 'chaser' : 'skitter'
+    return pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
   }
 
   private generateWalls(){
     const center = {x:Math.floor(this.width/2), y:Math.floor(this.height/2)}
-    const density = Math.min(0.2, 0.1 + (this.floor - 1) * 0.015)
+    const densityBoost = this.floorModifier==='swarm' ? -0.01 : this.floorModifier==='brute-heavy' ? 0.015 : 0
+    const density = Math.min(0.22, Math.max(0.08, 0.1 + (this.floor - 1) * 0.012 + densityBoost))
     for(let y=0; y<this.height; y++){
       for(let x=0; x<this.width; x++){
         const isBorder = x===0 || y===0 || x===this.width-1 || y===this.height-1
@@ -178,6 +205,7 @@ export class Engine{
     return {
       tick:this.tick,
       floor:this.floor,
+      floorModifier:this.floorModifier,
       width:this.width,
       height:this.height,
       walls:this.getWalls(),
