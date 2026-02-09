@@ -76,6 +76,9 @@ function getRaceFromUrl(): Race {
   if(r==='elf' || r==='dwarf') return r
   return 'human'
 }
+function getFloatNumbersFromUrl(){
+  return getParams().get('float') !== '0'
+}
 function navigate(patch: Record<string,string|number|undefined>){
   const u = new URL(window.location.href)
   Object.entries(patch).forEach(([k,v])=>{ if(v===undefined) u.searchParams.delete(k); else u.searchParams.set(k, String(v)) })
@@ -166,6 +169,7 @@ export default function App(){
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace,efficiency?:number}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
+  const floatingNumbers = getFloatNumbersFromUrl()
 
   useEffect(()=>{
     try{
@@ -298,11 +302,12 @@ export default function App(){
       if(ev.key==='j' || ev.key==='J') copyDailyLink()
       if(ev.key==='k' || ev.key==='K') copyProfileSummary()
       if(ev.key==='v' || ev.key==='V') copyDailyPreset()
+      if(ev.key==='f' || ev.key==='F') toggleFloatingNumbers()
       if(ev.key==='Escape') closeMenuModals()
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
-  },[screen,lastRun])
+  },[screen,lastRun,floatingNumbers])
 
   useEffect(()=>{
     if(screen!=='create') return
@@ -477,6 +482,7 @@ export default function App(){
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
+  const toggleFloatingNumbers = ()=> navigate({float: floatingNumbers ? 0 : 1})
   const resetRecords = ()=>{
     setBestScore(0)
     setBestFloor(0)
@@ -613,7 +619,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links · J Copy Daily Link · K Copy Profile · P/R/H/? Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links · J Copy Daily Link · K Copy Profile · F Toggle Damage Numbers · P/R/H/? Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
@@ -632,6 +638,7 @@ export default function App(){
             {lastRun && <button onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G · prefill create from last run'>Last Build</button>}
             <button onClick={()=>openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='Z · prefill create from daily preset'>Daily Build</button>
             <button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily challenge now'>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
+            <button onClick={toggleFloatingNumbers} title='F'>Damage Numbers: {floatingNumbers ? 'On' : 'Off'}</button>
             <button onClick={()=>toggleMenuModal('patch')} title='N'>Patch Notes</button>
             <button onClick={()=>toggleMenuModal('primer')} title='P / R / H / ?'>Run Primer</button>
             <button onClick={()=>toggleMenuModal('legend')} title='L'>Legend</button>

@@ -25,6 +25,10 @@ function getRaceFromUrl(): PlayerRace {
   return r==='elf' || r==='dwarf' ? r : 'human'
 }
 
+function getFloatNumbersFromUrl(){
+  return new URLSearchParams(window.location.search).get('float') !== '0'
+}
+
 function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
   const u = new URL(window.location.href)
   u.searchParams.set('seed', String(seed))
@@ -43,6 +47,7 @@ export default function GameMount(){
       const seed = getSeedFromUrl()
       const klass = getClassFromUrl()
       const race = getRaceFromUrl()
+      const showDamageNumbers = getFloatNumbersFromUrl()
       const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
@@ -280,8 +285,10 @@ export default function GameMount(){
               if(bossBarBg && bossBarFill && bossBarText){
                 const w = bossBarBg.width
                 const ratio = Math.max(0, Math.min(1, activeBoss.hp / Math.max(1, activeBoss.maxHp)))
+                const phase = ratio > 0.66 ? 'PHASE I' : ratio > 0.33 ? 'PHASE II' : 'PHASE III'
                 bossBarFill.width = Math.max(2, (w-4) * ratio)
-                bossBarText.setText(`${String(activeBoss.kind || 'Boss').toUpperCase()}  ${activeBoss.hp}/${activeBoss.maxHp}`)
+                bossBarFill.fillColor = ratio > 0.66 ? 0xb23a3a : ratio > 0.33 ? 0xcf6c2f : 0xe0b03d
+                bossBarText.setText(`${String(activeBoss.kind || 'Boss').toUpperCase()} · ${phase}  ${activeBoss.hp}/${activeBoss.maxHp}`)
               }
             } else {
               clearBossBar()
@@ -369,7 +376,7 @@ export default function GameMount(){
               if(target){
                 sc.tweens.add({targets:target,scale:1.22,duration:70,yoyo:true})
                 const to = {x: Math.floor(target.x/tileSize), y: Math.floor(target.y/tileSize)}
-                if(Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')
+                if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')
               }
               if(e.payload.target==='p') flashDamage()
             } else if(e.type==='boss_charge'){

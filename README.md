@@ -38,6 +38,7 @@ If `git push` intermittently fails/hangs (observed as transient GitHub 500s or s
 - `D` Daily Challenge (immediate launch)
 - `U` Copy Last Run Seed
 - `V` Copy Daily Preset (`seed class/race`)
+- `F` Toggle floating damage numbers
 - `I` Copy Link Bundle
 - `J` Copy Daily Link
 - `K` Copy Profile Summary
