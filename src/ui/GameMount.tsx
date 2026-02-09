@@ -80,6 +80,7 @@ export default function GameMount(){
           let fogGraphics: any
           let flashOverlay: any
           let targetingGraphics: any
+          let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
           function toScreen(pos:{x:number,y:number}){ return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2} }
@@ -174,6 +175,19 @@ export default function GameMount(){
             bossBarBg = undefined
             bossBarFill = undefined
             bossBarText = undefined
+          }
+
+          function showBossIntro(title:string){
+            const t = sc.add.text(sc.scale.width/2, 48, title, {
+              fontFamily:'monospace',
+              fontSize:'20px',
+              color:'#ffd9d9',
+              stroke:'#120f0f',
+              strokeThickness:4
+            }).setOrigin(0.5).setDepth(930)
+            t.setAlpha(0)
+            sc.tweens.add({targets:t, alpha:1, y:t.y+4, duration:180, yoyo:true, hold:520, onComplete:()=>t.destroy()})
+            try{ sc.cameras.main.shake(90, 0.0025) }catch{}
           }
 
           function paintFog(){
@@ -281,6 +295,10 @@ export default function GameMount(){
             })
 
             if(activeBoss && Number.isFinite(activeBoss.hp) && Number.isFinite(activeBoss.maxHp) && activeBoss.maxHp>0){
+              if(bossIntroForId !== String(activeBoss.id)){
+                bossIntroForId = String(activeBoss.id)
+                showBossIntro('BOSS ENCOUNTER')
+              }
               ensureBossBar()
               if(bossBarBg && bossBarFill && bossBarText){
                 const w = bossBarBg.width
@@ -291,6 +309,7 @@ export default function GameMount(){
                 bossBarText.setText(`${String(activeBoss.kind || 'Boss').toUpperCase()} · ${phase}  ${activeBoss.hp}/${activeBoss.maxHp}`)
               }
             } else {
+              bossIntroForId = null
               clearBossBar()
             }
 
