@@ -677,7 +677,7 @@ export default function App(){
           </div>
 
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
-            <button onClick={()=>navigate({screen:'menu'})}>Back</button>
+            <button onClick={()=>navigate({screen:'menu'})} title='Esc'>Back</button>
             <button onClick={()=>{
               const classes: PlayerClass[] = ['knight','rogue']
               const races: PlayerRace[] = ['human','elf','dwarf']
@@ -685,23 +685,23 @@ export default function App(){
               const r = races[Math.floor(Math.random()*races.length)] || 'human'
               setKlass(c)
               setRace(r)
-            }}>Surprise Me</button>
+            }} title='S'>Surprise Me</button>
             <button onClick={()=>{
               setKlass(dailyPreset.klass)
               setRace(dailyPreset.race)
               setCustomSeed(String(dailyPreset.seed))
-            }}>Use Daily Preset</button>
+            }} title='Z'>Use Daily Preset</button>
             <button onClick={()=>{
               const classes: PlayerClass[] = ['knight','rogue']
               const races: PlayerRace[] = ['human','elf','dwarf']
               const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
               const r = races[Math.floor(Math.random()*races.length)] || 'human'
               navigate({screen:'game', class:c, race:r, seed:Math.floor(Math.random()*1_000_000)+1})
-            }}>Quick Start</button>
+            }} title='A'>Quick Start</button>
             <button onClick={()=>{
               const chosenSeed = Number(customSeed)
               navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
-            }}>Start Adventure</button>
+            }} title='Enter'>Start Adventure</button>
           </div>
         </div>
       </div>
