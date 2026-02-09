@@ -320,18 +320,8 @@ export default function App(){
         setCustomSeed(String(randomSeed()))
         setStatus('Rerolled class, race, and seed.')
       }
-      if(ev.key==='z' || ev.key==='Z'){
-        setKlass(dailyPreset.klass)
-        setRace(dailyPreset.race)
-        setCustomSeed(String(dailyPreset.seed))
-        setStatus('Daily preset loaded into creation.')
-      }
-      if((ev.key==='y' || ev.key==='Y') && lastRun){
-        setKlass(lastRun.klass)
-        setRace(lastRun.race)
-        setCustomSeed(String(lastRun.seed))
-        setStatus('Last-run preset loaded into creation.')
-      }
+      if(ev.key==='z' || ev.key==='Z') applyDailyPresetToCreate()
+      if((ev.key==='y' || ev.key==='Y') && lastRun) applyLastRunPresetToCreate()
       if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
       if(ev.key==='x' || ev.key==='X') setCustomSeed(String(randomSeed()))
@@ -546,6 +536,19 @@ export default function App(){
   }
   const copyDailyPreset = async ()=>{
     try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{}
+  }
+  const applyDailyPresetToCreate = ()=>{
+    setKlass(dailyPreset.klass)
+    setRace(dailyPreset.race)
+    setCustomSeed(String(dailyPreset.seed))
+    setStatus('Daily preset loaded into creation.')
+  }
+  const applyLastRunPresetToCreate = ()=>{
+    if(!lastRun) return
+    setKlass(lastRun.klass)
+    setRace(lastRun.race)
+    setCustomSeed(String(lastRun.seed))
+    setStatus('Last-run preset loaded into creation.')
   }
   const copyDailyLink = async ()=>{
     const u = new URL(window.location.href)
@@ -767,18 +770,8 @@ export default function App(){
               setCustomSeed(String(randomSeed()))
               setStatus('Rerolled class, race, and seed.')
             }} title='R'>Reroll Build+Seed</button>
-            <button onClick={()=>{
-              setKlass(dailyPreset.klass)
-              setRace(dailyPreset.race)
-              setCustomSeed(String(dailyPreset.seed))
-              setStatus('Daily preset loaded into creation.')
-            }} title='Z'>Use Daily Preset</button>
-            {lastRun && <button onClick={()=>{
-              setKlass(lastRun.klass)
-              setRace(lastRun.race)
-              setCustomSeed(String(lastRun.seed))
-              setStatus('Last-run preset loaded into creation.')
-            }} title='Y'>Use Last Run Preset</button>}
+            <button onClick={applyDailyPresetToCreate} title='Z'>Use Daily Preset</button>
+            {lastRun && <button onClick={applyLastRunPresetToCreate} title='Y'>Use Last Run Preset</button>}
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{

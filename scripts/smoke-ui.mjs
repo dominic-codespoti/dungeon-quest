@@ -23,7 +23,7 @@ const checks = [
   ["create tooltip: quickstart intent", "title='A · random build + seed and launch'"],
   ["create hint: back alias shown", "B/Esc back"],
   ["create button tooltip: back alias", "title='B / Esc'>Back</button>"],
-  ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun){"],
+  ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun) applyLastRunPresetToCreate()"],
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["create hotkey: B back to menu", "if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})"],
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
