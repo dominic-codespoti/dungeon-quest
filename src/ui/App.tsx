@@ -525,6 +525,7 @@ export default function App(){
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Preset</button>
             <button style={{fontSize:10}} onClick={copyDailyLink}>Copy Link</button>
+            <button style={{fontSize:10}} onClick={copyBundleLinks}>Copy Bundle</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
