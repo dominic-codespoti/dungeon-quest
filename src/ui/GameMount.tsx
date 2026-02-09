@@ -88,6 +88,7 @@ export default function GameMount(){
             if(ent.kind==='bomb') return TEX_KEYS.relic
             if(ent.kind==='blink-shard') return TEX_KEYS.gear
             if(ent.kind==='chest') return TEX_KEYS.relic
+            if(ent.kind==='shrine') return TEX_KEYS.idol
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -163,6 +164,7 @@ export default function GameMount(){
               d.clearTint()
               if(ent.kind==='boss') d.setTint(0xff8a66)
               if(ent.kind==='chest') d.setTint(0xffd36b)
+              if(ent.kind==='shrine') d.setTint(0x9a77ff)
             })
             drawTargeting()
           }
@@ -197,6 +199,7 @@ export default function GameMount(){
               s.setDisplaySize(tileSize-2, tileSize-2)
               if(ent.kind==='boss') s.setTint(0xff8a66)
               if(ent.kind==='chest') s.setTint(0xffd36b)
+              if(ent.kind==='shrine') s.setTint(0x9a77ff)
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })

@@ -117,6 +117,7 @@ export class Engine{
     if(this.floor >= 2 && this.rand() < 0.45) this.spawnItem(`i${this.floor}-b1`,'bomb')
     if(this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-s1`,'blink-shard')
     if(this.floor >= 3 && this.rand() < 0.25) this.spawnItem(`i${this.floor}-c2`,'chest')
+    if(this.floor >= 4 && this.rand() < 0.22) this.spawnItem(`i${this.floor}-h1`,'shrine')
 
     // Generated gear system (item classes + rarity + enchantments)
     const gearDrops = this.floor >= 2 ? 2 : 1
@@ -306,7 +307,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -571,6 +572,15 @@ export class Engine{
         this.spawnItem(`i${this.floor}-chest-drop-${this.tick}`, drop as any)
         this.score += 90
         this.emit({tick:this.tick,type:'chest_opened',payload:{drop}})
+      } else if(item.kind==='shrine'){
+        const r = this.rand()
+        let boon: 'might'|'guarding'|'vigor' = 'might'
+        if(r < 0.34){ this.attackBonus += 1; boon = 'might' }
+        else if(r < 0.67){ this.defenseBonus += 1; boon = 'guarding' }
+        else { this.maxHp += 1; player.hp = Math.min(this.maxHp, (player.hp||0) + 1); boon = 'vigor' }
+        this.score += 120
+        this.emit({tick:this.tick,type:'shrine_boon',payload:{boon,attackBonus:this.attackBonus,defenseBonus:this.defenseBonus,maxHp:this.maxHp}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25
         this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
