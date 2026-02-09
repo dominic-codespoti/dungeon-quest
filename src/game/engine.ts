@@ -115,6 +115,7 @@ export class Engine{
     if(this.floor % 2 === 0) this.spawnItem(`i${this.floor}-e1`,'elixir')
     if(this.floor >= 3 && this.rand() < 0.5) this.spawnItem(`i${this.floor}-c1`,'cursed-idol')
     if(this.floor >= 2 && this.rand() < 0.45) this.spawnItem(`i${this.floor}-b1`,'bomb')
+    if(this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-s1`,'blink-shard')
 
     // Generated gear system (item classes + rarity + enchantments)
     const gearDrops = this.floor >= 2 ? 2 : 1
@@ -304,7 +305,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -533,6 +534,24 @@ export class Engine{
         }
         this.score += 40 + hits*25
         this.emit({tick:this.tick,type:'bomb_blast',payload:{at:player.pos,hits}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='blink-shard'){
+        const from = {x:player.pos.x,y:player.pos.y}
+        const candidates: Coord[] = []
+        for(let y=Math.max(0,from.y-4); y<=Math.min(this.height-1,from.y+4); y++){
+          for(let x=Math.max(0,from.x-4); x<=Math.min(this.width-1,from.x+4); x++){
+            const p = {x,y}
+            const dist = Math.abs(from.x-x)+Math.abs(from.y-y)
+            if(dist < 3) continue
+            if(this.isWall(p)) continue
+            if(this.entities.some(e=>e.id!=='p' && e.pos.x===x && e.pos.y===y)) continue
+            candidates.push(p)
+          }
+        }
+        const to = candidates.length ? candidates[Math.floor(this.rand()*candidates.length)]! : from
+        player.pos = to
+        this.score += 70
+        this.emit({tick:this.tick,type:'blink_used',payload:{from,to}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25

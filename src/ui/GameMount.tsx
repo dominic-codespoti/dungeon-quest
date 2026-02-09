@@ -86,6 +86,7 @@ export default function GameMount(){
             if(ent.kind==='relic') return TEX_KEYS.relic
             if(ent.kind==='potion' || ent.kind==='elixir') return TEX_KEYS.potion
             if(ent.kind==='bomb') return TEX_KEYS.relic
+            if(ent.kind==='blink-shard') return TEX_KEYS.gear
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -241,6 +242,17 @@ export default function GameMount(){
             } else if(e.type==='bomb_blast'){
               fxBurstAt(e.payload?.at || {x:0,y:0}, 0xffb84d)
               try{ sc.cameras.main.shake(120, 0.004) }catch{}
+            } else if(e.type==='blink_used'){
+              const p = displays['p']
+              const to = e.payload?.to
+              if(p && to){
+                const sp = toScreen(to)
+                fxBurstAt(e.payload?.from || to, 0x88aaff)
+                p.setAlpha(0.35)
+                p.setPosition(sp.x, sp.y)
+                sc.tweens.add({targets:p, alpha:1, duration:120})
+                fxBurstAt(to, 0xbad0ff)
+              }
             } else if(e.type==='pickup'){
               const st = (window as any).game?.getState?.()
               const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
