@@ -441,9 +441,17 @@ export default function App(){
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
           <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
-          <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {getDailySeed()}</span>
-            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy</button>
+            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
+            <button style={{fontSize:10}} onClick={async()=>{
+              const u = new URL(window.location.href)
+              u.searchParams.set('screen','game')
+              u.searchParams.set('seed', String(getDailySeed()))
+              u.searchParams.set('class','knight')
+              u.searchParams.set('race','human')
+              try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
+            }}>Copy Link</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
