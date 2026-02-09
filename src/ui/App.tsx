@@ -486,7 +486,7 @@ export default function App(){
         <div className='dq-overlay'>
           <div className='box'>
             <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
-            <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p>
+            <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p><p>Efficiency: <b>{snapshot.tick>0 ? (snapshot.score/Math.max(1,snapshot.tick)).toFixed(1) : '0.0'} score/turn</b></p>
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               <button onClick={sameSeed}>Restart same seed</button>
               <button onClick={newSeed}>New seed</button>
