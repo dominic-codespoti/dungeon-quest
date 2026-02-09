@@ -54,18 +54,46 @@ export default function GameMount(){
 
           const displays: Record<string, any> = {}
           const wallDisplays: Record<string, any> = {}
+          const floorDisplays: Record<string, any> = {}
           let fogGraphics: any
+          let flashOverlay: any
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
           function toScreen(pos:{x:number,y:number}){ return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2} }
+
+          function ensureFlashOverlay(){
+            if(flashOverlay) return
+            flashOverlay = sc.add.rectangle(sc.scale.width/2, sc.scale.height/2, sc.scale.width, sc.scale.height, 0xff3355, 0).setDepth(999)
+          }
+
+          function flashDamage(){
+            ensureFlashOverlay()
+            flashOverlay.setAlpha(0.28)
+            sc.tweens.add({targets:flashOverlay, alpha:0, duration:140, ease:'Cubic.Out'})
+            try{ sc.cameras.main.shake(90, 0.003) }catch{}
+          }
+
+          function fxBurstAt(pos:Coord, color=0xffffff){
+            const p = toScreen(pos)
+            const c = sc.add.circle(p.x, p.y, Math.max(2, tileSize*0.22), color, 0.9)
+            c.setDepth(200)
+            sc.tweens.add({targets:c, scale:2.2, alpha:0, duration:180, onComplete:()=>c.destroy()})
+          }
+
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
-            fogGraphics.fillStyle(0x000000, 0.75)
+            fogGraphics.fillStyle(0x000000, 0.84)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
+
             const p = toScreen(playerPos)
+            // soft edge: erase large then inner circles for smoother falloff
             fogGraphics.fillStyle(0x000000, 0)
-            fogGraphics.fillCircle(p.x, p.y, tileSize * 4.4)
+            fogGraphics.fillCircle(p.x, p.y, tileSize * 5.2)
+            fogGraphics.fillStyle(0x000000, 0.08)
+            fogGraphics.fillCircle(p.x, p.y, tileSize * 4.5)
+            fogGraphics.fillStyle(0x000000, 0.15)
+            fogGraphics.fillCircle(p.x, p.y, tileSize * 3.8)
           }
 
           function applyVision(){
@@ -74,9 +102,15 @@ export default function GameMount(){
             const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
             const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
+            Object.keys(floorDisplays).forEach(k=>{
+              if(vis.has(k)) floorDisplays[k].setAlpha(0.9)
+              else if(seen.has(k)) floorDisplays[k].setAlpha(0.23)
+              else floorDisplays[k].setAlpha(0)
+            })
+
             Object.keys(wallDisplays).forEach(k=>{
               if(vis.has(k)) wallDisplays[k].setAlpha(1)
-              else if(seen.has(k)) wallDisplays[k].setAlpha(0.28)
+              else if(seen.has(k)) wallDisplays[k].setAlpha(0.32)
               else wallDisplays[k].setAlpha(0)
             })
 
@@ -89,61 +123,89 @@ export default function GameMount(){
             })
           }
 
+          function rebuildMapAndEntities(payload:any){
+            Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
+            Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
+            Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].destroy() }catch{}; delete floorDisplays[k] })
+            if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
+
+            const wallSet = new Set((payload.walls||[]).map((w:any)=>`${w.x},${w.y}`))
+            for(let y=0;y<eng.height;y++){
+              for(let x=0;x<eng.width;x++){
+                const k = `${x},${y}`
+                const p = toScreen({x,y})
+                if(wallSet.has(k)){
+                  wallDisplays[k] = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
+                } else {
+                  floorDisplays[k] = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1d2742).setOrigin(0.5)
+                }
+              }
+            }
+
+            ;(payload.entities||[]).forEach((ent:any)=>{
+              const p = toScreen(ent.pos)
+              const color = ent.type==='player'
+                ? 0x00ff88
+                : ent.type==='monster'
+                  ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff3355)
+                  : ent.kind==='stairs'
+                    ? 0xaa66ff
+                    : ent.kind==='relic'
+                      ? 0x00ffff
+                      : ent.kind==='elixir'
+                        ? 0xaaff66
+                        : ent.kind==='cursed-idol'
+                          ? 0xaa33aa
+                          : ent.kind==='gear'
+                            ? 0xffd166
+                            : 0x4488ff
+              const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
+              displays[ent.id] = r
+              if(ent.id==='p') playerPos = ent.pos
+            })
+
+            fogGraphics = sc.add.graphics().setDepth(500)
+            paintFog()
+            applyVision()
+          }
+
           const handler = (e:any)=>{
             if(e.type==='init'){
-              Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
-              Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
-              if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
-
-              ;(e.payload.walls||[]).forEach((w:any)=>{
-                const p = toScreen(w)
-                const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
-                wallDisplays[`${w.x},${w.y}`] = wall
-              })
-
-              ;(e.payload.entities||[]).forEach((ent:any)=>{
-                const p = toScreen(ent.pos)
-                const color = ent.type==='player'
-                  ? 0x00ff00
-                  : ent.type==='monster'
-                    ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff0000)
-                    : ent.kind==='stairs'
-                      ? 0xaa66ff
-                      : ent.kind==='relic'
-                        ? 0x00ffff
-                        : ent.kind==='elixir'
-                          ? 0xaaff66
-                          : ent.kind==='cursed-idol'
-                            ? 0xaa33aa
-                            : ent.kind==='gear'
-                              ? 0xffd166
-                              : 0x4488ff
-                const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
-                displays[ent.id] = r
-                if(ent.id==='p') playerPos = ent.pos
-              })
-
-              fogGraphics = sc.add.graphics()
-              paintFog()
-              applyVision()
+              rebuildMapAndEntities(e.payload || {})
             } else if(e.type==='move'){
               const id = e.payload.id
               const to = e.payload.to
               const d = displays[id]
               if(d){
                 const p = toScreen(to)
-                sc.tweens.add({targets:d,x:p.x,y:p.y,duration:120,ease:'Linear'})
+                sc.tweens.add({targets:d,x:p.x,y:p.y,duration:100,ease:'Quad.Out'})
               }
               if(id==='p'){ playerPos = to; paintFog() }
               applyVision()
             } else if(e.type==='die'){
               const id = e.payload.id
               const d = displays[id]
-              if(d){ d.destroy(); delete displays[id] }
+              if(d){
+                sc.tweens.add({targets:d, scale:0.1, alpha:0, duration:120, onComplete:()=>{ d.destroy(); delete displays[id] }})
+              }
+              if(d?.x!=null && d?.y!=null) fxBurstAt({x:Math.floor(d.x/tileSize),y:Math.floor(d.y/tileSize)}, 0xff5566)
             } else if(e.type==='combat'){
-              const id = e.payload.attacker
-              const d = displays[id]
-              if(d){ sc.tweens.add({targets:d,alpha:0.2,duration:80,yoyo:true,repeat:0}) }
+              const attacker = displays[e.payload.attacker]
+              const target = displays[e.payload.target]
+              if(attacker){ sc.tweens.add({targets:attacker,alpha:0.25,duration:70,yoyo:true}) }
+              if(target){ sc.tweens.add({targets:target,scale:1.22,duration:70,yoyo:true}) }
+              if(e.payload.target==='p') flashDamage()
+            } else if(e.type==='pickup'){
+              const st = (window as any).game?.getState?.()
+              const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
+              if(p) fxBurstAt(p, 0x88ffcc)
+            } else if(e.type==='stairs_spawned'){
+              const st = (window as any).game?.getState?.()
+              const s = st?.entities?.find((x:any)=>x.type==='item' && x.kind==='stairs')
+              if(s){
+                const d = displays[s.id]
+                if(d){ sc.tweens.add({targets:d,alpha:0.35,duration:240,yoyo:true,repeat:3}) }
+              }
             }
           }
 
