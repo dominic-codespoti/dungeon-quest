@@ -284,11 +284,11 @@ export default function App(){
       if(ev.key==='l' || ev.key==='L') toggleMenuModal('legend')
       if(ev.key==='o' || ev.key==='O') toggleMenuModal('meta')
       if(ev.key==='r' || ev.key==='R') toggleMenuModal('primer')
-      if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
+      if((ev.key==='y' || ev.key==='Y') && lastRun) launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if((ev.key==='g' || ev.key==='G') && lastRun) navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if((ev.key==='u' || ev.key==='U') && lastRun) copyLastRunSeed()
       if(ev.key==='z' || ev.key==='Z') navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
-      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
+      if(ev.key==='d' || ev.key==='D') launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
       if(ev.key==='i' || ev.key==='I') copyBundleLinks()
       if(ev.key==='j' || ev.key==='J') copyDailyLink()
       if(ev.key==='k' || ev.key==='K') copyProfileSummary()
@@ -317,8 +317,8 @@ export default function App(){
       }
       if(ev.key==='z' || ev.key==='Z') applyDailyPresetToCreate()
       if((ev.key==='y' || ev.key==='Y') && lastRun) applyLastRunPresetToCreate()
-      if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
-      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
+      if((ev.key==='l' || ev.key==='L') && lastRun) launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
+      if(ev.key==='d' || ev.key==='D') launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
       if(ev.key==='x' || ev.key==='X') setCustomSeed(String(randomSeed()))
       if(ev.key==='c' || ev.key==='C') setCustomSeed('')
       if(ev.key==='a' || ev.key==='A'){
@@ -507,6 +507,9 @@ export default function App(){
   const openCreateForCurrent = ()=>{
     navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
   }
+  const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{
+    navigate({screen:'game', class:preset.klass, race:preset.race, seed:preset.seed})
+  }
   const copyLastRunLink = async ()=>{
     if(!lastRun) return
     const u = new URL(window.location.href)
@@ -611,10 +614,10 @@ export default function App(){
               const rr = randomClassRace()
               navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random class/race/seed'>Quick Start</button>
-            {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>}
+            {lastRun && <button onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>}
             {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G · prefill create from last run'>Last Build</button>}
             <button onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='Z · prefill create from daily preset'>Daily Build</button>
-            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily challenge now'>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
+            <button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily challenge now'>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
             <button onClick={()=>toggleMenuModal('patch')} title='N'>Patch Notes</button>
             <button onClick={()=>toggleMenuModal('primer')} title='P / R / H / ?'>Run Primer</button>
             <button onClick={()=>toggleMenuModal('legend')} title='L'>Legend</button>
@@ -685,14 +688,14 @@ export default function App(){
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button title='best_score + best_floor' onClick={async()=>{ try{ await navigator.clipboard.writeText(`best_score=${bestScore} best_floor=${bestFloor}`); setStatus('Best stats copied.') }catch{} }}>Copy Best Stats</button>
                 <button title='Z · prefill create with daily loadout' onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Daily in Create</button>
-                <button title='D · launch daily challenge immediately from records' onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Play Daily Challenge</button>
+                <button title='D · launch daily challenge immediately from records' onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Play Daily Challenge</button>
                 <button title='K' onClick={copyProfileSummary}>Copy Profile Summary</button>
                 <button title='structured JSON' onClick={async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify({bestScore,bestFloor,dailyPreset,lastRun}, null, 2)); setStatus('Profile JSON copied.') }catch{} }}>Copy Profile JSON</button>
                 <button title='daily seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button title='V · daily seed + class/race' onClick={copyDailyPreset}>Copy Daily Preset</button>
                 <button title='J' onClick={copyDailyLink}>Copy Daily Link</button>
                 <button title='I' onClick={copyBundleLinks}>Copy Link Bundle</button>
-                {lastRun && <button title='Y' onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
+                {lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
                 {lastRun && <button title='G · prefill create with last-run loadout' onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
                 {lastRun && <button title='copy last-run launch URL' onClick={copyLastRunLink}>Copy Last Run Link</button>}
@@ -769,8 +772,8 @@ export default function App(){
             }} title='R'>Reroll Build+Seed</button>
             <button onClick={applyDailyPresetToCreate} title='Z'>Use Daily Preset</button>
             {lastRun && <button onClick={applyLastRunPresetToCreate} title='Y'>Use Last Run Preset</button>}
-            {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
-            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
+            {lastRun && <button onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
+            <button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{
               const rr = randomClassRace()
               navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
