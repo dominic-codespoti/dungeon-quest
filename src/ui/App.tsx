@@ -405,6 +405,15 @@ export default function App(){
     u.searchParams.set('race', race)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
   }
+  const copyLastRunLink = async ()=>{
+    if(!lastRun) return
+    const u = new URL(window.location.href)
+    u.searchParams.set('screen','game')
+    u.searchParams.set('seed', String(lastRun.seed))
+    u.searchParams.set('class', lastRun.klass)
+    u.searchParams.set('race', lastRun.race)
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus('Last run link copied.') }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -487,7 +496,8 @@ export default function App(){
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
-              <div style={{display:'flex', gap:8}}>
+              <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+                {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 <button onClick={resetRecords}>Reset</button>
                 <button onClick={()=>setShowMeta(false)}>Close</button>
               </div>
