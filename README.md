@@ -61,6 +61,7 @@ If `git push` intermittently fails/hangs (observed as transient GitHub 500s or s
 - `X` Randomize seed
 - `C` Clear seed
 - `A` Quickstart run
+- `J` Copy launch link for current create setup
 - `Enter` Start Adventure
 - `B` / `Esc` Back to menu
 

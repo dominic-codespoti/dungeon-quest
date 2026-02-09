@@ -330,6 +330,7 @@ export default function App(){
         const rr = randomClassRace()
         launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
       }
+      if(ev.key==='j' || ev.key==='J') copyCreateLaunchLink()
       if(ev.key==='Enter') launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})
       if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
     }
@@ -505,6 +506,14 @@ export default function App(){
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
+  }
+  const copyCreateLaunchLink = async ()=>{
+    const u = new URL(window.location.href)
+    u.searchParams.set('screen','game')
+    u.searchParams.set('seed', String(resolveChosenSeed(customSeed)))
+    u.searchParams.set('class', klass)
+    u.searchParams.set('race', race)
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus('Create launch link copied.') }catch{}
   }
   const openCreateForCurrent = ()=>{
     navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
@@ -725,7 +734,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
-          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · R reroll build+seed · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · Enter start · B/Esc back</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · R reroll build+seed · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · J copy launch link · Enter start · B/Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
@@ -783,6 +792,7 @@ export default function App(){
               const rr = randomClassRace()
               launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})
             }} title='A · random build + seed and launch'>Quick Start</button>
+            <button onClick={copyCreateLaunchLink} title='J · copy run link for current create setup'>Copy Launch Link</button>
             <button onClick={()=>launchGamePreset({klass, race, seed:resolveChosenSeed(customSeed)})} title='Enter'>Start Adventure</button>
           </div>
         </div>
