@@ -535,18 +535,18 @@ export default function App(){
   const copyDailyPreset = async ()=>{
     try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{}
   }
+  const applyPresetToCreate = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string}, label:'Daily'|'Last-run')=>{
+    setKlass(preset.klass)
+    setRace(preset.race)
+    setCustomSeed(String(preset.seed))
+    setStatus(`${label} preset loaded into creation.`)
+  }
   const applyDailyPresetToCreate = ()=>{
-    setKlass(dailyPreset.klass)
-    setRace(dailyPreset.race)
-    setCustomSeed(String(dailyPreset.seed))
-    setStatus('Daily preset loaded into creation.')
+    applyPresetToCreate({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed}, 'Daily')
   }
   const applyLastRunPresetToCreate = ()=>{
     if(!lastRun) return
-    setKlass(lastRun.klass)
-    setRace(lastRun.race)
-    setCustomSeed(String(lastRun.seed))
-    setStatus('Last-run preset loaded into creation.')
+    applyPresetToCreate({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed}, 'Last-run')
   }
   const applyRandomClassRaceToCreate = (withSeed=false)=>{
     const rr = randomClassRace()

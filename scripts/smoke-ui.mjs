@@ -7,6 +7,7 @@ const src = readFileSync(appPath, 'utf8')
 const checks = [
   ["shared helper: random seed", "function randomSeed(){"],
   ["shared helper: random class/race", "function randomClassRace(){"],
+  ["shared helper: apply preset to create", "const applyPresetToCreate = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string}, label:'Daily'|'Last-run')=>{"],
   ["shared helper: apply daily preset", "const applyDailyPresetToCreate = ()=>{"],
   ["shared helper: apply last-run preset", "const applyLastRunPresetToCreate = ()=>{"],
   ["shared helper: apply random class/race in create", "const applyRandomClassRaceToCreate = (withSeed=false)=>{"],
