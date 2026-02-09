@@ -115,6 +115,18 @@ export default function GameMount(){
             sc.tweens.add({targets:c, scale:2.2, alpha:0, duration:180, onComplete:()=>c.destroy()})
           }
 
+          function fxLine(from:Coord, to:Coord, color=0xffffff){
+            const a = toScreen(from)
+            const b = toScreen(to)
+            const g = sc.add.graphics().setDepth(250)
+            g.lineStyle(2, color, 0.95)
+            g.beginPath()
+            g.moveTo(a.x, a.y)
+            g.lineTo(b.x, b.y)
+            g.strokePath()
+            sc.tweens.add({targets:g, alpha:0, duration:130, onComplete:()=>g.destroy()})
+          }
+
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
@@ -251,6 +263,14 @@ export default function GameMount(){
               }
             } else if(e.type==='boss_slam'){
               try{ sc.cameras.main.shake(140, 0.005) }catch{}
+            } else if(e.type==='spit_used'){
+              const attacker = displays[e.payload?.id]
+              const player = displays['p']
+              if(attacker && player){
+                const from = {x: Math.floor(attacker.x/tileSize), y: Math.floor(attacker.y/tileSize)}
+                const to = {x: Math.floor(player.x/tileSize), y: Math.floor(player.y/tileSize)}
+                fxLine(from, to, 0x7dff9a)
+              }
             } else if(e.type==='bomb_blast'){
               fxBurstAt(e.payload?.at || {x:0,y:0}, 0xffb84d)
               try{ sc.cameras.main.shake(120, 0.004) }catch{}
