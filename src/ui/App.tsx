@@ -421,7 +421,12 @@ export default function App(){
   const resetRecords = ()=>{
     setBestScore(0)
     setBestFloor(0)
-    try{ localStorage.removeItem('dq_best_score'); localStorage.removeItem('dq_best_floor') }catch{}
+    setLastRun(null)
+    try{
+      localStorage.removeItem('dq_best_score')
+      localStorage.removeItem('dq_best_floor')
+      localStorage.removeItem('dq_last_run')
+    }catch{}
     setStatus('Records reset.')
   }
   const clearLastRun = ()=>{
