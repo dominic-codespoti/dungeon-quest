@@ -243,6 +243,9 @@ export default function App(){
           <h1>Dungeon Quest</h1>
           <p>A tactical dungeon crawler roguelike.</p>
           <p style={{fontSize:12,opacity:0.8}}>Run goal: clear floor 10 to win.</p>
+          <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
+            Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
+          </div>
           <button onClick={()=>navigate({screen:'create'})}>Play</button>
         </div>
       </div>
