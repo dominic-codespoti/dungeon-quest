@@ -701,6 +701,8 @@ export default function App(){
             <div style={{fontWeight:700,marginBottom:6}}>Build Preview</div>
             <div style={{fontSize:12}}>HP: <b>{preview.hp}</b> · ATK: <b>{preview.atk}</b> · DEF: <b>{preview.def}</b></div>
             <div style={{fontSize:12}}>Dash CD: <b>{preview.dashCd}</b> · Skills: <b>{preview.skills}</b></div>
+            {lastRun && <div style={{fontSize:12,opacity:0.85,marginTop:4}}>Last run loadout: <b>{lastRun.klass}/{lastRun.race}</b> · seed <b>{lastRun.seed}</b></div>}
+            <div style={{fontSize:12,opacity:0.85,marginTop:2}}>Daily loadout: <b>{dailyPreset.klass}/{dailyPreset.race}</b> · seed <b>{dailyPreset.seed}</b></div>
           </div>
 
           <div style={{marginTop:10}}>
