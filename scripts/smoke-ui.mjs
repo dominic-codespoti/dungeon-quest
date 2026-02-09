@@ -5,6 +5,7 @@ const appPath = resolve(process.cwd(), 'src/ui/App.tsx')
 const src = readFileSync(appPath, 'utf8')
 
 const checks = [
+  ["shared helper: random class/race", "function randomClassRace(){"],
   ["menu hotkey: Z daily build", "if(ev.key==='z' || ev.key==='Z') navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: D daily challenge", "if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: H primer alias", "if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')"],
