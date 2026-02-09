@@ -41,10 +41,15 @@ const checks = [
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
 
-if (failures.length) {
+const legacySeedExpr = "Math.floor(Math.random()*1_000_000)+1"
+const seedExprCount = src.split(legacySeedExpr).length - 1
+const seedExprGuardFailed = seedExprCount !== 1
+
+if (failures.length || seedExprGuardFailed) {
   console.error('UI smoke checks failed:')
-  for (const [name] of failures) console.error(`- ${name}`)
+  for (const [name] of failures) console.error(`- missing: ${name}`)
+  if (seedExprGuardFailed) console.error(`- guard: expected exactly 1 random-seed expression (in helper), found ${seedExprCount}`)
   process.exit(1)
 }
 
-console.log(`UI smoke checks passed (${checks.length} checks).`)
+console.log(`UI smoke checks passed (${checks.length} checks, 1 guard).`)
