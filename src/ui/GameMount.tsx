@@ -145,14 +145,12 @@ export default function GameMount(){
                 const k = `${x},${y}`
                 const p = toScreen({x,y})
                 if(wallSet.has(k)){
-                  const wall = sc.add.image(p.x,p.y,TEX_KEYS.wall).setOrigin(0.5)
-                  wall.setDisplaySize(tileSize, tileSize)
-                  wall.setTint(0x8892b0)
+                  const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3f52).setOrigin(0.5)
+                  wall.setStrokeStyle(1, 0x6f7aa1, 0.65)
                   wallDisplays[k] = wall
                 } else {
-                  const floor = sc.add.image(p.x,p.y,TEX_KEYS.floor).setOrigin(0.5)
-                  floor.setDisplaySize(tileSize, tileSize)
-                  floor.setTint(0x6f83b5)
+                  const floor = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1b2340).setOrigin(0.5)
+                  floor.setStrokeStyle(1, 0x2f3d66, 0.28)
                   floorDisplays[k] = floor
                 }
               }
