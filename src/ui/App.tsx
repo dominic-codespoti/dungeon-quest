@@ -188,6 +188,11 @@ export default function App(){
     setNewRecord(recordMsg.length ? `New record: ${recordMsg.join(' + ')}` : null)
   },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor])
 
+  useEffect(()=>{
+    if(snapshot?.gameOver) return
+    if(newRecord) setNewRecord(null)
+  },[snapshot?.gameOver, newRecord])
+
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
   const danger = useMemo(()=>{
