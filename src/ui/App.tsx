@@ -1,8 +1,17 @@
 import React, {useEffect, useMemo, useState} from 'react'
-import AdminPage from "./admin/AdminPage"
+import AdminPage from './admin/AdminPage'
 import GameMount from './GameMount'
 import type {PlayerClass} from '../game/types'
+import './app.css'
 
+import swordIcon from './assets/icons/sword.svg'
+import shieldIcon from './assets/icons/shield.svg'
+import potionIcon from './assets/icons/potion.svg'
+import treasureIcon from './assets/icons/treasure.svg'
+import bootsIcon from './assets/icons/boots.svg'
+import helmetIcon from './assets/icons/helmet.svg'
+
+type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[]}
 type Snapshot = {
   tick:number
   floor:number
@@ -11,7 +20,7 @@ type Snapshot = {
   score:number
   attackBonus:number
   defenseBonus:number
-  inventory?: Array<{name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[]}>
+  inventory?: Gear[]
   dashCooldown:number
   guardCooldown:number
   guardActive:boolean
@@ -20,9 +29,11 @@ type Snapshot = {
   entities: Array<{id:string,type:string,kind?:string,hp?:number}>
 }
 
+const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
+
 export default function App(){
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
-  const [status,setStatus] = useState('Clear each floor, then descend the stairs')
+  const [status,setStatus] = useState('Delve deeper. Build your loadout. Survive.')
   const [seed,setSeed] = useState<number | null>(null)
   const [klass,setKlass] = useState<PlayerClass>('knight')
 
@@ -36,29 +47,15 @@ export default function App(){
         if(g.getClass) setKlass(g.getClass())
       }
     }, 120)
-
     const g = (window as any).game
     const unsub = g?.subscribe?.((e:any)=>{
-      if(e.type==='victory') setStatus('🏆 Victory! All monsters defeated.')
-      if(e.type==='defeat') setStatus('☠️ Defeat! You were overwhelmed.')
-      if(e.type==='pickup' && e.payload?.kind==='potion') setStatus('🧪 Potion grabbed. HP restored.')
-      if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
-      if(e.type==='pickup' && e.payload?.kind==='elixir') setStatus('🍃 Elixir: +2 HP and cooldowns reduced.')
-      if(e.type==='pickup' && e.payload?.kind==='cursed-idol') setStatus('🗿 Cursed Idol: big score, painful cost.')
-      if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`🧰 ${e.payload?.gear?.name || 'Gear'} equipped.`)
-      if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
-      if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
-      if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} (${e.payload?.modifier || 'none'})`)
-      if(e.type==='dash_used') setStatus('💨 Rogue dash.')
-      if(e.type==='dash_blocked') setStatus(`⏳ Dash cooldown: ${e.payload?.cooldown}`)
-      if(e.type==='dash_refresh') setStatus('⚡ Dash refreshed on kill.')
-      if(e.type==='guard_used') setStatus('🛡️ Guard up (Knight).')
-      if(e.type==='guard_triggered') setStatus('🛡️ Guard absorbed damage.')
-      if(e.type==='guard_blocked') setStatus(`⏳ Guard cooldown: ${e.payload?.cooldown}`)
-      if(e.type==='bash_miss') setStatus('⚔️ Shield bash missed.')
-      if(e.type==='skill_blocked') setStatus(`Class cannot use ${e.payload?.skill}.`)
+      if(e.type==='defeat') setStatus('You were overwhelmed in the depths.')
+      if(e.type==='stairs_spawned') setStatus('Stairs discovered — push onward.')
+      if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`Equipped: ${e.payload?.gear?.name || 'gear'}`)
+      if(e.type==='pickup' && e.payload?.kind==='cursed-idol') setStatus('Cursed idol claimed. Power has a price.')
+      if(e.type==='pickup' && e.payload?.kind==='elixir') setStatus('Elixir restores flow and momentum.')
+      if(e.type==='dash_refresh') setStatus('Dash refreshed by execution.')
     })
-
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
   },[])
 
@@ -70,12 +67,12 @@ export default function App(){
       if(ev.key==='ArrowDown' || ev.key==='s' || ev.key==='S') g.step({type:'move',dir:'down'})
       if(ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A') g.step({type:'move',dir:'left'})
       if(ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D') g.step({type:'move',dir:'right'})
-      if(ev.key===' ') g.step({type:'wait'})
       if(ev.shiftKey && (ev.key==='ArrowUp' || ev.key==='w' || ev.key==='W')) g.step({type:'dash',dir:'up'})
       if(ev.shiftKey && (ev.key==='ArrowDown' || ev.key==='s' || ev.key==='S')) g.step({type:'dash',dir:'down'})
       if(ev.shiftKey && (ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A')) g.step({type:'dash',dir:'left'})
       if(ev.shiftKey && (ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D')) g.step({type:'dash',dir:'right'})
       if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})
+      if(ev.key===' ') g.step({type:'wait'})
     }
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
@@ -94,70 +91,74 @@ export default function App(){
   const setClass = (c:PlayerClass)=> (window as any).game?.setClass?.(c)
 
   return (
-    <div style={{fontFamily: 'system-ui, sans-serif',padding:12, position:'relative'}}>
-      <h1>Dungeon Quest — WIP</h1>
-      <p>{status}</p>
-      <div style={{display:'flex',gap:12,marginBottom:8,flexWrap:'wrap'}}>
-        <strong>Class: {klass}</strong>
-        <strong>Seed: {seed ?? '-'}</strong>
-        <strong>Floor: {snapshot?.floor ?? '-'}</strong>
-        <strong>Modifier: {snapshot?.floorModifier ?? 'none'}</strong>
-        <strong>HP: {String(playerHp)}</strong>
-        <strong>Monsters: {String(monstersLeft)}</strong>
-        <strong>Score: {snapshot?.score ?? '-'}</strong>
-        <strong>ATK+: {snapshot?.attackBonus ?? 0}</strong>
-        <strong>DEF+: {snapshot?.defenseBonus ?? 0}</strong>
-        <strong>Dash: {snapshot?.dashCooldown ? `CD ${snapshot.dashCooldown}` : 'Ready'}</strong>
-        <strong>Guard: {snapshot?.guardCooldown ? `CD ${snapshot.guardCooldown}` : (snapshot?.guardActive ? 'Active' : 'Ready')}</strong>
+    <div className='dq-shell'>
+      <h1 className='dq-title'>Dungeon Quest</h1>
+      <div className='dq-sub'>{status}</div>
+
+      <div className='dq-stats'>
+        <div className='dq-stat'>Class<b>{klass}</b></div>
+        <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
+        <div className='dq-stat'>HP<b>{String(playerHp)}</b></div>
+        <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
+        <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
       </div>
 
-      <div style={{marginBottom:10, display:'flex', gap:6, flexWrap:'wrap'}}>
-        <button onClick={()=>setClass('knight')}>Knight</button>
-        <button onClick={()=>setClass('rogue')}>Rogue</button>
-        <button onClick={()=>move('up')} disabled={snapshot?.gameOver}>↑</button>
-        <button onClick={()=>move('left')} disabled={snapshot?.gameOver}>←</button>
-        <button onClick={()=>move('down')} disabled={snapshot?.gameOver}>↓</button>
-        <button onClick={()=>move('right')} disabled={snapshot?.gameOver}>→</button>
-        <button onClick={wait} disabled={snapshot?.gameOver}>Wait</button>
+      <div className='dq-layout'>
+        <div className='dq-card'>
+          <div className='dq-class'>
+            <button onClick={()=>setClass('knight')}>Knight</button>
+            <button onClick={()=>setClass('rogue')}>Rogue</button>
+          </div>
 
-        {klass==='rogue' && (
-          <>
-            <button onClick={()=>dash('up')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ↑</button>
-            <button onClick={()=>dash('left')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ←</button>
-            <button onClick={()=>dash('down')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ↓</button>
-            <button onClick={()=>dash('right')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash →</button>
-          </>
-        )}
+          <div className='dq-controls'>
+            <button onClick={()=>move('up')}>Move ↑</button>
+            <button onClick={()=>move('left')}>Move ←</button>
+            <button onClick={()=>move('down')}>Move ↓</button>
+            <button onClick={()=>move('right')}>Move →</button>
+            <button onClick={wait}>Wait</button>
+            <button onClick={newSeed}>New Run</button>
+          </div>
 
-        {klass==='knight' && (
-          <>
-            <button onClick={guard} disabled={snapshot?.gameOver || (snapshot?.guardCooldown ?? 0) > 0}>Guard</button>
-            <button onClick={()=>bash('up')} disabled={snapshot?.gameOver}>Bash ↑</button>
-            <button onClick={()=>bash('left')} disabled={snapshot?.gameOver}>Bash ←</button>
-            <button onClick={()=>bash('down')} disabled={snapshot?.gameOver}>Bash ↓</button>
-            <button onClick={()=>bash('right')} disabled={snapshot?.gameOver}>Bash →</button>
-          </>
-        )}
+          <div className='dq-skillrow'>
+            {klass==='rogue' && (
+              <>
+                <button onClick={()=>dash('up')} disabled={(snapshot?.dashCooldown ?? 0)>0}><I src={bootsIcon}/>Dash ↑</button>
+                <button onClick={()=>dash('right')} disabled={(snapshot?.dashCooldown ?? 0)>0}>Dash →</button>
+              </>
+            )}
+            {klass==='knight' && (
+              <>
+                <button onClick={guard} disabled={(snapshot?.guardCooldown ?? 0)>0}><I src={shieldIcon}/>Guard</button>
+                <button onClick={()=>bash('up')}><I src={swordIcon}/>Bash ↑</button>
+              </>
+            )}
+          </div>
 
-        <button onClick={newSeed}>New Run</button>
-        <span style={{opacity:0.75}}>Items: blue potion, cyan relic, lime elixir, purple idol, gold gear, violet stairs</span>
-      </div>
-
-      <div style={{display:'grid', gridTemplateColumns:'1fr 280px', gap:10}}>
-        <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
-          <GameMount />
+          <hr style={{borderColor:'#2a3761'}}/>
+          <div style={{fontSize:13, color:'#9fb0d9'}}>Seed: {seed ?? '-'} · Mod: {snapshot?.floorModifier ?? 'none'}</div>
+          <div style={{fontSize:13, marginTop:6}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
+          <div style={{fontSize:13}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
+          <div style={{fontSize:13}}><I src={potionIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
+          <div style={{fontSize:13}}><I src={helmetIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}</div>
         </div>
-        <div style={{border:'1px solid #ccc',padding:8,background:'#f7f7f7'}}>
-          <h3 style={{marginTop:0}}>Equipment</h3>
-          <div style={{fontSize:13, marginBottom:8}}>Auto-equip system (max 6 active pieces)</div>
-          <div style={{maxHeight:320, overflow:'auto', fontSize:13}}>
+
+        <div className='dq-center'>
+          <div className='dq-center-head'>Use WASD / Arrows · Shift+Direction = Dash · G = Guard · Space = Wait</div>
+          <div className='dq-canvas-wrap'>
+            <GameMount />
+          </div>
+        </div>
+
+        <div className='dq-card'>
+          <h3 style={{marginTop:0}}><I src={treasureIcon}/>Equipment</h3>
+          <div className='dq-equip-list'>
             {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
             {(snapshot?.inventory || []).map((it,idx)=>(
-              <div key={idx} style={{padding:'6px 4px', borderBottom:'1px solid #ddd'}}>
-                <strong>{it.name}</strong>
-                <div style={{opacity:0.8}}>{it.itemClass} · {it.rarity}</div>
+              <div className='dq-item' key={idx}>
+                <div className='name'>{it.name}</div>
+                <div className='meta'>{it.itemClass} · {it.rarity}</div>
                 <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
-                {it.enchantments?.length>0 && <div style={{opacity:0.9}}>✦ {it.enchantments.join(', ')}</div>}
+                {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
               </div>
             ))}
           </div>
@@ -165,15 +166,14 @@ export default function App(){
       </div>
 
       {snapshot?.gameOver && (
-        <div style={{position:'absolute', inset:0, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center'}}>
-          <div style={{background:'#1e1e1e', color:'#fff', border:'1px solid #555', padding:18, width:360, borderRadius:8}}>
+        <div className='dq-overlay'>
+          <div className='dq-card box'>
             <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
-            <p>Class: <strong>{klass}</strong></p>
-            <p>Floor: <strong>{snapshot.floor}</strong></p>
-            <p>Score: <strong>{snapshot.score}</strong></p>
-            <p>HP: <strong>{String(playerHp)}</strong></p>
-            <p>Seed: <strong>{seed ?? '-'}</strong></p>
-            <div style={{display:'flex', gap:8, marginTop:12}}>
+            <p>Class: <b>{klass}</b></p>
+            <p>Floor: <b>{snapshot.floor}</b></p>
+            <p>Score: <b>{snapshot.score}</b></p>
+            <p>HP: <b>{String(playerHp)}</b></p>
+            <div style={{display:'flex', gap:8}}>
               <button onClick={sameSeed}>Restart same seed</button>
               <button onClick={newSeed}>New seed</button>
             </div>
@@ -181,8 +181,8 @@ export default function App(){
         </div>
       )}
 
-      <pre id="event-log" style={{height:120,overflow:'auto',background:'#111',color:'#0f0',padding:10,marginTop:12}}></pre>
-      <hr/>
+      <pre id='event-log' style={{height:120,overflow:'auto',background:'#0a0f1e',color:'#7ce2a8',padding:10,marginTop:12,border:'1px solid #2a3761',borderRadius:8}}></pre>
+      <hr style={{borderColor:'#2a3761'}}/>
       <AdminPage/>
     </div>
   )
