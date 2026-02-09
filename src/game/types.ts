@@ -4,7 +4,7 @@ export type PlayerClass = 'knight'|'rogue'
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
-  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'|'stairs'
+  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'
   pos: Coord
   hp?: number
 }

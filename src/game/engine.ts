@@ -67,6 +67,10 @@ export class Engine{
     for(let i=0;i<potionCount;i++) this.spawnItem(`i${this.floor}-p${i+1}`,'potion')
     this.spawnItem(`i${this.floor}-r1`,'relic')
 
+    // Item variety pass: utility + risk/reward pickups.
+    if(this.floor % 2 === 0) this.spawnItem(`i${this.floor}-e1`,'elixir')
+    if(this.floor >= 3 && this.rand() < 0.5) this.spawnItem(`i${this.floor}-c1`,'cursed-idol')
+
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
     }
@@ -162,7 +166,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'){
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3)})
   }
 
@@ -259,9 +263,38 @@ export class Engine{
 
       player.pos = nd
       if(occ?.type==='item'){
-        if(occ.kind==='potion'){ player.hp = Math.min(12, (player.hp||0) + 4); this.score += 25; this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}}); this.entities = this.entities.filter(e=>e.id!==occ.id) }
-        else if(occ.kind==='relic'){ this.score += 200; this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}}); this.entities = this.entities.filter(e=>e.id!==occ.id) }
-        else if(occ.kind==='stairs'){ this.score += 150 + this.floor * 25; this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}}); this.floor += 1; this.setupFloor(false); return {changedFloor:true,stopped:true} }
+        if(occ.kind==='potion'){
+          player.hp = Math.min(12, (player.hp||0) + 4)
+          this.score += 25
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        }
+        else if(occ.kind==='relic'){
+          this.score += 200
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        }
+        else if(occ.kind==='elixir'){
+          player.hp = Math.min(12, (player.hp||0) + 2)
+          this.dashCooldown = Math.max(0, this.dashCooldown - 1)
+          this.guardCooldown = Math.max(0, this.guardCooldown - 1)
+          this.score += 60
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,effects:['heal+2','cooldowns-1']}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        }
+        else if(occ.kind==='cursed-idol'){
+          player.hp = (player.hp||0) - 2
+          this.score += 350
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,effects:['hp-2','score+350']}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        }
+        else if(occ.kind==='stairs'){
+          this.score += 150 + this.floor * 25
+          this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
+          this.floor += 1
+          this.setupFloor(false)
+          return {changedFloor:true,stopped:true}
+        }
       }
       this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:moveType}})
       return {changedFloor:false,stopped:false}

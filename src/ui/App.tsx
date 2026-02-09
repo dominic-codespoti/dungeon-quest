@@ -40,6 +40,8 @@ export default function App(){
       if(e.type==='defeat') setStatus('☠️ Defeat! You were overwhelmed.')
       if(e.type==='pickup' && e.payload?.kind==='potion') setStatus('🧪 Potion grabbed. HP restored.')
       if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
+      if(e.type==='pickup' && e.payload?.kind==='elixir') setStatus('🍃 Elixir: +2 HP and cooldowns reduced.')
+      if(e.type==='pickup' && e.payload?.kind==='cursed-idol') setStatus('🗿 Cursed Idol: big score, painful cost.')
       if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
       if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
       if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} (${e.payload?.modifier || 'none'})`)
@@ -132,6 +134,7 @@ export default function App(){
         )}
 
         <button onClick={newSeed}>New Run</button>
+        <span style={{opacity:0.75}}>Items: blue potion, cyan relic, lime elixir, purple idol, violet stairs</span>
       </div>
 
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>

@@ -167,6 +167,20 @@ Interpretation:
 - Gap narrowed (Knight still ahead on depth, Rogue improved in scoring/tempo).
 - Better parity baseline for adding rogue secondary skill next.
 
+## Follow-up Pass — Item Variety
+Implemented in this pass:
+- Added new pickups:
+  - **Elixir**: +2 HP, reduces cooldowns by 1, small score bonus.
+  - **Cursed Idol**: +350 score, but -2 HP on pickup.
+- Spawn rules:
+  - Elixir appears on even floors.
+  - Cursed Idol can appear from floor 3 onward.
+- HUD/status updates for new pickups and item legend.
+
+### Quick impact read
+- More meaningful route decisions now: survival vs greed.
+- Better roguelike flavor from explicit risk/reward pickups.
+
 ## Suggested next changes
 1. Add rogue secondary skill (**Smoke** or **Backstep**) to close remaining parity gap.
 2. Add class-specific starter perk text/tooltips in UI.

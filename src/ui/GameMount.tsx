@@ -83,7 +83,19 @@ export default function GameMount(){
 
               ;(e.payload.entities||[]).forEach((ent:any)=>{
                 const p = toScreen(ent.pos)
-                const color = ent.type==='player' ? 0x00ff00 : ent.type==='monster' ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff0000) : (ent.kind==='stairs' ? 0xaa66ff : ent.kind==='relic' ? 0x00ffff : 0x4488ff)
+                const color = ent.type==='player'
+                  ? 0x00ff00
+                  : ent.type==='monster'
+                    ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff0000)
+                    : ent.kind==='stairs'
+                      ? 0xaa66ff
+                      : ent.kind==='relic'
+                        ? 0x00ffff
+                        : ent.kind==='elixir'
+                          ? 0xaaff66
+                          : ent.kind==='cursed-idol'
+                            ? 0xaa33aa
+                            : 0x4488ff
                 const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
                 displays[ent.id] = r
                 if(ent.id==='p') playerPos = ent.pos
