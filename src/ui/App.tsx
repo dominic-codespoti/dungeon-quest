@@ -308,16 +308,11 @@ export default function App(){
       if(ev.key==='w' || ev.key==='W') setRace('elf')
       if(ev.key==='e' || ev.key==='E') setRace('dwarf')
       if(ev.key==='s' || ev.key==='S'){
-        const rr = randomClassRace()
-        setKlass(rr.klass)
-        setRace(rr.race)
+        applyRandomClassRaceToCreate(false)
         setStatus('Surprise class/race applied.')
       }
       if(ev.key==='r' || ev.key==='R'){
-        const rr = randomClassRace()
-        setKlass(rr.klass)
-        setRace(rr.race)
-        setCustomSeed(String(randomSeed()))
+        applyRandomClassRaceToCreate(true)
         setStatus('Rerolled class, race, and seed.')
       }
       if(ev.key==='z' || ev.key==='Z') applyDailyPresetToCreate()
@@ -550,6 +545,12 @@ export default function App(){
     setCustomSeed(String(lastRun.seed))
     setStatus('Last-run preset loaded into creation.')
   }
+  const applyRandomClassRaceToCreate = (withSeed=false)=>{
+    const rr = randomClassRace()
+    setKlass(rr.klass)
+    setRace(rr.race)
+    if(withSeed) setCustomSeed(String(randomSeed()))
+  }
   const copyDailyLink = async ()=>{
     const u = new URL(window.location.href)
     u.searchParams.set('screen','game')
@@ -759,15 +760,11 @@ export default function App(){
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'menu'})} title='B / Esc'>Back</button>
             <button onClick={()=>{
-              const rr = randomClassRace()
-              setKlass(rr.klass)
-              setRace(rr.race)
+              applyRandomClassRaceToCreate(false)
+              setStatus('Surprise class/race applied.')
             }} title='S · randomize class/race only'>Surprise Me</button>
             <button onClick={()=>{
-              const rr = randomClassRace()
-              setKlass(rr.klass)
-              setRace(rr.race)
-              setCustomSeed(String(randomSeed()))
+              applyRandomClassRaceToCreate(true)
               setStatus('Rerolled class, race, and seed.')
             }} title='R'>Reroll Build+Seed</button>
             <button onClick={applyDailyPresetToCreate} title='Z'>Use Daily Preset</button>
