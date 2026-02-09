@@ -97,7 +97,7 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
-  const [customSeed,setCustomSeed] = useState('')
+  const [customSeed,setCustomSeed] = useState(()=> (getParams().get('seed') || '').replace(/[^0-9]/g,''))
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [newRecord,setNewRecord] = useState<string | null>(null)
