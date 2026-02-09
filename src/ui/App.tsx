@@ -424,6 +424,11 @@ export default function App(){
     try{ localStorage.removeItem('dq_best_score'); localStorage.removeItem('dq_best_floor') }catch{}
     setStatus('Records reset.')
   }
+  const clearLastRun = ()=>{
+    setLastRun(null)
+    try{ localStorage.removeItem('dq_last_run') }catch{}
+    setStatus('Last run cleared.')
+  }
   const copySeed = async ()=>{
     if(seed==null) return
     try{ await navigator.clipboard.writeText(String(seed)); setStatus(`Seed ${seed} copied.`) }catch{}
@@ -569,6 +574,7 @@ export default function App(){
                   try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
                 }}>Copy Daily Link</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
+                {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
                 <button onClick={resetRecords}>Reset</button>
                 <button onClick={()=>setShowMeta(false)}>Close</button>
               </div>
