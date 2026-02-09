@@ -651,6 +651,7 @@ export default function App(){
                 <button title='J' onClick={copyDailyLink}>Copy Daily Link</button>
                 <button title='I' onClick={copyBundleLinks}>Copy Link Bundle</button>
                 {lastRun && <button title='Y' onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
+                {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
