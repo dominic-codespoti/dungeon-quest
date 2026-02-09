@@ -37,6 +37,7 @@ export type GameSnapshot = {
   score: number
   attackBonus: number
   defenseBonus: number
+  inventory: GeneratedItem[]
   dashCooldown: number
   guardCooldown: number
   guardActive: boolean

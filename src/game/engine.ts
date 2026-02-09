@@ -21,6 +21,7 @@ export class Engine{
   score = 0
   attackBonus = 0
   defenseBonus = 0
+  inventory: GeneratedItem[] = []
   dashCooldown = 0
   guardCooldown = 0
   guardActive = false
@@ -43,6 +44,11 @@ export class Engine{
     this.floorModifier = this.getModifierForFloor(this.floor)
 
     this.entities = [{id:'p',type:'player',pos:{x:Math.floor(this.width/2),y:Math.floor(this.height/2)},hp:preservedHp}]
+    if(initial){
+      this.attackBonus = 0
+      this.defenseBonus = 0
+      this.inventory = []
+    }
     this.dashCooldown = 0
     this.guardCooldown = 0
     this.guardActive = false
@@ -274,6 +280,7 @@ export class Engine{
       score:this.score,
       attackBonus:this.attackBonus,
       defenseBonus:this.defenseBonus,
+      inventory: JSON.parse(JSON.stringify(this.inventory)),
       dashCooldown:this.dashCooldown,
       guardCooldown:this.guardCooldown,
       guardActive:this.guardActive,
@@ -283,6 +290,21 @@ export class Engine{
   }
 
   private emit(ev:GameEvent){ this.events.push(ev); eventBus.publish(ev) }
+
+  private equipGear(gear: GeneratedItem, player: Entity){
+    this.inventory.push(gear)
+    this.attackBonus += gear.atkBonus
+    this.defenseBonus += gear.defBonus
+    player.hp = Math.min(12 + gear.hpBonus, (player.hp||0) + gear.hpBonus)
+
+    // Keep inventory readable: 6 active pieces max, oldest gets replaced.
+    if(this.inventory.length > 6){
+      const removed = this.inventory.shift()!
+      this.attackBonus = Math.max(0, this.attackBonus - removed.atkBonus)
+      this.defenseBonus = Math.max(0, this.defenseBonus - removed.defBonus)
+      this.emit({tick:this.tick,type:'gear_replaced',payload:{removed,reason:'inventory_cap'}})
+    }
+  }
 
   private trySpawnStairs(){
     const monstersLeft = this.entities.filter(e=>e.type==='monster').length
@@ -354,9 +376,7 @@ export class Engine{
         else if(occ.kind==='gear'){
           const gear = occ.loot
           if(gear){
-            this.attackBonus += gear.atkBonus
-            this.defenseBonus += gear.defBonus
-            player.hp = Math.min(12 + gear.hpBonus, (player.hp||0) + gear.hpBonus)
+            this.equipGear(gear, player)
             this.score += gear.scoreValue
             this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,gear}})
           } else {

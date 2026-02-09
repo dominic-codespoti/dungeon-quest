@@ -11,6 +11,7 @@ type Snapshot = {
   score:number
   attackBonus:number
   defenseBonus:number
+  inventory?: Array<{name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[]}>
   dashCooldown:number
   guardCooldown:number
   guardActive:boolean
@@ -142,8 +143,25 @@ export default function App(){
         <span style={{opacity:0.75}}>Items: blue potion, cyan relic, lime elixir, purple idol, gold gear, violet stairs</span>
       </div>
 
-      <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
-        <GameMount />
+      <div style={{display:'grid', gridTemplateColumns:'1fr 280px', gap:10}}>
+        <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
+          <GameMount />
+        </div>
+        <div style={{border:'1px solid #ccc',padding:8,background:'#f7f7f7'}}>
+          <h3 style={{marginTop:0}}>Equipment</h3>
+          <div style={{fontSize:13, marginBottom:8}}>Auto-equip system (max 6 active pieces)</div>
+          <div style={{maxHeight:320, overflow:'auto', fontSize:13}}>
+            {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
+            {(snapshot?.inventory || []).map((it,idx)=>(
+              <div key={idx} style={{padding:'6px 4px', borderBottom:'1px solid #ddd'}}>
+                <strong>{it.name}</strong>
+                <div style={{opacity:0.8}}>{it.itemClass} · {it.rarity}</div>
+                <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
+                {it.enchantments?.length>0 && <div style={{opacity:0.9}}>✦ {it.enchantments.join(', ')}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {snapshot?.gameOver && (
