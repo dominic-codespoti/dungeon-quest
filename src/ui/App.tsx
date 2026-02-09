@@ -369,7 +369,7 @@ export default function App(){
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
-            <div className='dq-stat'>Streak Reward<b>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
+            <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
