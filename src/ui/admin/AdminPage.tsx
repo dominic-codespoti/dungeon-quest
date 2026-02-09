@@ -33,7 +33,7 @@ export default function AdminPage(){
         </div>
         <div style={{width:300}}>
           <h3>Controls</h3>
-          <p>Use console: <code>window.game.step({{type:'move',dir:'left'}})</code></p>
+          <p>Use console: <code>{"window.game.step({type:'move',dir:'left'})"}</code></p>
         </div>
       </div>
     </div>

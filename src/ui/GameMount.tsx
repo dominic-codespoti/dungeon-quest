@@ -15,7 +15,7 @@ export default function GameMount(){
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
-        subscribe: (fn:Function)=>{ return eventBus.subscribe(fn) }
+        subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) }
       }
 
       // when the Phaser scene is ready, set up simple renderer

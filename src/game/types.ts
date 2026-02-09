@@ -12,6 +12,9 @@ export type GameSnapshot = {
   width: number
   height: number
   entities: Entity[]
+  score: number
+  gameOver: boolean
+  outcome?: 'victory'|'defeat'
 }
 
 export type PlayerAction =
