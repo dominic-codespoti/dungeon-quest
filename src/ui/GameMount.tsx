@@ -251,7 +251,7 @@ export default function GameMount(){
 
               const isEnemy = ent.type==='monster'
               const hasHp = Number.isFinite(ent.hp) && Number.isFinite(ent.maxHp) && ent.maxHp>0
-              const shouldShowBar = isEnemy && hasHp && ent.kind!=='boss' && isVisible
+              const shouldShowBar = isEnemy && hasHp && ent.kind!=='boss' && isVisible && ent.hp < ent.maxHp
               if(shouldShowBar){
                 if(!hpBars[ent.id]){
                   const bg = sc.add.rectangle(d.x, d.y + tileSize*0.56, tileSize*0.74, 4, 0x1a1a1a, 0.86).setDepth(360)
