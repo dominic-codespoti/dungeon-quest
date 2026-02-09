@@ -307,12 +307,14 @@ export default function App(){
         const rr = randomClassRace()
         setKlass(rr.klass)
         setRace(rr.race)
+        setStatus('Surprise class/race applied.')
       }
       if(ev.key==='r' || ev.key==='R'){
         const rr = randomClassRace()
         setKlass(rr.klass)
         setRace(rr.race)
         setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+        setStatus('Rerolled class, race, and seed.')
       }
       if(ev.key==='z' || ev.key==='Z'){
         setKlass(dailyPreset.klass)
