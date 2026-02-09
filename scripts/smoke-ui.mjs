@@ -13,6 +13,7 @@ const checks = [
   ["shared helper: launch preset game", "const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{"],
   ["menu hotkey: Z daily build", "if(ev.key==='z' || ev.key==='Z') navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: D daily challenge", "if(ev.key==='d' || ev.key==='D') launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
+  ["menu button: daily challenge uses launcher", "<button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily challenge now'>Daily Challenge"],
   ["menu hotkey: H primer alias", "if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')"],
   ["menu hotkey: V copy daily preset", "if(ev.key==='v' || ev.key==='V') copyDailyPreset()"],
   ["menu hotkey: G last build", "if((ev.key==='g' || ev.key==='G') && lastRun) navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
