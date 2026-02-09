@@ -338,6 +338,12 @@ export default function App(){
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
+  const resetRecords = ()=>{
+    setBestScore(0)
+    setBestFloor(0)
+    try{ localStorage.removeItem('dq_best_score'); localStorage.removeItem('dq_best_floor') }catch{}
+    setStatus('Records reset.')
+  }
   const copySeed = async ()=>{
     if(seed==null) return
     try{ await navigator.clipboard.writeText(String(seed)); setStatus(`Seed ${seed} copied.`) }catch{}
@@ -422,7 +428,10 @@ export default function App(){
               <h2 style={{marginTop:0}}>Records</h2>
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
-              <button onClick={()=>setShowMeta(false)}>Close</button>
+              <div style={{display:'flex', gap:8}}>
+                <button onClick={resetRecords}>Reset</button>
+                <button onClick={()=>setShowMeta(false)}>Close</button>
+              </div>
             </div>
           </div>
         )}
