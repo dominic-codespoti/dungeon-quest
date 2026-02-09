@@ -377,6 +377,8 @@ export default function App(){
             <p>Rogue: Q backstep</p>
             <p>Knight: B bash, G guard</p>
             <p>Interact: E · Wait: Space</p>
+            <p>Tips: Danger meter tracks nearby threat, boss charge warning means slam incoming.</p>
+            <p>Run target: Floor 10. Use chests/shrines/fountains/rift orbs to spike power.</p>
             <div style={{display:'flex', gap:8}}><button onClick={()=>setShowHelp(false)}>Close</button></div>
           </div>
         </div>
