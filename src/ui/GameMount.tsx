@@ -90,6 +90,7 @@ export default function GameMount(){
             if(ent.kind==='blink-shard') return TEX_KEYS.gear
             if(ent.kind==='chest') return TEX_KEYS.relic
             if(ent.kind==='shrine') return TEX_KEYS.idol
+            if(ent.kind==='fountain') return TEX_KEYS.potion
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -167,6 +168,7 @@ export default function GameMount(){
               if(ent.kind==='spitter') d.setTint(0x7dff9a)
               if(ent.kind==='chest') d.setTint(0xffd36b)
               if(ent.kind==='shrine') d.setTint(0x9a77ff)
+              if(ent.kind==='fountain') d.setTint(0x63d6ff)
             })
             drawTargeting()
           }
@@ -203,6 +205,7 @@ export default function GameMount(){
               if(ent.kind==='spitter') s.setTint(0x7dff9a)
               if(ent.kind==='chest') s.setTint(0xffd36b)
               if(ent.kind==='shrine') s.setTint(0x9a77ff)
+              if(ent.kind==='fountain') s.setTint(0x63d6ff)
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })

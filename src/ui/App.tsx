@@ -102,6 +102,7 @@ export default function App(){
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='shrine_boon') setStatus(`Shrine grants ${e.payload?.boon}.`)
+      if(e.type==='fountain_used') setStatus('Fountain restores full HP and refreshes skill cooldowns.')
       if(e.type==='streak_bonus') setStatus(`Kill streak x${e.payload?.streak}: +${e.payload?.bonus} bonus score.`)
       if(e.type==='streak_reward') setStatus(`Streak reward! Spawned ${e.payload?.reward}.`)
       if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)

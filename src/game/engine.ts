@@ -121,6 +121,7 @@ export class Engine{
     if(this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-s1`,'blink-shard')
     if(this.floor >= 3 && this.rand() < 0.25) this.spawnItem(`i${this.floor}-c2`,'chest')
     if(this.floor >= 4 && this.rand() < 0.22) this.spawnItem(`i${this.floor}-h1`,'shrine')
+    if(this.floor >= 5 && this.rand() < 0.18) this.spawnItem(`i${this.floor}-f1`,'fountain')
 
     // Generated gear system (item classes + rarity + enchantments)
     const gearDrops = this.floor >= 2 ? 2 : 1
@@ -311,7 +312,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -588,6 +589,14 @@ export class Engine{
         else { this.maxHp += 1; player.hp = Math.min(this.maxHp, (player.hp||0) + 1); boon = 'vigor' }
         this.score += 120
         this.emit({tick:this.tick,type:'shrine_boon',payload:{boon,attackBonus:this.attackBonus,defenseBonus:this.defenseBonus,maxHp:this.maxHp}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='fountain'){
+        player.hp = this.maxHp
+        this.dashCooldown = 0
+        this.backstepCooldown = 0
+        this.guardCooldown = 0
+        this.score += 130
+        this.emit({tick:this.tick,type:'fountain_used',payload:{hp:this.maxHp,clears:['dash','backstep','guard']}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25
