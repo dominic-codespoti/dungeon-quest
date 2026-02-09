@@ -3,6 +3,7 @@ export type Coord = {x:number,y:number}
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
+  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'
   pos: Coord
   hp?: number
 }
@@ -11,7 +12,11 @@ export type GameSnapshot = {
   tick: number
   width: number
   height: number
+  walls: Coord[]
   entities: Entity[]
+  score: number
+  gameOver: boolean
+  outcome?: 'victory'|'defeat'
 }
 
 export type PlayerAction =
