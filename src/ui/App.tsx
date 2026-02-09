@@ -204,6 +204,7 @@ export default function App(){
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
       if(ev.key==='o' || ev.key==='O') setShowMeta(true)
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
+      if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='Escape'){
         setShowRunPrimer(false)
         setShowPatchNotes(false)
@@ -213,7 +214,7 @@ export default function App(){
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
-  },[screen])
+  },[screen,lastRun])
 
   useEffect(()=>{
     if(screen!=='create') return
@@ -428,10 +429,11 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
-          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · A Quick Start · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
+            {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run Seed</button>}
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
