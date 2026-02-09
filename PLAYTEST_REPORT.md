@@ -126,8 +126,32 @@ Interpretation:
 - Score progression improved without raising average floor yet.
 - Difficulty remains harsh; major survivability spikes still occur on unlucky aggro patterns.
 
+## Follow-up Pass — Class-Dependent Skills (Knight + Rogue)
+Implemented in this pass:
+- Added **class system** with URL/runtime selection (`class=knight|rogue`).
+- **Rogue**: keeps Dash as signature skill.
+- **Knight**: new skills
+  - `Guard` (cooldown 4): mitigates next incoming hit.
+  - `Bash` (directional): heavy melee hit with conditional knockback.
+- HUD now shows class + class cooldowns and class-specific controls.
+- Run summary and reruns preserve seed/class context.
+
+### Updated automated class playtest (6 seeds each)
+- **Knight**
+  - Avg floor: **3.83**
+  - Avg score: **3227**
+  - Max floor: **5**
+- **Rogue**
+  - Avg floor: **2.00**
+  - Avg score: **994**
+  - Max floor: **3**
+
+Interpretation:
+- Knight currently has much stronger survival/control in this sim profile.
+- Rogue feels high-variance and fragile; dash skill ceiling exists but baseline consistency is lower.
+
 ## Suggested next changes
-1. Tune dash with **1-turn brief i-frames or knockback** to convert skillful use into survival gains.
-2. Add **adaptive potion pity rule** (e.g., guaranteed potion on next floor after low-HP finish).
-3. Add **telegraphed elite turns** for brute-heavy floors to increase fairness.
+1. Add rogue secondary skill (**Smoke** or **Backstep**) to close class parity.
+2. Slightly buff rogue sustain (e.g., relic-to-heal conversion or lower dash cooldown on kill).
+3. Add class-specific starter perk text/tooltips in UI.
 4. Fix deployment/runtime serving path so headed browser playtests can be consistently executed.

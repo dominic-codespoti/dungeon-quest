@@ -1,4 +1,5 @@
 export type Coord = {x:number,y:number}
+export type PlayerClass = 'knight'|'rogue'
 
 export type Entity = {
   id: string
@@ -12,12 +13,15 @@ export type GameSnapshot = {
   tick: number
   floor: number
   floorModifier?: string
+  playerClass: PlayerClass
   width: number
   height: number
   walls: Coord[]
   entities: Entity[]
   score: number
   dashCooldown: number
+  guardCooldown: number
+  guardActive: boolean
   gameOver: boolean
   outcome?: 'victory'|'defeat'
 }
@@ -25,6 +29,8 @@ export type GameSnapshot = {
 export type PlayerAction =
   | {type:'move',dir: 'up'|'down'|'left'|'right'}
   | {type:'dash',dir: 'up'|'down'|'left'|'right'}
+  | {type:'guard'}
+  | {type:'bash',dir:'up'|'down'|'left'|'right'}
   | {type:'wait'}
 
 export type GameEvent = {

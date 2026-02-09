@@ -1,4 +1,4 @@
-import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){
@@ -12,6 +12,7 @@ export class Engine{
   tick = 0
   floor = 1
   floorModifier: 'none'|'brute-heavy'|'swarm'|'scarce-potions' = 'none'
+  playerClass: PlayerClass
   width:number
   height:number
   entities: Entity[] = []
@@ -19,13 +20,16 @@ export class Engine{
   walls = new Set<string>()
   score = 0
   dashCooldown = 0
+  guardCooldown = 0
+  guardActive = false
   gameOver = false
   outcome: 'victory'|'defeat'|undefined
   private rand: ()=>number
 
-  constructor(width=30,height=30,seed=1){
+  constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight'){
     this.width = width
     this.height = height
+    this.playerClass = playerClass
     this.rand = rng(seed)
     this.setupFloor(true)
   }
@@ -38,6 +42,8 @@ export class Engine{
 
     this.entities = [{id:'p',type:'player',pos:{x:Math.floor(this.width/2),y:Math.floor(this.height/2)},hp:preservedHp}]
     this.dashCooldown = 0
+    this.guardCooldown = 0
+    this.guardActive = false
     this.walls = new Set<string>()
     this.generateWalls()
 
@@ -67,7 +73,7 @@ export class Engine{
     this.emit({
       tick:this.tick,
       type:'init',
-      payload:{floor:this.floor,modifier:this.floorModifier,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
+      payload:{floor:this.floor,modifier:this.floorModifier,playerClass:this.playerClass,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
     })
   }
 
@@ -112,9 +118,7 @@ export class Engine{
     })
   }
 
-  private isWall(pos:Coord){
-    return this.walls.has(key(pos))
-  }
+  private isWall(pos:Coord){ return this.walls.has(key(pos)) }
 
   private isOccupiedByEntity(pos:Coord, exceptId?:string){
     return this.entities.some(e=>e.id!==exceptId && e.pos.x===pos.x && e.pos.y===pos.y)
@@ -127,9 +131,7 @@ export class Engine{
     while(q.length){
       const cur = q.shift()!
       if(cur.x===goal.x && cur.y===goal.y) return true
-      const neighbors: Coord[] = [
-        {x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}
-      ]
+      const neighbors: Coord[] = [{x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}]
       for(const n of neighbors){
         if(n.x<0 || n.x>=this.width || n.y<0 || n.y>=this.height) continue
         if(this.isWall(n)) continue
@@ -169,13 +171,10 @@ export class Engine{
     const q: Coord[] = [start]
     const prev = new Map<string, string>()
     const seen = new Set<string>([key(start)])
-
     while(q.length){
       const cur = q.shift()!
       if(cur.x===goal.x && cur.y===goal.y) break
-      const neighbors: Coord[] = [
-        {x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}
-      ]
+      const neighbors: Coord[] = [{x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}]
       for(const n of neighbors){
         if(n.x<0 || n.x>=this.width || n.y<0 || n.y>=this.height) continue
         if(this.isWall(n)) continue
@@ -188,15 +187,11 @@ export class Engine{
         q.push(n)
       }
     }
-
     const goalKey = key(goal)
     if(!prev.has(goalKey)) return null
     let curKey = goalKey
     let prior = prev.get(curKey)
-    while(prior && prior !== key(start)){
-      curKey = prior
-      prior = prev.get(curKey)
-    }
+    while(prior && prior !== key(start)){ curKey = prior; prior = prev.get(curKey) }
     const [x,y] = curKey.split(',').map(Number)
     return {x:x ?? start.x, y:y ?? start.y}
   }
@@ -206,21 +201,21 @@ export class Engine{
       tick:this.tick,
       floor:this.floor,
       floorModifier:this.floorModifier,
+      playerClass:this.playerClass,
       width:this.width,
       height:this.height,
       walls:this.getWalls(),
       entities:JSON.parse(JSON.stringify(this.entities)),
       score:this.score,
       dashCooldown:this.dashCooldown,
+      guardCooldown:this.guardCooldown,
+      guardActive:this.guardActive,
       gameOver:this.gameOver,
       ...(this.outcome ? { outcome: this.outcome } : {})
     }
   }
 
-  private emit(ev:GameEvent){
-    this.events.push(ev)
-    eventBus.publish(ev)
-  }
+  private emit(ev:GameEvent){ this.events.push(ev); eventBus.publish(ev) }
 
   private trySpawnStairs(){
     const monstersLeft = this.entities.filter(e=>e.type==='monster').length
@@ -235,6 +230,7 @@ export class Engine{
     if(this.gameOver) return this.getState()
     this.tick++
     if(this.dashCooldown > 0) this.dashCooldown--
+    if(this.guardCooldown > 0) this.guardCooldown--
 
     const player = this.entities.find(e=>e.type==='player')
     if(!player) throw new Error('no player')
@@ -242,10 +238,7 @@ export class Engine{
     const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
     const stepInto = (nd:Coord, moveType:'move'|'dash'):{changedFloor:boolean, stopped:boolean} => {
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return {changedFloor:false,stopped:true}
-      if(this.isWall(nd)){
-        this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}})
-        return {changedFloor:false,stopped:true}
-      }
+      if(this.isWall(nd)){ this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}}); return {changedFloor:false,stopped:true} }
 
       const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
       if(occ?.type==='monster'){
@@ -262,22 +255,9 @@ export class Engine{
 
       player.pos = nd
       if(occ?.type==='item'){
-        if(occ.kind==='potion'){
-          player.hp = Math.min(12, (player.hp||0) + 4)
-          this.score += 25
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        } else if(occ.kind==='relic') {
-          this.score += 200
-          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-          this.entities = this.entities.filter(e=>e.id!==occ.id)
-        } else if(occ.kind==='stairs'){
-          this.score += 150 + this.floor * 25
-          this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
-          this.floor += 1
-          this.setupFloor(false)
-          return {changedFloor:true,stopped:true}
-        }
+        if(occ.kind==='potion'){ player.hp = Math.min(12, (player.hp||0) + 4); this.score += 25; this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}}); this.entities = this.entities.filter(e=>e.id!==occ.id) }
+        else if(occ.kind==='relic'){ this.score += 200; this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}}); this.entities = this.entities.filter(e=>e.id!==occ.id) }
+        else if(occ.kind==='stairs'){ this.score += 150 + this.floor * 25; this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}}); this.floor += 1; this.setupFloor(false); return {changedFloor:true,stopped:true} }
       }
       this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:moveType}})
       return {changedFloor:false,stopped:false}
@@ -285,21 +265,43 @@ export class Engine{
 
     if(action.type==='move'){
       const delta = d[action.dir]
-      const nd = {x:player.pos.x + delta.x, y: player.pos.y + delta.y}
-      const res = stepInto(nd,'move')
+      const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'move')
       if(res.changedFloor) return this.getState()
     } else if(action.type==='dash'){
-      if(this.dashCooldown>0){
-        this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
-      } else {
+      if(this.playerClass!=='rogue') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'dash',class:this.playerClass}})
+      else if(this.dashCooldown>0) this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
+      else {
         const delta = d[action.dir]
         this.dashCooldown = 5
         this.emit({tick:this.tick,type:'dash_used',payload:{dir:action.dir,cooldown:this.dashCooldown}})
         for(let i=0;i<2;i++){
-          const nd = {x:player.pos.x + delta.x, y: player.pos.y + delta.y}
-          const res = stepInto(nd,'dash')
+          const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'dash')
           if(res.changedFloor) return this.getState()
           if(res.stopped) break
+        }
+      }
+    } else if(action.type==='guard'){
+      if(this.playerClass!=='knight') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'guard',class:this.playerClass}})
+      else if(this.guardCooldown>0) this.emit({tick:this.tick,type:'guard_blocked',payload:{cooldown:this.guardCooldown}})
+      else { this.guardActive = true; this.guardCooldown = 4; this.emit({tick:this.tick,type:'guard_used',payload:{cooldown:this.guardCooldown}}) }
+    } else if(action.type==='bash'){
+      if(this.playerClass!=='knight') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'bash',class:this.playerClass}})
+      else {
+        const delta = d[action.dir]
+        const target = {x:player.pos.x + delta.x, y:player.pos.y + delta.y}
+        const occ = this.entities.find(e=>e.type==='monster' && e.pos.x===target.x && e.pos.y===target.y)
+        if(!occ){ this.emit({tick:this.tick,type:'bash_miss'}) }
+        else {
+          occ.hp = (occ.hp||1) - 4
+          const push = {x:target.x + delta.x, y:target.y + delta.y}
+          const canPush = !this.isWall(push) && !this.entities.some(e=>e.id!==occ.id && e.pos.x===push.x && e.pos.y===push.y)
+          if(canPush) occ.pos = push
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:4,via:'bash',pushed:canPush}})
+          if((occ.hp||0) <=0){
+            this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
+            this.entities = this.entities.filter(e=>e.id!==occ.id)
+            this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+          }
         }
       }
     } else {
@@ -308,7 +310,6 @@ export class Engine{
 
     const playerPos = player.pos
     const monsters = this.entities.filter(e=>e.type==='monster')
-
     monsters.forEach(m=>{
       const kind = m.kind || 'chaser'
       const attacks = kind==='skitter' && this.tick % 3 === 0 ? 0 : 1
@@ -317,54 +318,33 @@ export class Engine{
       const dx = playerPos.x - m.pos.x
       const dy = playerPos.y - m.pos.y
       const distance = Math.abs(dx)+Math.abs(dy)
-
       if(distance===1){
-        const dmg = kind==='brute' ? 2 : 1
+        let dmg = kind==='brute' ? 2 : 1
+        if(this.guardActive){ dmg = Math.max(0, dmg-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
         player.hp = (player.hp||0) - dmg
         this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})
         return
       }
 
-      // Smart pursuit: use shortest-path step when direct preferences are blocked.
       const pathStep = this.nextStepToward(m.pos, playerPos, m.id)
-      if(pathStep){
-        m.pos = pathStep
-        this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:pathStep,via:'path'}})
-        return
-      }
+      if(pathStep){ m.pos = pathStep; this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:pathStep,via:'path'}}); return }
 
-      // Fallback to local preference movement if no path is currently available.
       const movePref: Coord[] = []
-      if(kind==='skitter'){
-        movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
-      } else if(kind==='brute'){
-        movePref.push({x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
-      } else {
-        const stepX = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx) : 0
-        const stepY = stepX===0 ? Math.sign(dy) : 0
-        movePref.push({x:stepX,y:stepY},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
-      }
+      if(kind==='skitter') movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
+      else if(kind==='brute') movePref.push({x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
+      else { const stepX = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx) : 0; const stepY = stepX===0 ? Math.sign(dy) : 0; movePref.push({x:stepX,y:stepY},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)}) }
+
       for(const step of movePref){
         const nd = {x:m.pos.x + step.x, y:m.pos.y + step.y}
         if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) continue
         if(this.isWall(nd)) continue
         const occ = this.entities.find(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)
-        if(!occ){
-          m.pos = nd
-          this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd}})
-          break
-        }
+        if(!occ){ m.pos = nd; this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd}}); break }
       }
     })
 
     this.trySpawnStairs()
-
-    if((player.hp||0)<=0){
-      this.gameOver = true
-      this.outcome = 'defeat'
-      this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score,floor:this.floor}})
-    }
-
+    if((player.hp||0)<=0){ this.gameOver = true; this.outcome = 'defeat'; this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score,floor:this.floor}}) }
     return this.getState()
   }
 }
