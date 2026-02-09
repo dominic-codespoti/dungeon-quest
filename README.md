@@ -14,6 +14,8 @@ npm run dev
 ```bash
 npm run test:all  # typecheck + UI smoke checks
 npm run build
+# or one-shot:
+npm run verify
 ```
 
 ## Core Flow

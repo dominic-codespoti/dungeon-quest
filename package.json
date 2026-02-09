@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "tsc --noEmit",
     "test:smoke": "node scripts/smoke-ui.mjs",
-    "test:all": "npm test && npm run test:smoke"
+    "test:all": "npm test && npm run test:smoke",
+    "verify": "npm run test:all && npm run build"
   },
   "repository": {
     "type": "git",
