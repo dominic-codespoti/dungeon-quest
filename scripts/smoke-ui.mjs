@@ -36,6 +36,7 @@ const checks = [
   ["create tooltip: surprise intent", "title='S · randomize class/race only'"],
   ["create tooltip: quickstart intent", "title='A · random build + seed and launch'"],
   ["create button: quick start uses launcher", "title='A · random build + seed and launch'>Quick Start</button>"],
+  ["create hint: J launch-link shown", "J copy launch link"],
   ["create hint: back alias shown", "B/Esc back"],
   ["create hotkey: J copy launch link", "if(ev.key==='j' || ev.key==='J') copyCreateLaunchLink()"],
   ["create button tooltip: back alias", "title='B / Esc'>Back</button>"],
