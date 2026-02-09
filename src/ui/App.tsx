@@ -82,6 +82,14 @@ function navigate(patch: Record<string,string|number|undefined>){
   window.location.href = u.toString()
 }
 
+function getDailySeed(){
+  const d = new Date()
+  const y = d.getUTCFullYear()
+  const m = d.getUTCMonth()+1
+  const day = d.getUTCDate()
+  return y*10000 + m*100 + day
+}
+
 export default function App(){
   const adminView = getParams().get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
@@ -205,7 +213,7 @@ export default function App(){
       if(ev.key==='o' || ev.key==='O') setShowMeta(true)
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
-      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:'knight', race:'human', seed:1})
+      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:'knight', race:'human', seed:getDailySeed()})
       if(ev.key==='Escape'){
         setShowRunPrimer(false)
         setShowPatchNotes(false)
@@ -431,12 +439,13 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.65, marginBottom:8}}>Daily seed: {getDailySeed()}</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run Seed</button>}
-            <button onClick={()=>navigate({screen:'game', class:'knight', race:'human', seed:1})}>Daily Challenge</button>
+            <button onClick={()=>navigate({screen:'game', class:'knight', race:'human', seed:getDailySeed()})}>Daily Challenge</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
