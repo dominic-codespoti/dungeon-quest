@@ -37,7 +37,7 @@ body {
 
 .dq-layout {
   display: grid;
-  grid-template-columns: 230px 1fr 320px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 12px;
 }
 

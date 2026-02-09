@@ -53,7 +53,7 @@ export default function GameMount(){
           const tileSize = Math.max(8, Math.min(tileW, tileH))
 
           const displays: Record<string, any> = {}
-          let wallDisplays: any[] = []
+          const wallDisplays: Record<string, any> = {}
           let fogGraphics: any
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -61,24 +61,44 @@ export default function GameMount(){
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
-            fogGraphics.fillStyle(0x000000, 0.55)
+            fogGraphics.fillStyle(0x000000, 0.75)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
             const p = toScreen(playerPos)
             fogGraphics.fillStyle(0x000000, 0)
-            fogGraphics.fillCircle(p.x, p.y, tileSize * 3.5)
+            fogGraphics.fillCircle(p.x, p.y, tileSize * 4.4)
+          }
+
+          function applyVision(){
+            const state = (window as any).game?.getState?.()
+            if(!state) return
+            const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
+            const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
+
+            Object.keys(wallDisplays).forEach(k=>{
+              if(vis.has(k)) wallDisplays[k].setAlpha(1)
+              else if(seen.has(k)) wallDisplays[k].setAlpha(0.28)
+              else wallDisplays[k].setAlpha(0)
+            })
+
+            ;(state.entities||[]).forEach((ent:any)=>{
+              const d = displays[ent.id]
+              if(!d) return
+              const k = `${ent.pos.x},${ent.pos.y}`
+              if(ent.id==='p') d.setAlpha(1)
+              else d.setAlpha(vis.has(k) ? 1 : 0)
+            })
           }
 
           const handler = (e:any)=>{
             if(e.type==='init'){
               Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
-              wallDisplays.forEach(w=>{ try{ w.destroy() }catch{} })
-              wallDisplays = []
+              Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
               if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
 
               ;(e.payload.walls||[]).forEach((w:any)=>{
                 const p = toScreen(w)
                 const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
-                wallDisplays.push(wall)
+                wallDisplays[`${w.x},${w.y}`] = wall
               })
 
               ;(e.payload.entities||[]).forEach((ent:any)=>{
@@ -105,6 +125,7 @@ export default function GameMount(){
 
               fogGraphics = sc.add.graphics()
               paintFog()
+              applyVision()
             } else if(e.type==='move'){
               const id = e.payload.id
               const to = e.payload.to
@@ -114,6 +135,7 @@ export default function GameMount(){
                 sc.tweens.add({targets:d,x:p.x,y:p.y,duration:120,ease:'Linear'})
               }
               if(id==='p'){ playerPos = to; paintFog() }
+              applyVision()
             } else if(e.type==='die'){
               const id = e.payload.id
               const d = displays[id]
@@ -127,6 +149,9 @@ export default function GameMount(){
 
           unsub = eventBus.subscribe(handler)
           eventBus.getLines().forEach(l=>{ try{ handler(JSON.parse(l)) }catch(_){ } })
+          const visionPoll = setInterval(applyVision, 140)
+          const oldUnsub = unsub
+          unsub = ()=>{ clearInterval(visionPoll); oldUnsub() }
         }catch(err){ console.error('renderer setup failed',err) }
       }
 

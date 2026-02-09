@@ -32,6 +32,7 @@ type Snapshot = {
 const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
 
 export default function App(){
+  const adminView = new URLSearchParams(window.location.search).get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Delve deeper. Build your loadout. Survive.')
   const [seed,setSeed] = useState<number | null>(null)
@@ -90,21 +91,37 @@ export default function App(){
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const setClass = (c:PlayerClass)=> (window as any).game?.setClass?.(c)
 
+  if(adminView) return <AdminPage />
+
   return (
     <div className='dq-shell'>
       <h1 className='dq-title'>Dungeon Quest</h1>
       <div className='dq-sub'>{status}</div>
 
-      <div className='dq-stats'>
-        <div className='dq-stat'>Class<b>{klass}</b></div>
-        <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
-        <div className='dq-stat'>HP<b>{String(playerHp)}</b></div>
-        <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
-        <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
-      </div>
-
       <div className='dq-layout'>
+        <div className='dq-center'>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Direction dash · G guard · Space wait</div>
+          <div className='dq-canvas-wrap'>
+            <GameMount />
+          </div>
+        </div>
+
         <div className='dq-card'>
+          <div className='dq-stats' style={{gridTemplateColumns:'repeat(2,minmax(0,1fr))', marginBottom:10}}>
+            <div className='dq-stat'>Class<b>{klass}</b></div>
+            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
+            <div className='dq-stat'>HP<b>{String(playerHp)}</b></div>
+            <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
+            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
+          </div>
+
+          <div style={{fontSize:13,marginBottom:8,color:'#9fb0d9'}}>Modifier: {snapshot?.floorModifier ?? 'none'}</div>
+          <div style={{fontSize:13}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
+          <div style={{fontSize:13}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
+          <div style={{fontSize:13}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
+          <div style={{fontSize:13,marginBottom:10}}><I src={helmetIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}</div>
+
           <div className='dq-class'>
             <button onClick={()=>setClass('knight')}>Knight</button>
             <button onClick={()=>setClass('rogue')}>Rogue</button>
@@ -120,37 +137,12 @@ export default function App(){
           </div>
 
           <div className='dq-skillrow'>
-            {klass==='rogue' && (
-              <>
-                <button onClick={()=>dash('up')} disabled={(snapshot?.dashCooldown ?? 0)>0}><I src={bootsIcon}/>Dash ↑</button>
-                <button onClick={()=>dash('right')} disabled={(snapshot?.dashCooldown ?? 0)>0}>Dash →</button>
-              </>
-            )}
-            {klass==='knight' && (
-              <>
-                <button onClick={guard} disabled={(snapshot?.guardCooldown ?? 0)>0}><I src={shieldIcon}/>Guard</button>
-                <button onClick={()=>bash('up')}><I src={swordIcon}/>Bash ↑</button>
-              </>
-            )}
+            {klass==='rogue' && <button onClick={()=>dash('up')} disabled={(snapshot?.dashCooldown ?? 0)>0}><I src={bootsIcon}/>Dash</button>}
+            {klass==='knight' && <button onClick={guard} disabled={(snapshot?.guardCooldown ?? 0)>0}><I src={shieldIcon}/>Guard</button>}
+            {klass==='knight' && <button onClick={()=>bash('up')}><I src={swordIcon}/>Bash</button>}
           </div>
 
-          <hr style={{borderColor:'#2a3761'}}/>
-          <div style={{fontSize:13, color:'#9fb0d9'}}>Seed: {seed ?? '-'} · Mod: {snapshot?.floorModifier ?? 'none'}</div>
-          <div style={{fontSize:13, marginTop:6}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
-          <div style={{fontSize:13}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
-          <div style={{fontSize:13}}><I src={potionIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
-          <div style={{fontSize:13}}><I src={helmetIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}</div>
-        </div>
-
-        <div className='dq-center'>
-          <div className='dq-center-head'>Use WASD / Arrows · Shift+Direction = Dash · G = Guard · Space = Wait</div>
-          <div className='dq-canvas-wrap'>
-            <GameMount />
-          </div>
-        </div>
-
-        <div className='dq-card'>
-          <h3 style={{marginTop:0}}><I src={treasureIcon}/>Equipment</h3>
+          <h3 style={{marginTop:14}}><I src={treasureIcon}/>Equipment</h3>
           <div className='dq-equip-list'>
             {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
             {(snapshot?.inventory || []).map((it,idx)=>(
@@ -180,10 +172,6 @@ export default function App(){
           </div>
         </div>
       )}
-
-      <pre id='event-log' style={{height:120,overflow:'auto',background:'#0a0f1e',color:'#7ce2a8',padding:10,marginTop:12,border:'1px solid #2a3761',borderRadius:8}}></pre>
-      <hr style={{borderColor:'#2a3761'}}/>
-      <AdminPage/>
     </div>
   )
 }

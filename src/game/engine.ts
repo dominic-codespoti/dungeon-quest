@@ -22,6 +22,8 @@ export class Engine{
   attackBonus = 0
   defenseBonus = 0
   inventory: GeneratedItem[] = []
+  visible = new Set<string>()
+  discovered = new Set<string>()
   dashCooldown = 0
   guardCooldown = 0
   guardActive = false
@@ -48,10 +50,12 @@ export class Engine{
       this.attackBonus = 0
       this.defenseBonus = 0
       this.inventory = []
+      this.discovered.clear()
     }
     this.dashCooldown = 0
     this.guardCooldown = 0
     this.guardActive = false
+    this.discovered.clear()
     this.walls = new Set<string>()
     this.generateWalls()
 
@@ -83,6 +87,7 @@ export class Engine{
     const gearDrops = this.floor >= 2 ? 2 : 1
     for(let i=0;i<gearDrops;i++) this.spawnItem(`i${this.floor}-g${i+1}`,'gear')
 
+    this.updateVision()
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
     }
@@ -163,21 +168,55 @@ export class Engine{
   }
 
   private generateWalls(){
-    const center = {x:Math.floor(this.width/2), y:Math.floor(this.height/2)}
-    const densityBoost = this.floorModifier==='swarm' ? -0.01 : this.floorModifier==='brute-heavy' ? 0.015 : 0
-    const density = Math.min(0.22, Math.max(0.08, 0.1 + (this.floor - 1) * 0.012 + densityBoost))
-    for(let y=0; y<this.height; y++){
-      for(let x=0; x<this.width; x++){
-        const isBorder = x===0 || y===0 || x===this.width-1 || y===this.height-1
-        if(isBorder){
-          this.walls.add(key({x,y}))
-          continue
-        }
-        const nearStart = Math.abs(x-center.x) + Math.abs(y-center.y) <= 3
-        if(!nearStart && this.rand() < density){
-          this.walls.add(key({x,y}))
-        }
+    // Room-and-corridor generator: fill with walls, then carve rooms.
+    this.walls.clear()
+    for(let y=0; y<this.height; y++) for(let x=0; x<this.width; x++) this.walls.add(key({x,y}))
+
+    const rooms: Array<{x:number,y:number,w:number,h:number,cx:number,cy:number}> = []
+    const roomAttempts = 80
+    const targetRooms = 8 + Math.min(4, Math.floor(this.floor/2))
+
+    const carve = (x:number,y:number)=>{
+      if(x<=0 || y<=0 || x>=this.width-1 || y>=this.height-1) return
+      this.walls.delete(key({x,y}))
+    }
+    const carveRoom = (rx:number,ry:number,rw:number,rh:number)=>{
+      for(let y=ry;y<ry+rh;y++) for(let x=rx;x<rx+rw;x++) carve(x,y)
+    }
+    const carveTunnel = (ax:number,ay:number,bx:number,by:number)=>{
+      if(this.rand() < 0.5){
+        for(let x=Math.min(ax,bx); x<=Math.max(ax,bx); x++) carve(x,ay)
+        for(let y=Math.min(ay,by); y<=Math.max(ay,by); y++) carve(bx,y)
+      } else {
+        for(let y=Math.min(ay,by); y<=Math.max(ay,by); y++) carve(ax,y)
+        for(let x=Math.min(ax,bx); x<=Math.max(ax,bx); x++) carve(x,by)
       }
+    }
+
+    for(let i=0;i<roomAttempts && rooms.length<targetRooms;i++){
+      const rw = 4 + Math.floor(this.rand()*6)
+      const rh = 4 + Math.floor(this.rand()*6)
+      const rx = 1 + Math.floor(this.rand()*(this.width-rw-2))
+      const ry = 1 + Math.floor(this.rand()*(this.height-rh-2))
+      const overlaps = rooms.some(r => rx < r.x+r.w+1 && rx+rw+1 > r.x && ry < r.y+r.h+1 && ry+rh+1 > r.y)
+      if(overlaps) continue
+      carveRoom(rx,ry,rw,rh)
+      const room = {x:rx,y:ry,w:rw,h:rh,cx:rx+Math.floor(rw/2),cy:ry+Math.floor(rh/2)}
+      if(rooms.length>0){
+        const p = rooms[rooms.length-1]!
+        carveTunnel(p.cx,p.cy,room.cx,room.cy)
+      }
+      rooms.push(room)
+    }
+
+    if(rooms.length===0){
+      for(let y=1;y<this.height-1;y++) for(let x=1;x<this.width-1;x++) if(this.rand() > 0.12) this.walls.delete(key({x,y}))
+    }
+
+    const player = this.entities.find(e=>e.id==='p')
+    if(player){
+      if(rooms.length>0) player.pos = {x:rooms[0]!.cx,y:rooms[0]!.cy}
+      else player.pos = {x:Math.floor(this.width/2), y:Math.floor(this.height/2)}
     }
   }
 
@@ -237,6 +276,41 @@ export class Engine{
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
 
+  private hasLineOfSight(from:Coord, to:Coord){
+    let x0 = from.x, y0 = from.y, x1 = to.x, y1 = to.y
+    const dx = Math.abs(x1-x0), sx = x0 < x1 ? 1 : -1
+    const dy = -Math.abs(y1-y0), sy = y0 < y1 ? 1 : -1
+    let err = dx + dy
+    while(!(x0===x1 && y0===y1)){
+      const e2 = 2*err
+      if(e2 >= dy){ err += dy; x0 += sx }
+      if(e2 <= dx){ err += dx; y0 += sy }
+      if(x0===x1 && y0===y1) break
+      if(this.isWall({x:x0,y:y0})) return false
+    }
+    return true
+  }
+
+  private updateVision(){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return
+    const radius = 8
+    this.visible.clear()
+    for(let y=player.pos.y-radius; y<=player.pos.y+radius; y++){
+      for(let x=player.pos.x-radius; x<=player.pos.x+radius; x++){
+        if(x<0||y<0||x>=this.width||y>=this.height) continue
+        const d2 = (x-player.pos.x)*(x-player.pos.x)+(y-player.pos.y)*(y-player.pos.y)
+        if(d2 > radius*radius) continue
+        const p = {x,y}
+        if(this.hasLineOfSight(player.pos,p)){
+          const k = key(p)
+          this.visible.add(k)
+          this.discovered.add(k)
+        }
+      }
+    }
+  }
+
   private nextStepToward(start:Coord, goal:Coord, blockerId?:string): Coord | null {
     if(start.x===goal.x && start.y===goal.y) return null
     const q: Coord[] = [start]
@@ -276,6 +350,8 @@ export class Engine{
       width:this.width,
       height:this.height,
       walls:this.getWalls(),
+      visible:[...this.visible].map(k=>{ const p=k.split(','); return {x:Number(p[0]??0),y:Number(p[1]??0)} }),
+      discovered:[...this.discovered].map(k=>{ const p=k.split(','); return {x:Number(p[0]??0),y:Number(p[1]??0)} }),
       entities:JSON.parse(JSON.stringify(this.entities)),
       score:this.score,
       attackBonus:this.attackBonus,
@@ -442,6 +518,7 @@ export class Engine{
       this.emit({tick:this.tick,type:'wait'})
     }
 
+    this.updateVision()
     const playerPos = player.pos
     const monsters = this.entities.filter(e=>e.type==='monster')
     monsters.forEach(m=>{
@@ -452,6 +529,23 @@ export class Engine{
       const dx = playerPos.x - m.pos.x
       const dy = playerPos.y - m.pos.y
       const distance = Math.abs(dx)+Math.abs(dy)
+      const senseRadius = this.floorModifier==='swarm' ? 9 : 7
+      const canSense = distance <= senseRadius && this.hasLineOfSight(m.pos, playerPos)
+      if(!canSense){
+        if(this.rand() < 0.25){
+          const dirs: Coord[] = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}]
+          const step = dirs[Math.floor(this.rand()*dirs.length)]
+          if(step){
+            const nd = {x:m.pos.x+step.x,y:m.pos.y+step.y}
+            if(!this.isWall(nd) && !this.entities.some(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)){
+              m.pos = nd
+              this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd,via:'wander'}})
+            }
+          }
+        }
+        return
+      }
+
       if(distance===1){
         let dmg = kind==='brute' ? 2 : 1
         dmg = Math.max(0, dmg - this.defenseBonus)
@@ -479,6 +573,7 @@ export class Engine{
     })
 
     this.trySpawnStairs()
+    this.updateVision()
     if((player.hp||0)<=0){ this.gameOver = true; this.outcome = 'defeat'; this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score,floor:this.floor}}) }
     return this.getState()
   }

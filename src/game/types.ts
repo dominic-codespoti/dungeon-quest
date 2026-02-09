@@ -33,6 +33,8 @@ export type GameSnapshot = {
   width: number
   height: number
   walls: Coord[]
+  visible: Coord[]
+  discovered: Coord[]
   entities: Entity[]
   score: number
   attackBonus: number
