@@ -95,7 +95,9 @@ export default function GameMount(){
                           ? 0xaaff66
                           : ent.kind==='cursed-idol'
                             ? 0xaa33aa
-                            : 0x4488ff
+                            : ent.kind==='gear'
+                              ? 0xffd166
+                              : 0x4488ff
                 const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
                 displays[ent.id] = r
                 if(ent.id==='p') playerPos = ent.pos

@@ -181,8 +181,25 @@ Implemented in this pass:
 - More meaningful route decisions now: survival vs greed.
 - Better roguelike flavor from explicit risk/reward pickups.
 
+## Follow-up Pass — Item Generation System Foundations
+Implemented in this pass:
+- New generated **gear** item class (`weapon` / `armor`) with:
+  - rarity tiers: common, magic, rare, epic
+  - base types (e.g., Sword, Plate)
+  - random enchantment text
+  - rolled stat bonuses (`atkBonus`, `defBonus`, `hpBonus`)
+- Gear now spawns each floor and auto-equips on pickup.
+- Combat now reads build stats:
+  - player damage scales with `ATK+`
+  - incoming monster damage reduced by `DEF+`
+- HUD now shows `ATK+` and `DEF+`.
+
+Validation:
+- `npm test` ✅
+- `npm run build` ✅
+
 ## Suggested next changes
-1. Add rogue secondary skill (**Smoke** or **Backstep**) to close remaining parity gap.
-2. Add class-specific starter perk text/tooltips in UI.
-3. Add one explicit anti-spike safeguard for floor 4+ (threat burst limiter).
-4. Fix deployment/runtime serving path so headed browser playtests can be consistently executed.
+1. Add an explicit **inventory/equipment panel** (currently auto-equip only).
+2. Add **item subclasses** per class fantasy (Knight heavy armor bias, Rogue light weapon bias).
+3. Add true enchantment effects (not just flavor text) via affix hooks.
+4. Re-enable full automated playtest with tuned turn budget after combat-cost optimization.

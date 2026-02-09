@@ -9,6 +9,8 @@ type Snapshot = {
   floorModifier?: string
   playerClass: PlayerClass
   score:number
+  attackBonus:number
+  defenseBonus:number
   dashCooldown:number
   guardCooldown:number
   guardActive:boolean
@@ -42,6 +44,7 @@ export default function App(){
       if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
       if(e.type==='pickup' && e.payload?.kind==='elixir') setStatus('🍃 Elixir: +2 HP and cooldowns reduced.')
       if(e.type==='pickup' && e.payload?.kind==='cursed-idol') setStatus('🗿 Cursed Idol: big score, painful cost.')
+      if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`🧰 ${e.payload?.gear?.name || 'Gear'} equipped.`)
       if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
       if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
       if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} (${e.payload?.modifier || 'none'})`)
@@ -101,6 +104,8 @@ export default function App(){
         <strong>HP: {String(playerHp)}</strong>
         <strong>Monsters: {String(monstersLeft)}</strong>
         <strong>Score: {snapshot?.score ?? '-'}</strong>
+        <strong>ATK+: {snapshot?.attackBonus ?? 0}</strong>
+        <strong>DEF+: {snapshot?.defenseBonus ?? 0}</strong>
         <strong>Dash: {snapshot?.dashCooldown ? `CD ${snapshot.dashCooldown}` : 'Ready'}</strong>
         <strong>Guard: {snapshot?.guardCooldown ? `CD ${snapshot.guardCooldown}` : (snapshot?.guardActive ? 'Active' : 'Ready')}</strong>
       </div>
@@ -134,7 +139,7 @@ export default function App(){
         )}
 
         <button onClick={newSeed}>New Run</button>
-        <span style={{opacity:0.75}}>Items: blue potion, cyan relic, lime elixir, purple idol, violet stairs</span>
+        <span style={{opacity:0.75}}>Items: blue potion, cyan relic, lime elixir, purple idol, gold gear, violet stairs</span>
       </div>
 
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>

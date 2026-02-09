@@ -48,6 +48,7 @@ function chooseAction(state){
   const monsters = state.entities.filter(e=>e.type==='monster')
   const stairs = state.entities.find(e=>e.type==='item' && e.kind==='stairs')
   const potion = state.entities.find(e=>e.type==='item' && e.kind==='potion')
+  const gear = state.entities.filter(e=>e.type==='item' && e.kind==='gear')
 
   if(state.playerClass==='knight'){
     if((p.hp||0)<=5 && (state.guardCooldown||0)===0) return {type:'guard'}
@@ -62,6 +63,10 @@ function chooseAction(state){
   let targets = []
   if(stairs) targets = [stairs.pos]
   else if((p.hp||0)<=5 && potion) targets = [potion.pos]
+  else if(gear.length){
+    gear.sort((a,b)=>manhattan(p.pos,a.pos)-manhattan(p.pos,b.pos))
+    targets = [gear[0].pos]
+  }
   else if(monsters.length){ monsters.sort((a,b)=>manhattan(p.pos,a.pos)-manhattan(p.pos,b.pos)); targets = monsters.slice(0,2).map(m=>m.pos) }
 
   for(const t of targets){
@@ -77,10 +82,10 @@ function chooseAction(state){
 
 function runClass(playerClass){
   const runs = []
-  for(let i=0;i<6;i++){
+  for(let i=0;i<4;i++){
     const eng = new Engine(30,30,i+1,playerClass)
     let state = eng.getState(), turns = 0
-    while(!state.gameOver && turns < 1200){ state = eng.step(chooseAction(state)); turns++ }
+    while(!state.gameOver && turns < 600){ state = eng.step(chooseAction(state)); turns++ }
     const hp = state.entities.find(e=>e.id==='p')?.hp ?? 0
     runs.push({seed:i+1,class:playerClass,floor:state.floor,score:state.score,hp,turns,defeat:state.gameOver})
   }

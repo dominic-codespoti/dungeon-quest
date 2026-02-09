@@ -1,4 +1,4 @@
-import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass, GeneratedItem, Rarity} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){
@@ -19,6 +19,8 @@ export class Engine{
   events: GameEvent[] = []
   walls = new Set<string>()
   score = 0
+  attackBonus = 0
+  defenseBonus = 0
   dashCooldown = 0
   guardCooldown = 0
   guardActive = false
@@ -71,6 +73,10 @@ export class Engine{
     if(this.floor % 2 === 0) this.spawnItem(`i${this.floor}-e1`,'elixir')
     if(this.floor >= 3 && this.rand() < 0.5) this.spawnItem(`i${this.floor}-c1`,'cursed-idol')
 
+    // Generated gear system (item classes + rarity + enchantments)
+    const gearDrops = this.floor >= 2 ? 2 : 1
+    for(let i=0;i<gearDrops;i++) this.spawnItem(`i${this.floor}-g${i+1}`,'gear')
+
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
     }
@@ -94,6 +100,60 @@ export class Engine{
     if(this.floorModifier==='brute-heavy') return pick < 0.45 ? 'brute' : pick < 0.75 ? 'chaser' : 'skitter'
     if(this.floorModifier==='swarm') return pick < 0.2 ? 'brute' : pick < 0.5 ? 'chaser' : 'skitter'
     return pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
+  }
+
+  private rollRarity(): Rarity {
+    const r = this.rand()
+    if(r < 0.55) return 'common'
+    if(r < 0.82) return 'magic'
+    if(r < 0.95) return 'rare'
+    return 'epic'
+  }
+
+  private generateGear(): GeneratedItem {
+    const itemClass = this.rand() < 0.5 ? 'weapon' : 'armor'
+    const rarity = this.rollRarity()
+    const tier = rarity==='common' ? 1 : rarity==='magic' ? 2 : rarity==='rare' ? 3 : 4
+
+    if(itemClass==='weapon'){
+      const bases = ['Sword','Dagger','Spear','Mace']
+      const baseType = bases[Math.floor(this.rand()*bases.length)] ?? 'Sword'
+      const atkBonus = tier + Math.floor(this.floor/3)
+      const enchants = [
+        'Keen (+1 atk)',
+        'Vicious (+1 dash dmg)',
+        'Balanced (-1 skill cooldown chance)'
+      ]
+      const enchantments = rarity==='common' ? [] : [enchants[Math.floor(this.rand()*enchants.length)] ?? 'Keen (+1 atk)']
+      return {
+        itemClass, baseType, rarity,
+        name: `${rarity.toUpperCase()} ${baseType}`,
+        atkBonus,
+        defBonus: 0,
+        hpBonus: rarity==='epic' ? 2 : 0,
+        scoreValue: 80 + tier*40,
+        enchantments
+      }
+    }
+
+    const bases = ['Leather','Chainmail','Plate','Cloak']
+    const baseType = bases[Math.floor(this.rand()*bases.length)] ?? 'Leather'
+    const defBonus = Math.max(1, tier-1) + Math.floor(this.floor/4)
+    const enchants = [
+      'Fortified (+1 def)',
+      'Stalwart (+1 max hp)',
+      'Shadowwoven (evasion vibe)'
+    ]
+    const enchantments = rarity==='common' ? [] : [enchants[Math.floor(this.rand()*enchants.length)] ?? 'Fortified (+1 def)']
+    return {
+      itemClass, baseType, rarity,
+      name: `${rarity.toUpperCase()} ${baseType}`,
+      atkBonus: 0,
+      defBonus,
+      hpBonus: rarity==='epic' ? 2 : (rarity==='rare' ? 1 : 0),
+      scoreValue: 80 + tier*40,
+      enchantments
+    }
   }
 
   private generateWalls(){
@@ -166,8 +226,9 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'){
-    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3)})
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'){
+    const loot = kind==='gear' ? this.generateGear() : undefined
+    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
 
   private nextStepToward(start:Coord, goal:Coord, blockerId?:string): Coord | null {
@@ -211,6 +272,8 @@ export class Engine{
       walls:this.getWalls(),
       entities:JSON.parse(JSON.stringify(this.entities)),
       score:this.score,
+      attackBonus:this.attackBonus,
+      defenseBonus:this.defenseBonus,
       dashCooldown:this.dashCooldown,
       guardCooldown:this.guardCooldown,
       guardActive:this.guardActive,
@@ -246,7 +309,7 @@ export class Engine{
 
       const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
       if(occ?.type==='monster'){
-        const damage = moveType==='dash' ? 5 : 3
+        const damage = (moveType==='dash' ? 5 : 3) + this.attackBonus
         occ.hp = (occ.hp||1) - damage
         this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage,via:moveType}})
         if((occ.hp||0) <=0){
@@ -286,6 +349,19 @@ export class Engine{
           player.hp = (player.hp||0) - 2
           this.score += 350
           this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,effects:['hp-2','score+350']}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        }
+        else if(occ.kind==='gear'){
+          const gear = occ.loot
+          if(gear){
+            this.attackBonus += gear.atkBonus
+            this.defenseBonus += gear.defBonus
+            player.hp = Math.min(12 + gear.hpBonus, (player.hp||0) + gear.hpBonus)
+            this.score += gear.scoreValue
+            this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind,gear}})
+          } else {
+            this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          }
           this.entities = this.entities.filter(e=>e.id!==occ.id)
         }
         else if(occ.kind==='stairs'){
@@ -329,11 +405,12 @@ export class Engine{
         const occ = this.entities.find(e=>e.type==='monster' && e.pos.x===target.x && e.pos.y===target.y)
         if(!occ){ this.emit({tick:this.tick,type:'bash_miss'}) }
         else {
-          occ.hp = (occ.hp||1) - 3
+          const bashDmg = 3 + Math.floor(this.attackBonus/2)
+          occ.hp = (occ.hp||1) - bashDmg
           const push = {x:target.x + delta.x, y:target.y + delta.y}
           const canPush = !this.isWall(push) && !this.entities.some(e=>e.id!==occ.id && e.pos.x===push.x && e.pos.y===push.y)
           if(canPush) occ.pos = push
-          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:3,via:'bash',pushed:canPush}})
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:bashDmg,via:'bash',pushed:canPush}})
           if((occ.hp||0) <=0){
             this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
             this.entities = this.entities.filter(e=>e.id!==occ.id)
@@ -357,6 +434,7 @@ export class Engine{
       const distance = Math.abs(dx)+Math.abs(dy)
       if(distance===1){
         let dmg = kind==='brute' ? 2 : 1
+        dmg = Math.max(0, dmg - this.defenseBonus)
         if(this.guardActive){ dmg = Math.max(0, dmg-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
         player.hp = (player.hp||0) - dmg
         this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})
