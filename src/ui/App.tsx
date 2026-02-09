@@ -515,6 +515,7 @@ export default function App(){
                 <li>Use danger/threat HUD before committing to melee.</li>
                 <li>Save mobility items (Blink/Rift) for spike turns.</li>
                 <li>Target floor 10 clear, not endless score greed.</li>
+                <li>Daily preset today: <b>{dailyPreset.seed}</b> · <b>{dailyPreset.klass}/{dailyPreset.race}</b>.</li>
               </ul>
               <button onClick={()=>setShowRunPrimer(false)}>Close</button>
             </div>
