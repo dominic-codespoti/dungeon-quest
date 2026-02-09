@@ -11,6 +11,7 @@ import bootsIcon from './assets/icons/boots.svg'
 
 type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[]}
 type Snapshot = {
+  tick:number
   floor:number
   floorModifier?: string
   nextFloorModifier?: string
@@ -386,6 +387,7 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
