@@ -759,7 +759,7 @@ export default function App(){
               const rr = randomClassRace()
               setKlass(rr.klass)
               setRace(rr.race)
-            }} title='S'>Surprise Me</button>
+            }} title='S · randomize class/race only'>Surprise Me</button>
             <button onClick={()=>{
               const rr = randomClassRace()
               setKlass(rr.klass)
@@ -784,7 +784,7 @@ export default function App(){
             <button onClick={()=>{
               const rr = randomClassRace()
               navigate({screen:'game', class:rr.klass, race:rr.race, seed:randomSeed()})
-            }} title='A'>Quick Start</button>
+            }} title='A · random build + seed and launch'>Quick Start</button>
             <button onClick={()=>{
               const chosenSeed = Number(customSeed)
               navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
