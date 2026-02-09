@@ -219,12 +219,15 @@ export default function GameMount(){
         }catch(err){ console.error('renderer setup failed',err) }
       }
 
-      if(scene && scene.sys && scene.sys.events){
-        if(scene.sys.settings && scene.sys.settings.active) setupScene(scene)
-        else scene.sys.events.once('create',()=> setupScene(scene))
-      } else {
-        setTimeout(()=>{ const s2 = g.scene.scenes[0]; if(s2) setupScene(s2) },200)
+      const waitForScene = (tries=0)=>{
+        const s = g.scene.scenes[0]
+        if(s && s.add && s.sys){
+          setupScene(s)
+          return
+        }
+        if(tries < 40) setTimeout(()=>waitForScene(tries+1), 100)
       }
+      waitForScene()
 
       return ()=>{ try{ unsub() }catch{}; g.destroy(true) }
     }
