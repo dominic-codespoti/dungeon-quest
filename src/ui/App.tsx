@@ -469,7 +469,7 @@ export default function App(){
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run Seed</button>}
-            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Daily Challenge</button>
+            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
