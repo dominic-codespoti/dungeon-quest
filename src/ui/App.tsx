@@ -396,6 +396,7 @@ export default function App(){
             <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>
             <div className='dq-stat'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></div>
             {nearby.items > 0 && <div style={{fontSize:12,color:'#9dffb8'}}>Tip: item in reach — press E to interact.</div>}
+            {nearby.monsters > 0 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: adjacent threat — consider Guard/Backstep before trading hits.</div>}
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
