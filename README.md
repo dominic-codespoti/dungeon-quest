@@ -57,7 +57,7 @@ npm run verify
 - `C` Clear seed
 - `A` Quickstart run
 - `Enter` Start Adventure
-- `Esc` Back to menu
+- `B` / `Esc` Back to menu
 
 ## Daily Challenge
 

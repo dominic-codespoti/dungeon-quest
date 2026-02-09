@@ -322,7 +322,7 @@ export default function App(){
         const chosenSeed = Number(customSeed)
         navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : Math.floor(Math.random()*1_000_000)+1})
       }
-      if(ev.key==='Escape') navigate({screen:'menu'})
+      if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
     }
     window.addEventListener('keydown', onCreateKey)
     return ()=> window.removeEventListener('keydown', onCreateKey)
@@ -688,7 +688,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
-          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · Enter start · Esc back</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · Enter start · B/Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
@@ -729,7 +729,7 @@ export default function App(){
           </div>
 
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
-            <button onClick={()=>navigate({screen:'menu'})} title='Esc'>Back</button>
+            <button onClick={()=>navigate({screen:'menu'})} title='B / Esc'>Back</button>
             <button onClick={()=>{
               const classes: PlayerClass[] = ['knight','rogue']
               const races: PlayerRace[] = ['human','elf','dwarf']
