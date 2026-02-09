@@ -789,10 +789,10 @@ export default function App(){
           </div>
 
           <div className='dq-skillrow'>
-            {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : 'Dash'}</button>}
-            {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : 'Backstep (Q)'}</button>}
-            {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard</button>}
-            {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash (B)'}</button>}
+            {klass==='rogue' && <button onClick={dash} title='Shift + direction'><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : 'Dash'}</button>}
+            {klass==='rogue' && <button onClick={backstep} title='Q'><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : 'Backstep (Q)'}</button>}
+            {klass==='knight' && <button onClick={guard} title='G'><I src={shieldIcon}/>Guard</button>}
+            {klass==='knight' && <button onClick={bash} title='B'><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash (B)'}</button>}
             {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel Targeting</button>}
           </div>
 
