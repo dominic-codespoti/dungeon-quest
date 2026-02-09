@@ -521,8 +521,10 @@ export default function App(){
               <h2 style={{marginTop:0}}>Records</h2>
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
+              <p>Daily Seed: <b>{getDailySeed()}</b></p>
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+                <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 <button onClick={resetRecords}>Reset</button>
                 <button onClick={()=>setShowMeta(false)}>Close</button>
