@@ -327,7 +327,7 @@ export default function App(){
       }
       if(ev.key==='Enter'){
         const chosenSeed = Number(customSeed)
-        navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
+        launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
       }
       if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})
     }
@@ -780,7 +780,7 @@ export default function App(){
             }} title='A · random build + seed and launch'>Quick Start</button>
             <button onClick={()=>{
               const chosenSeed = Number(customSeed)
-              navigate({screen:'game', class:klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
+              launchGamePreset({klass, race, seed:Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()})
             }} title='Enter'>Start Adventure</button>
           </div>
         </div>
