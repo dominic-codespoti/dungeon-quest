@@ -307,6 +307,10 @@ export default function App(){
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
+  const copySeed = async ()=>{
+    if(seed==null) return
+    try{ await navigator.clipboard.writeText(String(seed)); setStatus(`Seed ${seed} copied.`) }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -430,6 +434,7 @@ export default function App(){
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
+            <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
             <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
@@ -528,6 +533,7 @@ export default function App(){
             <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p><p>Seed: <b>{seed ?? '-'}</b></p><p>Efficiency: <b>{snapshot.tick>0 ? (snapshot.score/Math.max(1,snapshot.tick)).toFixed(1) : '0.0'} score/turn</b></p>
             {newRecord && <p style={{color:'#9dffb8'}}>{newRecord}</p>}
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+              <button onClick={copySeed}>Copy seed</button>
               <button onClick={sameSeed}>Restart same seed</button>
               <button onClick={newSeed}>New seed</button>
               <button onClick={backToMenu}>Main menu</button>
