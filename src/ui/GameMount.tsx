@@ -67,6 +67,11 @@ export default function GameMount(){
           const displays: Record<string, any> = {}
           const wallDisplays: Record<string, any> = {}
           const floorDisplays: Record<string, any> = {}
+          const hpBars: Record<string, {bg:any, fg:any}> = {}
+          let bossBarWrap: any
+          let bossBarBg: any
+          let bossBarFill: any
+          let bossBarText: any
           let fogGraphics: any
           let flashOverlay: any
           let targetingGraphics: any
@@ -129,6 +134,43 @@ export default function GameMount(){
             sc.tweens.add({targets:g, alpha:0, duration:130, onComplete:()=>g.destroy()})
           }
 
+          function fxDamageNumber(pos:Coord, damage:number, isPlayerTarget=false){
+            const p = toScreen(pos)
+            const t = sc.add.text(p.x, p.y - tileSize*0.6, `-${Math.max(0, Math.floor(damage||0))}`, {
+              fontFamily:'monospace',
+              fontSize: String(Math.max(10, Math.floor(tileSize*0.42))),
+              color: isPlayerTarget ? '#ff8080' : '#ffd37a',
+              stroke:'#120f0f',
+              strokeThickness:2
+            }).setOrigin(0.5).setDepth(320)
+            sc.tweens.add({targets:t, y:t.y - tileSize*0.7, alpha:0, duration:360, ease:'Cubic.Out', onComplete:()=>t.destroy()})
+          }
+
+          function ensureBossBar(){
+            if(bossBarWrap) return
+            const w = Math.min(sc.scale.width*0.62, 520)
+            const h = 16
+            const x = (sc.scale.width - w)/2
+            const y = 14
+            bossBarWrap = sc.add.container(0,0).setDepth(900)
+            bossBarBg = sc.add.rectangle(x + w/2, y + h/2, w, h, 0x1a1414, 0.92)
+            bossBarBg.setStrokeStyle(2, 0x6b3a3a, 1)
+            bossBarFill = sc.add.rectangle(x + 2, y + h/2, w-4, h-4, 0xb23a3a, 0.95).setOrigin(0,0.5)
+            bossBarText = sc.add.text(sc.scale.width/2, y - 11, 'BOSS', {
+              fontFamily:'monospace', fontSize:'12px', color:'#ffd9d9', stroke:'#120f0f', strokeThickness:2
+            }).setOrigin(0.5,0)
+            bossBarWrap.add([bossBarBg, bossBarFill, bossBarText])
+          }
+
+          function clearBossBar(){
+            if(!bossBarWrap) return
+            try{ bossBarWrap.destroy(true) }catch{}
+            bossBarWrap = undefined
+            bossBarBg = undefined
+            bossBarFill = undefined
+            bossBarText = undefined
+          }
+
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
@@ -171,12 +213,14 @@ export default function GameMount(){
               else wallDisplays[k].setAlpha(0)
             })
 
+            let activeBoss:any = null
             ;(state.entities||[]).forEach((ent:any)=>{
               const d = displays[ent.id]
               if(!d) return
               const k = `${ent.pos.x},${ent.pos.y}`
+              const isVisible = ent.id==='p' ? true : vis.has(k)
               if(ent.id==='p') d.setAlpha(1)
-              else d.setAlpha(vis.has(k) ? 1 : 0)
+              else d.setAlpha(isVisible ? 1 : 0)
               d.clearTint()
               if(ent.kind==='boss') d.setTint(0xff8a66)
               if(ent.kind==='spitter') d.setTint(0x7dff9a)
@@ -185,12 +229,65 @@ export default function GameMount(){
               if(ent.kind==='shrine') d.setTint(0x9a77ff)
               if(ent.kind==='fountain') d.setTint(0x63d6ff)
               if(ent.kind==='rift-orb') d.setTint(0xc27dff)
+
+              const isEnemy = ent.type==='monster'
+              const hasHp = Number.isFinite(ent.hp) && Number.isFinite(ent.maxHp) && ent.maxHp>0
+              const shouldShowBar = isEnemy && hasHp && ent.kind!=='boss' && isVisible
+              if(shouldShowBar){
+                if(!hpBars[ent.id]){
+                  const bg = sc.add.rectangle(d.x, d.y + tileSize*0.56, tileSize*0.74, 4, 0x1a1a1a, 0.86).setDepth(360)
+                  const fg = sc.add.rectangle(d.x - (tileSize*0.74)/2 + 1, d.y + tileSize*0.56, tileSize*0.74 - 2, 2, 0x87e08a, 0.95).setOrigin(0,0.5).setDepth(361)
+                  hpBars[ent.id] = {bg, fg}
+                }
+                const bar = hpBars[ent.id]
+                if(bar){
+                  const ratio = Math.max(0, Math.min(1, ent.hp / Math.max(1, ent.maxHp)))
+                  bar.bg.setPosition(d.x, d.y + tileSize*0.56).setAlpha(0.92)
+                  bar.fg.setPosition(d.x - (tileSize*0.74)/2 + 1, d.y + tileSize*0.56)
+                  bar.fg.width = Math.max(1, (tileSize*0.74 - 2) * ratio)
+                  bar.fg.fillColor = ratio < 0.34 ? 0xff7a7a : ratio < 0.67 ? 0xffcc66 : 0x87e08a
+                  bar.fg.setAlpha(0.98)
+                }
+              } else {
+                const bar = hpBars[ent.id]
+                if(bar){
+                  try{ bar.bg.destroy(); bar.fg.destroy() }catch{}
+                  delete hpBars[ent.id]
+                }
+              }
+
+              if(ent.kind==='boss') activeBoss = ent
             })
+
+            Object.keys(hpBars).forEach(id=>{
+              if(!(state.entities||[]).some((e:any)=>e.id===id)){
+                const bar = hpBars[id]
+                if(bar){
+                  try{ bar.bg.destroy(); bar.fg.destroy() }catch{}
+                  delete hpBars[id]
+                }
+              }
+            })
+
+            if(activeBoss && Number.isFinite(activeBoss.hp) && Number.isFinite(activeBoss.maxHp) && activeBoss.maxHp>0){
+              ensureBossBar()
+              if(bossBarBg && bossBarFill && bossBarText){
+                const w = bossBarBg.width
+                const ratio = Math.max(0, Math.min(1, activeBoss.hp / Math.max(1, activeBoss.maxHp)))
+                bossBarFill.width = Math.max(2, (w-4) * ratio)
+                bossBarText.setText(`${String(activeBoss.kind || 'Boss').toUpperCase()}  ${activeBoss.hp}/${activeBoss.maxHp}`)
+              }
+            } else {
+              clearBossBar()
+            }
+
             drawTargeting()
           }
 
           function rebuildMapAndEntities(payload:any){
             Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
+            Object.keys(hpBars).forEach(id=>{ const bar = hpBars[id]; if(bar){ try{ bar.bg.destroy(); bar.fg.destroy() }catch{}; delete hpBars[id] } })
+            clearBossBar()
             Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
             Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].destroy() }catch{}; delete floorDisplays[k] })
             if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
@@ -254,12 +351,20 @@ export default function GameMount(){
               if(d){
                 sc.tweens.add({targets:d, scale:0.1, alpha:0, duration:120, onComplete:()=>{ d.destroy(); delete displays[id] }})
               }
+              if(hpBars[id]){
+                try{ hpBars[id].bg.destroy(); hpBars[id].fg.destroy() }catch{}
+                delete hpBars[id]
+              }
               if(d?.x!=null && d?.y!=null) fxBurstAt({x:Math.floor(d.x/tileSize),y:Math.floor(d.y/tileSize)}, 0xff5566)
             } else if(e.type==='combat'){
               const attacker = displays[e.payload.attacker]
               const target = displays[e.payload.target]
               if(attacker){ sc.tweens.add({targets:attacker,alpha:0.25,duration:70,yoyo:true}) }
-              if(target){ sc.tweens.add({targets:target,scale:1.22,duration:70,yoyo:true}) }
+              if(target){
+                sc.tweens.add({targets:target,scale:1.22,duration:70,yoyo:true})
+                const to = {x: Math.floor(target.x/tileSize), y: Math.floor(target.y/tileSize)}
+                if(Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')
+              }
               if(e.payload.target==='p') flashDamage()
             } else if(e.type==='boss_charge'){
               const boss = displays[e.payload?.id]
