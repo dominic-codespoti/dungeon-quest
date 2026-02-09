@@ -429,6 +429,7 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
+          {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
           <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
