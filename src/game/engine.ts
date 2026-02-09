@@ -135,6 +135,43 @@ export class Engine{
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3)})
   }
 
+  private nextStepToward(start:Coord, goal:Coord, blockerId?:string): Coord | null {
+    if(start.x===goal.x && start.y===goal.y) return null
+    const q: Coord[] = [start]
+    const prev = new Map<string, string>()
+    const seen = new Set<string>([key(start)])
+
+    while(q.length){
+      const cur = q.shift()!
+      if(cur.x===goal.x && cur.y===goal.y) break
+      const neighbors: Coord[] = [
+        {x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}
+      ]
+      for(const n of neighbors){
+        if(n.x<0 || n.x>=this.width || n.y<0 || n.y>=this.height) continue
+        if(this.isWall(n)) continue
+        const nk = key(n)
+        if(seen.has(nk)) continue
+        const occ = this.entities.find(e=>e.id!==blockerId && e.pos.x===n.x && e.pos.y===n.y)
+        if(occ && !(n.x===goal.x && n.y===goal.y && occ.type==='player')) continue
+        seen.add(nk)
+        prev.set(nk, key(cur))
+        q.push(n)
+      }
+    }
+
+    const goalKey = key(goal)
+    if(!prev.has(goalKey)) return null
+    let curKey = goalKey
+    let prior = prev.get(curKey)
+    while(prior && prior !== key(start)){
+      curKey = prior
+      prior = prev.get(curKey)
+    }
+    const [x,y] = curKey.split(',').map(Number)
+    return {x:x ?? start.x, y:y ?? start.y}
+  }
+
   getState(): GameSnapshot{
     return {
       tick:this.tick,
@@ -231,6 +268,22 @@ export class Engine{
       const dy = playerPos.y - m.pos.y
       const distance = Math.abs(dx)+Math.abs(dy)
 
+      if(distance===1){
+        const dmg = kind==='brute' ? 2 : 1
+        player.hp = (player.hp||0) - dmg
+        this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})
+        return
+      }
+
+      // Smart pursuit: use shortest-path step when direct preferences are blocked.
+      const pathStep = this.nextStepToward(m.pos, playerPos, m.id)
+      if(pathStep){
+        m.pos = pathStep
+        this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:pathStep,via:'path'}})
+        return
+      }
+
+      // Fallback to local preference movement if no path is currently available.
       const movePref: Coord[] = []
       if(kind==='skitter'){
         movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
@@ -241,19 +294,11 @@ export class Engine{
         const stepY = stepX===0 ? Math.sign(dy) : 0
         movePref.push({x:stepX,y:stepY},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
       }
-
-      if(distance===1){
-        const dmg = kind==='brute' ? 2 : 1
-        player.hp = (player.hp||0) - dmg
-        this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})
-        return
-      }
-
       for(const step of movePref){
         const nd = {x:m.pos.x + step.x, y:m.pos.y + step.y}
         if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) continue
         if(this.isWall(nd)) continue
-        const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y)
+        const occ = this.entities.find(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)
         if(!occ){
           m.pos = nd
           this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd}})
