@@ -137,7 +137,19 @@ export default function App(){
       setBestScore(Number(localStorage.getItem('dq_best_score') || '0'))
       setBestFloor(Number(localStorage.getItem('dq_best_floor') || '0'))
       const raw = localStorage.getItem('dq_last_run')
-      if(raw) setLastRun(JSON.parse(raw))
+      if(raw){
+        const parsed = JSON.parse(raw)
+        if(parsed && typeof parsed==='object'){
+          setLastRun({
+            score: Number(parsed.score || 0),
+            floor: Number(parsed.floor || 0),
+            seed: String(parsed.seed || '-'),
+            klass: (parsed.klass==='rogue' ? 'rogue' : 'knight') as PlayerClass,
+            race: (parsed.race==='elf' || parsed.race==='dwarf' ? parsed.race : 'human') as PlayerRace,
+            efficiency: Number(parsed.efficiency || 0)
+          })
+        }
+      }
     }catch{}
     const poll = setInterval(()=>{
       const g = (window as any).game
