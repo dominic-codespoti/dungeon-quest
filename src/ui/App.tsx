@@ -262,6 +262,7 @@ export default function App(){
       if(ev.key==='Enter') navigate({screen:'create'})
       if(ev.key==='a' || ev.key==='A') navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})
       if(ev.key==='p' || ev.key==='P') toggleMenuModal('primer')
+      if(ev.key==='?' || ev.key==='/') toggleMenuModal('primer')
       if(ev.key==='n' || ev.key==='N') toggleMenuModal('patch')
       if(ev.key==='l' || ev.key==='L') toggleMenuModal('legend')
       if(ev.key==='o' || ev.key==='O') toggleMenuModal('meta')
@@ -555,7 +556,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · U Copy Last Seed · D Daily Challenge · I Copy Links · J Copy Daily Link · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · U Copy Last Seed · D Daily Challenge · I Copy Links · J Copy Daily Link · K Copy Profile · P/R/? Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
