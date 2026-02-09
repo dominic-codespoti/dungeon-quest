@@ -525,6 +525,14 @@ export default function App(){
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
+                <button onClick={async()=>{
+                  const u = new URL(window.location.href)
+                  u.searchParams.set('screen','game')
+                  u.searchParams.set('seed', String(getDailySeed()))
+                  u.searchParams.set('class','knight')
+                  u.searchParams.set('race','human')
+                  try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
+                }}>Copy Daily Link</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 <button onClick={resetRecords}>Reset</button>
                 <button onClick={()=>setShowMeta(false)}>Close</button>
