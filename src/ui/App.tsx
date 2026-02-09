@@ -237,6 +237,7 @@ export default function App(){
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if((ev.key==='u' || ev.key==='U') && lastRun) copyLastRunSeed()
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
+      if(ev.key==='i' || ev.key==='I') copyBundleLinks()
       if(ev.key==='j' || ev.key==='J') copyDailyLink()
       if(ev.key==='k' || ev.key==='K') copyProfileSummary()
       if(ev.key==='Escape'){        setShowRunPrimer(false)
@@ -481,6 +482,28 @@ export default function App(){
     u.searchParams.set('race',dailyPreset.race)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
   }
+  const copyBundleLinks = async ()=>{
+    const u = new URL(window.location.href)
+    const links: string[] = []
+
+    const daily = new URL(u.toString())
+    daily.searchParams.set('screen','game')
+    daily.searchParams.set('seed', String(dailyPreset.seed))
+    daily.searchParams.set('class',dailyPreset.klass)
+    daily.searchParams.set('race',dailyPreset.race)
+    links.push(`daily=${daily.toString()}`)
+
+    if(lastRun){
+      const last = new URL(u.toString())
+      last.searchParams.set('screen','game')
+      last.searchParams.set('seed', String(lastRun.seed))
+      last.searchParams.set('class', lastRun.klass)
+      last.searchParams.set('race', lastRun.race)
+      links.push(`last=${last.toString()}`)
+    }
+
+    try{ await navigator.clipboard.writeText(links.join('\n')); setStatus('Link bundle copied.') }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -496,7 +519,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · U Copy Last Seed · D Daily Challenge · J Copy Daily Link · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · U Copy Last Seed · D Daily Challenge · I Copy Links · J Copy Daily Link · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
@@ -581,6 +604,7 @@ export default function App(){
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Daily Preset</button>
                 <button onClick={copyDailyLink}>Copy Daily Link</button>
+                <button onClick={copyBundleLinks}>Copy Link Bundle</button>
                 {lastRun && <button onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
