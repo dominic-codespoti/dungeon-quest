@@ -1,6 +1,77 @@
 # Dungeon Quest (WIP)
 
-Roguelike project scaffold: TypeScript + React + Phaser + Zustand. Strict typing. Exposes a machine-friendly JSON event log and window.game API.
+Roguelike project scaffold: TypeScript + React + Phaser + Zustand. Strict typing. Exposes a machine-friendly JSON event log and `window.game` API.
 
-This repo was created by an assistant; initial scaffolding will be added in follow-up commits.
+## Run
 
+```bash
+npm install
+npm run dev
+```
+
+## Build + Typecheck
+
+```bash
+npm test      # tsc --noEmit
+npm run build
+```
+
+## Core Flow
+
+- **Main Menu** → open create, quick start, daily challenge, records/help overlays
+- **Character Creation** → choose class/race/seed or launch daily/last-run presets
+- **Run** → clear floors, survive boss milestones, reach floor 10 for victory
+
+## Main Menu Hotkeys
+
+- `Enter` Play (open create)
+- `A` Quick Start
+- `Y` Resume Last Run
+- `G` Open Last Build (prefilled create)
+- `Z` Daily Build (prefilled create)
+- `D` Daily Challenge (immediate launch)
+- `U` Copy Last Run Seed
+- `I` Copy Link Bundle
+- `J` Copy Daily Link
+- `K` Copy Profile Summary
+- `P` / `R` / `?` Run Primer
+- `N` Patch Notes
+- `L` Legend
+- `O` Records
+- `Esc` close open menu modal
+
+## Character Creation Hotkeys
+
+- `1` Knight
+- `2` Rogue
+- `Q/W/E` Human/Elf/Dwarf
+- `S` Surprise class/race
+- `Z` Apply Daily Preset
+- `Y` Apply Last-Run Preset
+- `L` Start Last-Run Preset
+- `D` Start Daily Preset
+- `X` Randomize seed
+- `C` Clear seed
+- `A` Quickstart run
+- `Enter` Start Adventure
+- `Esc` Back to menu
+
+## Daily Challenge
+
+- Daily seed and class/race preset rotate by **UTC day**.
+- UI shows reset ETA in UTC.
+- Daily details can be copied as:
+  - seed only
+  - seed + class/race preset
+  - direct run link
+  - link bundle
+
+## Records / Meta Persistence
+
+Stored in browser localStorage:
+
+- best score
+- best floor reached
+- last run snapshot (score, floor, class, race, seed, efficiency)
+
+Records modal includes copy/share tools and quick reopen actions for daily/last-run builds.
