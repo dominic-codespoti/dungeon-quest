@@ -360,6 +360,9 @@ export default function App(){
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
+          {(snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
+          {(snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
+          {(snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
           <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
           {nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
           {isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
