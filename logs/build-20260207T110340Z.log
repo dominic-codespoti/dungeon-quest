@@ -1,9 +1,0 @@
-[prepush] starting prepush check at Sat Feb  7 11:03:40 UTC 2026
-
-up to date in 834ms
-[prepush] running build
-npm error Missing script: "build"
-npm error
-npm error To see a list of scripts, run:
-npm error   npm run
-npm error A complete log of this run can be found in: /home/thed24/.npm/_logs/2026-02-07T11_03_41_707Z-debug-0.log
