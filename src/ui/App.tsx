@@ -181,6 +181,7 @@ export default function App(){
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
+  const bossAlive = (snapshot?.entities || []).some(e=>e.type==='monster' && e.kind==='boss')
 
   const visibleThreats = useMemo(()=>{
     if(!snapshot) return {total:0,boss:0,spitter:0,sentinel:0,other:0}
@@ -351,6 +352,7 @@ export default function App(){
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
             <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
+            <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
