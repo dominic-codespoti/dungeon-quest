@@ -176,6 +176,18 @@ export default function App(){
   },[screen,targetSkill,targetDir])
 
   useEffect(()=>{
+    if(screen!=='menu') return
+    const onMenuKey = (ev:KeyboardEvent)=>{
+      if(ev.key==='Enter') navigate({screen:'create'})
+      if(ev.key==='p' || ev.key==='P') setShowRunPrimer(true)
+      if(ev.key==='n' || ev.key==='N') setShowPatchNotes(true)
+      if(ev.key==='l' || ev.key==='L') setShowLegend(true)
+    }
+    window.addEventListener('keydown', onMenuKey)
+    return ()=> window.removeEventListener('keydown', onMenuKey)
+  },[screen])
+
+  useEffect(()=>{
     if(!snapshot?.gameOver) return
     const score = snapshot.score ?? 0
     const floor = snapshot.floor ?? 0
@@ -327,6 +339,7 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P Primer · N Notes · L Legend</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
