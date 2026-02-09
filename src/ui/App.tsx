@@ -52,6 +52,16 @@ const RACE_INFO: Record<PlayerRace,{name:string,bonus:string}> = {
   dwarf: {name:'Dwarf', bonus:'+2 max HP, +1 DEF (tanky)'}
 }
 
+function buildPreview(klass: PlayerClass, race: PlayerRace){
+  let hp = 12, atk = 0, def = 0
+  let dashCd = 3
+  if(race==='human'){ atk += 1; def += 1 }
+  if(race==='elf'){ hp = 11; dashCd = 2 }
+  if(race==='dwarf'){ hp = 14; def += 1 }
+  const skills = klass==='rogue' ? 'Dash + Backstep' : 'Guard + Bash'
+  return {hp, atk, def, dashCd, skills}
+}
+
 function getParams(){ return new URLSearchParams(window.location.search) }
 function getScreen(): Screen {
   const s = getParams().get('screen')
@@ -460,6 +470,7 @@ export default function App(){
   }
 
   if(screen==='create'){
+    const preview = buildPreview(klass, race)
     return (
       <div className='dq-menu'>
         <div className='dq-menu-card'>
@@ -487,6 +498,12 @@ export default function App(){
                 <div style={{fontSize:12,opacity:0.75}}>{RACE_INFO[r].bonus}</div>
               </button>
             ))}
+          </div>
+
+          <div style={{marginTop:12,padding:10,border:'1px solid #33456f',borderRadius:10,background:'#111a31'}}>
+            <div style={{fontWeight:700,marginBottom:6}}>Build Preview</div>
+            <div style={{fontSize:12}}>HP: <b>{preview.hp}</b> · ATK: <b>{preview.atk}</b> · DEF: <b>{preview.def}</b></div>
+            <div style={{fontSize:12}}>Dash CD: <b>{preview.dashCd}</b> · Skills: <b>{preview.skills}</b></div>
           </div>
 
           <div style={{display:'flex', gap:8, marginTop:14}}>
