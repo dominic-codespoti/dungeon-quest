@@ -15,6 +15,8 @@ const checks = [
   ["menu tooltip: quick start intent", "title='A · random class/race/seed'"],
   ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],
+  ["create status: surprise feedback", "setStatus('Surprise class/race applied.')"],
+  ["create status: reroll feedback", "setStatus('Rerolled class, race, and seed.')"],
   ["create action: reroll build+seed button", ">Reroll Build+Seed</button>"],
   ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun){"],
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
