@@ -195,6 +195,7 @@ export default function App(){
     if(screen!=='menu') return
     const onMenuKey = (ev:KeyboardEvent)=>{
       if(ev.key==='Enter') navigate({screen:'create'})
+      if(ev.key==='a' || ev.key==='A') navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})
       if(ev.key==='p' || ev.key==='P') setShowRunPrimer(true)
       if(ev.key==='n' || ev.key==='N') setShowPatchNotes(true)
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
@@ -411,9 +412,10 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
-          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · A Quick Start · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
+            <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
