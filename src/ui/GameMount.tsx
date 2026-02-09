@@ -85,6 +85,7 @@ export default function GameMount(){
             if(ent.kind==='stairs') return TEX_KEYS.stairs
             if(ent.kind==='relic') return TEX_KEYS.relic
             if(ent.kind==='potion' || ent.kind==='elixir') return TEX_KEYS.potion
+            if(ent.kind==='bomb') return TEX_KEYS.relic
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -237,6 +238,9 @@ export default function GameMount(){
               }
             } else if(e.type==='boss_slam'){
               try{ sc.cameras.main.shake(140, 0.005) }catch{}
+            } else if(e.type==='bomb_blast'){
+              fxBurstAt(e.payload?.at || {x:0,y:0}, 0xffb84d)
+              try{ sc.cameras.main.shake(120, 0.004) }catch{}
             } else if(e.type==='pickup'){
               const st = (window as any).game?.getState?.()
               const p = st?.entities?.find((x:any)=>x.id==='p')?.pos

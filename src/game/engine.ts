@@ -114,6 +114,7 @@ export class Engine{
     // Item variety pass: utility + risk/reward pickups.
     if(this.floor % 2 === 0) this.spawnItem(`i${this.floor}-e1`,'elixir')
     if(this.floor >= 3 && this.rand() < 0.5) this.spawnItem(`i${this.floor}-c1`,'cursed-idol')
+    if(this.floor >= 2 && this.rand() < 0.45) this.spawnItem(`i${this.floor}-b1`,'bomb')
 
     // Generated gear system (item classes + rarity + enchantments)
     const gearDrops = this.floor >= 2 ? 2 : 1
@@ -303,7 +304,7 @@ export class Engine{
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -503,6 +504,35 @@ export class Engine{
         } else {
           this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
         }
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='bomb'){
+        const around: Coord[] = [
+          {x:player.pos.x+1,y:player.pos.y},
+          {x:player.pos.x-1,y:player.pos.y},
+          {x:player.pos.x,y:player.pos.y+1},
+          {x:player.pos.x,y:player.pos.y-1},
+          {x:player.pos.x+1,y:player.pos.y+1},
+          {x:player.pos.x+1,y:player.pos.y-1},
+          {x:player.pos.x-1,y:player.pos.y+1},
+          {x:player.pos.x-1,y:player.pos.y-1}
+        ]
+        let hits = 0
+        for(const t of around){
+          const m = this.entities.find(e=>e.type==='monster' && e.pos.x===t.x && e.pos.y===t.y)
+          if(!m) continue
+          const dmg = 4 + Math.floor(this.attackBonus/2)
+          m.hp = (m.hp||1) - dmg
+          hits++
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:m.id,damage:dmg,via:'bomb'}})
+          if((m.hp||0) <= 0){
+            this.emit({tick:this.tick,type:'die',payload:{id:m.id,kind:m.kind}})
+            this.bossCharged.delete(m.id)
+            this.entities = this.entities.filter(e=>e.id!==m.id)
+            this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='skitter' ? 120 : 100
+          }
+        }
+        this.score += 40 + hits*25
+        this.emit({tick:this.tick,type:'bomb_blast',payload:{at:player.pos,hits}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25

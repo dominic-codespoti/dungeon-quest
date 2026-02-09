@@ -97,6 +97,7 @@ export default function App(){
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
       if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
+      if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)
       if(e.type==='defeat') setStatus('Defeat.')
     })
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
