@@ -17,6 +17,7 @@ export class Engine{
   events: GameEvent[] = []
   walls = new Set<string>()
   score = 0
+  dashCooldown = 0
   gameOver = false
   outcome: 'victory'|'defeat'|undefined
   private rand: ()=>number
@@ -33,6 +34,7 @@ export class Engine{
     const preservedHp = initial ? 12 : Math.min(12, currentHp + 1)
 
     this.entities = [{id:'p',type:'player',pos:{x:Math.floor(this.width/2),y:Math.floor(this.height/2)},hp:preservedHp}]
+    this.dashCooldown = 0
     this.walls = new Set<string>()
     this.generateWalls()
 
@@ -181,6 +183,7 @@ export class Engine{
       walls:this.getWalls(),
       entities:JSON.parse(JSON.stringify(this.entities)),
       score:this.score,
+      dashCooldown:this.dashCooldown,
       gameOver:this.gameOver,
       ...(this.outcome ? { outcome: this.outcome } : {})
     }
@@ -203,53 +206,72 @@ export class Engine{
   step(action: PlayerAction){
     if(this.gameOver) return this.getState()
     this.tick++
+    if(this.dashCooldown > 0) this.dashCooldown--
 
     const player = this.entities.find(e=>e.type==='player')
     if(!player) throw new Error('no player')
 
+    const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
+    const stepInto = (nd:Coord, moveType:'move'|'dash'):{changedFloor:boolean, stopped:boolean} => {
+      if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return {changedFloor:false,stopped:true}
+      if(this.isWall(nd)){
+        this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}})
+        return {changedFloor:false,stopped:true}
+      }
+
+      const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
+      if(occ?.type==='monster'){
+        const damage = moveType==='dash' ? 4 : 3
+        occ.hp = (occ.hp||1) - damage
+        this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage,via:moveType}})
+        if((occ.hp||0) <=0){
+          this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+          this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+        }
+        return {changedFloor:false,stopped:true}
+      }
+
+      player.pos = nd
+      if(occ?.type==='item'){
+        if(occ.kind==='potion'){
+          player.hp = Math.min(12, (player.hp||0) + 4)
+          this.score += 25
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        } else if(occ.kind==='relic') {
+          this.score += 200
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+        } else if(occ.kind==='stairs'){
+          this.score += 150 + this.floor * 25
+          this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
+          this.floor += 1
+          this.setupFloor(false)
+          return {changedFloor:true,stopped:true}
+        }
+      }
+      this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:moveType}})
+      return {changedFloor:false,stopped:false}
+    }
+
     if(action.type==='move'){
-      const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
       const delta = d[action.dir]
       const nd = {x:player.pos.x + delta.x, y: player.pos.y + delta.y}
-
-      if(nd.x>=0 && nd.x<this.width && nd.y>=0 && nd.y<this.height){
-        if(this.isWall(nd)){
-          this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}})
-        } else {
-          const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
-
-          if(occ?.type==='monster'){
-            const damage = 3
-            occ.hp = (occ.hp||1) - damage
-            this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage}})
-            if((occ.hp||0) <=0){
-              this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
-              this.entities = this.entities.filter(e=>e.id!==occ.id)
-              this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
-            }
-          } else if(occ?.type==='item'){
-            player.pos = nd
-            if(occ.kind==='potion'){
-              player.hp = Math.min(12, (player.hp||0) + 4)
-              this.score += 25
-              this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-              this.entities = this.entities.filter(e=>e.id!==occ.id)
-            } else if(occ.kind==='relic') {
-              this.score += 200
-              this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-              this.entities = this.entities.filter(e=>e.id!==occ.id)
-            } else if(occ.kind==='stairs'){
-              this.score += 150 + this.floor * 25
-              this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
-              this.floor += 1
-              this.setupFloor(false)
-              return this.getState()
-            }
-            this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
-          } else {
-            player.pos = nd
-            this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
-          }
+      const res = stepInto(nd,'move')
+      if(res.changedFloor) return this.getState()
+    } else if(action.type==='dash'){
+      if(this.dashCooldown>0){
+        this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
+      } else {
+        const delta = d[action.dir]
+        this.dashCooldown = 5
+        this.emit({tick:this.tick,type:'dash_used',payload:{dir:action.dir,cooldown:this.dashCooldown}})
+        for(let i=0;i<2;i++){
+          const nd = {x:player.pos.x + delta.x, y: player.pos.y + delta.y}
+          const res = stepInto(nd,'dash')
+          if(res.changedFloor) return this.getState()
+          if(res.stopped) break
         }
       }
     } else {

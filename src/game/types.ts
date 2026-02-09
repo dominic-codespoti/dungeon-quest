@@ -16,12 +16,14 @@ export type GameSnapshot = {
   walls: Coord[]
   entities: Entity[]
   score: number
+  dashCooldown: number
   gameOver: boolean
   outcome?: 'victory'|'defeat'
 }
 
 export type PlayerAction =
   | {type:'move',dir: 'up'|'down'|'left'|'right'}
+  | {type:'dash',dir: 'up'|'down'|'left'|'right'}
   | {type:'wait'}
 
 export type GameEvent = {

@@ -86,7 +86,11 @@ function chooseAction(state){
 
   for(const t of targets){
     const dir = shortestFirstStep(state, p.pos, t)
-    if(dir) return {type:'move', dir}
+    if(dir){
+      const dist = manhattan(p.pos, t)
+      if((state.dashCooldown||0)===0 && dist>=3) return {type:'dash', dir}
+      return {type:'move', dir}
+    }
   }
   return {type:'wait'}
 }

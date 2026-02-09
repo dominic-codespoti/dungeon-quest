@@ -6,6 +6,7 @@ type Snapshot = {
   tick:number
   floor:number
   score:number
+  dashCooldown:number
   gameOver:boolean
   outcome?:'victory'|'defeat'
   entities: Array<{id:string,type:string,kind?:string,hp?:number}>
@@ -32,6 +33,8 @@ export default function App(){
       if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
       if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
       if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} — enemies are getting tougher.`)
+      if(e.type==='dash_used') setStatus('💨 Dash! Repositioning with momentum.')
+      if(e.type==='dash_blocked') setStatus(`⏳ Dash recharging (${e.payload?.cooldown})`)
     })
 
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
@@ -41,10 +44,11 @@ export default function App(){
     const onKey = (ev:KeyboardEvent)=>{
       const g = (window as any).game
       if(!g?.step) return
-      if(ev.key==='ArrowUp' || ev.key==='w') g.step({type:'move',dir:'up'})
-      if(ev.key==='ArrowDown' || ev.key==='s') g.step({type:'move',dir:'down'})
-      if(ev.key==='ArrowLeft' || ev.key==='a') g.step({type:'move',dir:'left'})
-      if(ev.key==='ArrowRight' || ev.key==='d') g.step({type:'move',dir:'right'})
+      const t = ev.shiftKey ? 'dash' : 'move'
+      if(ev.key==='ArrowUp' || ev.key==='w' || ev.key==='W') g.step({type:t,dir:'up'})
+      if(ev.key==='ArrowDown' || ev.key==='s' || ev.key==='S') g.step({type:t,dir:'down'})
+      if(ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A') g.step({type:t,dir:'left'})
+      if(ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D') g.step({type:t,dir:'right'})
       if(ev.key===' ') g.step({type:'wait'})
     }
     window.addEventListener('keydown', onKey)
@@ -55,6 +59,7 @@ export default function App(){
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
 
   const move = (dir:'up'|'down'|'left'|'right')=> (window as any).game?.step?.({type:'move',dir})
+  const dash = (dir:'up'|'down'|'left'|'right')=> (window as any).game?.step?.({type:'dash',dir})
   const wait = ()=> (window as any).game?.step?.({type:'wait'})
 
   return (
@@ -67,6 +72,7 @@ export default function App(){
         <strong>Monsters: {String(monstersLeft)}</strong>
         <strong>Tick: {snapshot?.tick ?? '-'}</strong>
         <strong>Score: {snapshot?.score ?? '-'}</strong>
+        <strong>Dash: {snapshot?.dashCooldown ? `CD ${snapshot.dashCooldown}` : 'Ready'}</strong>
       </div>
 
       <div style={{marginBottom:10, display:'flex', gap:6, flexWrap:'wrap'}}>
@@ -75,8 +81,12 @@ export default function App(){
         <button onClick={()=>move('down')} disabled={snapshot?.gameOver}>↓</button>
         <button onClick={()=>move('right')} disabled={snapshot?.gameOver}>→</button>
         <button onClick={wait} disabled={snapshot?.gameOver}>Wait</button>
+        <button onClick={()=>dash('up')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ↑</button>
+        <button onClick={()=>dash('left')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ←</button>
+        <button onClick={()=>dash('down')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ↓</button>
+        <button onClick={()=>dash('right')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash →</button>
         <button onClick={()=>window.location.reload()}>New Run</button>
-        <span style={{opacity:0.8}}>Controls: Arrow keys / WASD / Space</span>
+        <span style={{opacity:0.8}}>Controls: Arrow keys / WASD / Space, Shift+Direction = Dash</span>
         <span style={{opacity:0.8}}>Enemies: red=chaser, dark red=brute, orange=skitter; blue=potion, cyan=relic, violet=stairs</span>
       </div>
 

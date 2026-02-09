@@ -61,8 +61,29 @@ Interpretation:
 - Current live Pages instance returned 404 for app assets (`/src/main.tsx`), so runtime interaction in headed browser was blocked in this pass.
 - Continued with deterministic automated playtest and code-level validation.
 
+## Follow-up Pass — Player Dash Ability
+Implemented after prior pass:
+- New player action: `dash` (2-tile burst, stops on walls/targets).
+- Dash deals slightly stronger hit than normal attack when colliding with a monster.
+- Dash cooldown added (`5` turns), surfaced in UI and status text.
+- Controls: **Shift + direction** (or Dash buttons).
+
+### Updated automated playtest (8 seeded runs)
+- Average floor reached: **2.13** (flat)
+- Average score: **1059** (roughly flat)
+- Max floor: **3**
+- Defeats: **7/8** (up from 6/8 in this bot strategy)
+
+Interpretation:
+- Dash increases tactical expression for a human player, but naive bot usage is over-aggressive and gets punished.
+- This is expected: the mechanic is high-tempo and favors intentional timing, not always-on use.
+
+### Headed browser playtest note (this pass)
+- Attempted headed run again on live Pages.
+- Still blocked by live asset mismatch (`/src/main.tsx` 404), so direct in-browser gameplay verification remains unavailable from deployed URL.
+
 ## Suggested next changes
-1. Add one **player tactical tool** (dash, block, or bomb) with cooldown.
-2. Add **death summary modal** with run stats and “restart with same seed”.
-3. Add **floor modifiers** every 2 floors (e.g., “Brute-heavy”, “Low potion”).
-4. Add **spawn pacing guards** to reduce extreme spike floors.
+1. Add **death summary modal** with run stats and “restart with same seed”.
+2. Add **floor modifiers** every 2 floors (e.g., “Brute-heavy”, “Low potion”).
+3. Add **spawn pacing guards** to reduce extreme spike floors.
+4. Tune dash with **i-frames or knockback** to improve survivability feel.
