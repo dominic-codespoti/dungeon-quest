@@ -131,8 +131,11 @@ export class Engine{
     for(let i=0;i<gearDrops;i++) this.spawnItem(`i${this.floor}-g${i+1}`,'gear')
 
     this.updateVision()
+    const monstersNow = this.entities.filter(e=>e.type==='monster').length
+    const itemsNow = this.entities.filter(e=>e.type==='item').length
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
+      this.emit({tick:this.tick,type:'floor_brief',payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow}})
     }
     this.emit({
       tick:this.tick,

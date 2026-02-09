@@ -101,6 +101,7 @@ export default function App(){
     const unsub = g?.subscribe?.((e:any)=>{
       if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`Equipped: ${e.payload?.gear?.name || 'gear'}`)
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
+      if(e.type==='floor_brief') setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${e.payload?.modifier ?? 'none'}).`)
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')
       if(e.type==='clear_reward') setStatus('Floor cleared: reward chest spawned.')
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
