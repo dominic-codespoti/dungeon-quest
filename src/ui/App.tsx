@@ -518,7 +518,10 @@ export default function App(){
 
           <div style={{marginTop:10}}>
             <div style={{fontSize:12,marginBottom:4}}>Seed (optional)</div>
-            <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
+            <div style={{display:'flex',gap:8}}>
+              <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
+              <button onClick={()=>setCustomSeed('')}>Clear</button>
+            </div>
           </div>
 
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
