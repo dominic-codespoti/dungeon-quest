@@ -180,6 +180,17 @@ export default function App(){
   const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
 
+  const visibleThreats = useMemo(()=>{
+    if(!snapshot) return {total:0,boss:0,spitter:0,sentinel:0,other:0}
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    const mons = snapshot.entities.filter(e=>e.type==='monster' && e.pos && vis.has(`${e.pos.x},${e.pos.y}`))
+    const boss = mons.filter(m=>m.kind==='boss').length
+    const spitter = mons.filter(m=>m.kind==='spitter').length
+    const sentinel = mons.filter(m=>m.kind==='sentinel').length
+    const other = Math.max(0, mons.length - boss - spitter - sentinel)
+    return {total:mons.length,boss,spitter,sentinel,other}
+  },[snapshot])
+
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
   const computeTargetTiles = (skill:TargetSkill, selectedDir:Dir)=>{
@@ -355,6 +366,9 @@ export default function App(){
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
               <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
             </div>
+          </div>
+          <div style={{fontSize:12,color:'#9bb7e8'}}>
+            Visible threats: {visibleThreats.total} (Boss {visibleThreats.boss} · Spitter {visibleThreats.spitter} · Sentinel {visibleThreats.sentinel} · Other {visibleThreats.other})
           </div>
           {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
           {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
