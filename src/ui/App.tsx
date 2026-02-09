@@ -151,7 +151,7 @@ export default function App(){
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
       if(ev.key==='Escape') setTargetSkill(null)
-      if(ev.key==='/' || ev.key==='?') setShowHelp(v=>!v)
+      if(ev.key==='/' || ev.key==='?' || ev.key==='h' || ev.key==='H') setShowHelp(v=>!v)
     }
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
@@ -291,7 +291,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · ? help</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · ?/H help</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
