@@ -13,6 +13,7 @@ type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus
 type Snapshot = {
   floor:number
   floorModifier?: string
+  nextFloorModifier?: string
   playerClass: PlayerClass
   playerRace: PlayerRace
   score:number
@@ -282,6 +283,7 @@ export default function App(){
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
+          <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>

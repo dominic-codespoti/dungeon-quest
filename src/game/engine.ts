@@ -387,6 +387,7 @@ export class Engine{
       tick:this.tick,
       floor:this.floor,
       floorModifier:this.floorModifier,
+      nextFloorModifier:this.getModifierForFloor(this.floor + 1),
       playerClass:this.playerClass,
       playerRace:this.playerRace,
       width:this.width,

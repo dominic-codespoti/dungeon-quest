@@ -31,6 +31,7 @@ export type GameSnapshot = {
   tick: number
   floor: number
   floorModifier?: string
+  nextFloorModifier?: string
   playerClass: PlayerClass
   playerRace: PlayerRace
   width: number
