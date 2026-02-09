@@ -164,6 +164,7 @@ export default function App(){
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
       if(ev.key==='r' || ev.key==='R') newSeed()
+      if(ev.key==='t' || ev.key==='T') sameSeed()
       if(ev.key==='m' || ev.key==='M') backToMenu()
       if(ev.key==='Escape') setTargetSkill(null)
       if(ev.key==='/' || ev.key==='?' || ev.key==='h' || ev.key==='H') setShowHelp(v=>!v)
@@ -406,7 +407,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · M menu · ?/H help</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -512,7 +513,7 @@ export default function App(){
             <p>Dash: Shift + direction</p>
             <p>Rogue: Q backstep</p>
             <p>Knight: B bash, G guard</p>
-            <p>Interact: E · Wait: Space · New run: R · Main menu: M</p>
+            <p>Interact: E · Wait: Space · New run: R · Retry seed: T · Main menu: M</p>
             <p>Tips: Danger meter tracks nearby threat, boss charge warning means slam incoming.</p>
             <p>Run target: Floor 10. Use chests/shrines/fountains/rift orbs to spike power.</p>
             <div style={{display:'flex', gap:8}}><button onClick={()=>setShowHelp(false)}>Close</button></div>
