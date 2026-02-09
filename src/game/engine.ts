@@ -428,6 +428,14 @@ export class Engine{
     }
   }
 
+  private maybeBossLoot(dead:any){
+    if(dead?.kind!=='boss') return
+    const dropRoll = this.rand()
+    if(dropRoll < 0.5) this.spawnItem(`i${this.floor}-boss-bomb-${this.tick}`,'bomb')
+    else this.spawnItem(`i${this.floor}-boss-shard-${this.tick}`,'blink-shard')
+    this.emit({tick:this.tick,type:'boss_loot',payload:{floor:this.floor,drop:dropRoll<0.5?'bomb':'blink-shard'}})
+  }
+
   step(action: PlayerAction){
     if(this.gameOver) return this.getState()
     this.tick++
@@ -452,6 +460,7 @@ export class Engine{
           this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
           this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
+          this.maybeBossLoot(occ)
           this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
@@ -529,6 +538,7 @@ export class Engine{
             this.emit({tick:this.tick,type:'die',payload:{id:m.id,kind:m.kind}})
             this.bossCharged.delete(m.id)
             this.entities = this.entities.filter(e=>e.id!==m.id)
+            this.maybeBossLoot(m)
             this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='skitter' ? 120 : 100
           }
         }
@@ -618,6 +628,7 @@ export class Engine{
             this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
             this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
+            this.maybeBossLoot(occ)
             this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           }
         }
