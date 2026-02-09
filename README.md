@@ -18,6 +18,8 @@ npm run build
 npm run verify
 ```
 
+If `git push` intermittently fails/hangs (observed as transient GitHub 500s or stalled sessions), retry with a fresh command. In this repo, separating commit and push into distinct terminal invocations has been the most reliable fallback.
+
 ## Core Flow
 
 - **Main Menu** → open create, quick start, daily challenge, records/help overlays
