@@ -1,4 +1,4 @@
-import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass, GeneratedItem, Rarity} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass, PlayerRace, GeneratedItem, Rarity} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){
@@ -13,6 +13,7 @@ export class Engine{
   floor = 1
   floorModifier: 'none'|'brute-heavy'|'swarm'|'scarce-potions' = 'none'
   playerClass: PlayerClass
+  playerRace: PlayerRace
   width:number
   height:number
   entities: Entity[] = []
@@ -21,6 +22,7 @@ export class Engine{
   score = 0
   attackBonus = 0
   defenseBonus = 0
+  maxHp = 12
   inventory: GeneratedItem[] = []
   visible = new Set<string>()
   discovered = new Set<string>()
@@ -31,17 +33,35 @@ export class Engine{
   outcome: 'victory'|'defeat'|undefined
   private rand: ()=>number
 
-  constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight'){
+  constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight', playerRace:PlayerRace='human'){
     this.width = width
     this.height = height
     this.playerClass = playerClass
+    this.playerRace = playerRace
     this.rand = rng(seed)
+    this.applyRaceBonuses()
     this.setupFloor(true)
   }
 
+  private applyRaceBonuses(){
+    // Baseline
+    this.maxHp = 12
+    if(this.playerRace==='human'){
+      this.attackBonus += 1
+      this.defenseBonus += 1
+    } else if(this.playerRace==='elf'){
+      // Mobility-focused race bonus
+      this.dashCooldown = Math.max(0, this.dashCooldown - 1)
+      this.maxHp = 11
+    } else if(this.playerRace==='dwarf'){
+      this.maxHp = 14
+      this.defenseBonus += 1
+    }
+  }
+
   private setupFloor(initial=false){
-    const currentHp = this.entities.find(e=>e.id==='p')?.hp ?? 12
-    const preservedHp = initial ? 12 : Math.min(12, currentHp + 1)
+    const currentHp = this.entities.find(e=>e.id==='p')?.hp ?? this.maxHp
+    const preservedHp = initial ? this.maxHp : Math.min(this.maxHp, currentHp + 1)
 
     this.floorModifier = this.getModifierForFloor(this.floor)
 
@@ -51,6 +71,7 @@ export class Engine{
       this.defenseBonus = 0
       this.inventory = []
       this.discovered.clear()
+      this.applyRaceBonuses()
     }
     this.dashCooldown = 0
     this.guardCooldown = 0
@@ -94,7 +115,7 @@ export class Engine{
     this.emit({
       tick:this.tick,
       type:'init',
-      payload:{floor:this.floor,modifier:this.floorModifier,playerClass:this.playerClass,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
+      payload:{floor:this.floor,modifier:this.floorModifier,playerClass:this.playerClass,playerRace:this.playerRace,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
     })
   }
 
@@ -347,6 +368,7 @@ export class Engine{
       floor:this.floor,
       floorModifier:this.floorModifier,
       playerClass:this.playerClass,
+      playerRace:this.playerRace,
       width:this.width,
       height:this.height,
       walls:this.getWalls(),
@@ -356,6 +378,7 @@ export class Engine{
       score:this.score,
       attackBonus:this.attackBonus,
       defenseBonus:this.defenseBonus,
+      maxHp:this.maxHp,
       inventory: JSON.parse(JSON.stringify(this.inventory)),
       dashCooldown:this.dashCooldown,
       guardCooldown:this.guardCooldown,
@@ -371,7 +394,7 @@ export class Engine{
     this.inventory.push(gear)
     this.attackBonus += gear.atkBonus
     this.defenseBonus += gear.defBonus
-    player.hp = Math.min(12 + gear.hpBonus, (player.hp||0) + gear.hpBonus)
+    player.hp = Math.min(this.maxHp + gear.hpBonus, (player.hp||0) + gear.hpBonus)
 
     // Keep inventory readable: 6 active pieces max, oldest gets replaced.
     if(this.inventory.length > 6){
@@ -437,7 +460,7 @@ export class Engine{
         return {changedFloor:false}
       }
       if(item.kind==='potion'){
-        player.hp = Math.min(12, (player.hp||0) + 4)
+        player.hp = Math.min(this.maxHp, (player.hp||0) + 4)
         this.score += 25
         this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
@@ -446,7 +469,7 @@ export class Engine{
         this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='elixir'){
-        player.hp = Math.min(12, (player.hp||0) + 2)
+        player.hp = Math.min(this.maxHp, (player.hp||0) + 2)
         this.dashCooldown = Math.max(0, this.dashCooldown - 1)
         this.guardCooldown = Math.max(0, this.guardCooldown - 1)
         this.score += 60
@@ -487,7 +510,7 @@ export class Engine{
       else if(this.dashCooldown>0) this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
       else {
         const delta = d[action.dir]
-        this.dashCooldown = 4
+        this.dashCooldown = this.playerRace==='elf' ? 2 : 3
         this.emit({tick:this.tick,type:'dash_used',payload:{dir:action.dir,cooldown:this.dashCooldown}})
         for(let i=0;i<2;i++){
           const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'dash')

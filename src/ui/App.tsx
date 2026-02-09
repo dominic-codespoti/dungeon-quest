@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import AdminPage from './admin/AdminPage'
 import GameMount from './GameMount'
-import type {PlayerClass} from '../game/types'
+import type {PlayerClass, PlayerRace} from '../game/types'
 import './app.css'
 
 import swordIcon from './assets/icons/sword.svg'
@@ -13,9 +13,12 @@ type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus
 type Snapshot = {
   floor:number
   floorModifier?: string
+  playerClass: PlayerClass
+  playerRace: PlayerRace
   score:number
   attackBonus:number
   defenseBonus:number
+  maxHp:number
   inventory?: Gear[]
   dashCooldown:number
   guardCooldown:number
@@ -25,9 +28,20 @@ type Snapshot = {
 }
 
 type Screen = 'menu'|'create'|'game'
-type Race = 'human'|'elf'|'dwarf'
+type Race = PlayerRace
 
 const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
+
+const CLASS_INFO: Record<PlayerClass,{name:string,skills:string,bonus:string}> = {
+  knight: {name:'Knight', skills:'Guard, Bash', bonus:'Defensive control, steady brawler'},
+  rogue: {name:'Rogue', skills:'Dash, dash-refresh on kill', bonus:'High mobility, burst tempo'}
+}
+
+const RACE_INFO: Record<PlayerRace,{name:string,bonus:string}> = {
+  human: {name:'Human', bonus:'+1 ATK, +1 DEF (balanced)'},
+  elf: {name:'Elf', bonus:'Dash cooldown reduced (mobile) but -1 max HP'},
+  dwarf: {name:'Dwarf', bonus:'+2 max HP, +1 DEF (tanky)'}
+}
 
 function getParams(){ return new URLSearchParams(window.location.search) }
 function getScreen(): Screen {
@@ -66,6 +80,7 @@ export default function App(){
         setSnapshot(s)
         if(g.getSeed) setSeed(g.getSeed())
         if(g.getClass) setKlass(g.getClass())
+        if(g.getRace) setRace(g.getRace())
       }
       setScreen(getScreen())
     }, 120)
@@ -130,19 +145,27 @@ export default function App(){
       <div className='dq-menu'>
         <div className='dq-menu-card'>
           <h2>Character Creation</h2>
-          <p>Pick class and race. (Race effects coming next.)</p>
+          <p>Pick class and race.</p>
 
-          <div style={{marginBottom:8}}>Class</div>
-          <div className='dq-class'>
-            <button onClick={()=>setKlass('knight')} style={{outline: klass==='knight' ? '2px solid #7c9cff' : 'none'}}>Knight</button>
-            <button onClick={()=>setKlass('rogue')} style={{outline: klass==='rogue' ? '2px solid #7c9cff' : 'none'}}>Rogue</button>
+          <div style={{marginBottom:8,fontWeight:700}}>Class</div>
+          <div style={{display:'grid',gap:8,marginBottom:10}}>
+            {(Object.keys(CLASS_INFO) as PlayerClass[]).map(c=>(
+              <button key={c} onClick={()=>setKlass(c)} style={{textAlign:'left',outline: klass===c ? '2px solid #7c9cff' : 'none'}}>
+                <div><strong>{CLASS_INFO[c].name}</strong></div>
+                <div style={{fontSize:12,opacity:0.9}}>Skills: {CLASS_INFO[c].skills}</div>
+                <div style={{fontSize:12,opacity:0.75}}>{CLASS_INFO[c].bonus}</div>
+              </button>
+            ))}
           </div>
 
-          <div style={{margin:'10px 0 8px'}}>Race</div>
-          <div className='dq-class'>
-            <button onClick={()=>setRace('human')} style={{outline: race==='human' ? '2px solid #7c9cff' : 'none'}}>Human</button>
-            <button onClick={()=>setRace('elf')} style={{outline: race==='elf' ? '2px solid #7c9cff' : 'none'}}>Elf</button>
-            <button onClick={()=>setRace('dwarf')} style={{outline: race==='dwarf' ? '2px solid #7c9cff' : 'none'}}>Dwarf</button>
+          <div style={{margin:'10px 0 8px',fontWeight:700}}>Race</div>
+          <div style={{display:'grid',gap:8}}>
+            {(Object.keys(RACE_INFO) as PlayerRace[]).map(r=>(
+              <button key={r} onClick={()=>setRace(r)} style={{textAlign:'left',outline: race===r ? '2px solid #7c9cff' : 'none'}}>
+                <div><strong>{RACE_INFO[r].name}</strong></div>
+                <div style={{fontSize:12,opacity:0.75}}>{RACE_INFO[r].bonus}</div>
+              </button>
+            ))}
           </div>
 
           <div style={{display:'flex', gap:8, marginTop:14}}>
@@ -170,7 +193,7 @@ export default function App(){
             <div className='dq-stat'>Class<b>{klass}</b></div>
             <div className='dq-stat'>Race<b>{race}</b></div>
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
-            <div className='dq-stat'>HP<b>{String(playerHp)}</b></div>
+            <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>

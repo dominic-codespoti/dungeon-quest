@@ -1,5 +1,6 @@
 export type Coord = {x:number,y:number}
 export type PlayerClass = 'knight'|'rogue'
+export type PlayerRace = 'human'|'elf'|'dwarf'
 
 export type ItemClass = 'weapon'|'armor'
 export type Rarity = 'common'|'magic'|'rare'|'epic'
@@ -31,6 +32,7 @@ export type GameSnapshot = {
   floor: number
   floorModifier?: string
   playerClass: PlayerClass
+  playerRace: PlayerRace
   width: number
   height: number
   walls: Coord[]
@@ -40,6 +42,7 @@ export type GameSnapshot = {
   score: number
   attackBonus: number
   defenseBonus: number
+  maxHp: number
   inventory: GeneratedItem[]
   dashCooldown: number
   guardCooldown: number

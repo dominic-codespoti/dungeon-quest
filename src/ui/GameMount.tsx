@@ -3,7 +3,7 @@ import Phaser from 'phaser'
 import { createGame, TEX_KEYS } from '../game'
 import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
-import type {PlayerClass} from '../game/types'
+import type {PlayerClass, PlayerRace} from '../game/types'
 
 // textures/sprites loaded in Phaser preload via TEX_KEYS
 
@@ -20,10 +20,16 @@ function getClassFromUrl(): PlayerClass {
   return c === 'rogue' ? 'rogue' : 'knight'
 }
 
-function navigate(seed:number, klass:PlayerClass){
+function getRaceFromUrl(): PlayerRace {
+  const r = new URLSearchParams(window.location.search).get('race')
+  return r==='elf' || r==='dwarf' ? r : 'human'
+}
+
+function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
   const u = new URL(window.location.href)
   u.searchParams.set('seed', String(seed))
   u.searchParams.set('class', klass)
+  u.searchParams.set('race', race)
   window.location.href = u.toString()
 }
 
@@ -36,15 +42,18 @@ export default function GameMount(){
 
       const seed = getSeedFromUrl()
       const klass = getClassFromUrl()
-      const eng = new Engine(30,30,seed,klass)
+      const race = getRaceFromUrl()
+      const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
         getSeed: ()=> seed,
         getClass: ()=> klass,
-        resetSameSeed: ()=> navigate(seed, klass),
-        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass),
-        setClass: (next:PlayerClass)=> navigate(seed, next),
+        getRace: ()=> race,
+        resetSameSeed: ()=> navigate(seed, klass, race),
+        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race),
+        setClass: (next:PlayerClass)=> navigate(seed, next, race),
+        setRace: (next:PlayerRace)=> navigate(seed, klass, next),
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) }
       }
 
