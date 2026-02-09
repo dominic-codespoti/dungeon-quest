@@ -175,6 +175,7 @@ export default function App(){
   },[snapshot])
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
+  const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
 
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
@@ -307,7 +308,7 @@ export default function App(){
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
-            <div className='dq-stat'>Danger<b>{danger} ({dangerLabel})</b></div>
+            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
           </div>
 
@@ -317,6 +318,11 @@ export default function App(){
             <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
               <div style={{height:'100%', width:`${Math.min(100, ((snapshot?.floor ?? 1)/10)*100)}%`, background:'#6ca2ff', borderRadius:999}} />
+            </div>
+          </div>
+          <div style={{marginTop:4}}>
+            <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
+              <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
             </div>
           </div>
           {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
