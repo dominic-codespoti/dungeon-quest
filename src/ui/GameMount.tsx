@@ -87,6 +87,7 @@ export default function GameMount(){
             if(ent.kind==='potion' || ent.kind==='elixir') return TEX_KEYS.potion
             if(ent.kind==='bomb') return TEX_KEYS.relic
             if(ent.kind==='blink-shard') return TEX_KEYS.gear
+            if(ent.kind==='chest') return TEX_KEYS.relic
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -161,6 +162,7 @@ export default function GameMount(){
               else d.setAlpha(vis.has(k) ? 1 : 0)
               d.clearTint()
               if(ent.kind==='boss') d.setTint(0xff8a66)
+              if(ent.kind==='chest') d.setTint(0xffd36b)
             })
             drawTargeting()
           }
@@ -194,6 +196,7 @@ export default function GameMount(){
               const s = sc.add.image(p.x,p.y,textureForEntity(ent)).setOrigin(0.5)
               s.setDisplaySize(tileSize-2, tileSize-2)
               if(ent.kind==='boss') s.setTint(0xff8a66)
+              if(ent.kind==='chest') s.setTint(0xffd36b)
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })

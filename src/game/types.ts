@@ -20,7 +20,7 @@ export type GeneratedItem = {
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
-  kind?: 'chaser'|'brute'|'skitter'|'boss'|'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'
+  kind?: 'chaser'|'brute'|'skitter'|'boss'|'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'
   pos: Coord
   hp?: number
   loot?: GeneratedItem

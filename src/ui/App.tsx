@@ -98,6 +98,7 @@ export default function App(){
       if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
+      if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)
       if(e.type==='blink_used') setStatus('Blink shard warps you to safer ground.')
       if(e.type==='defeat') setStatus('Defeat.')
