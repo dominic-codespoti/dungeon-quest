@@ -5,6 +5,18 @@ import eventBus from '../game/eventBus'
 
 type Coord = {x:number,y:number}
 
+function getSeedFromUrl(){
+  const s = new URLSearchParams(window.location.search).get('seed')
+  const n = s ? Number(s) : 1
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1
+}
+
+function navigateWithSeed(seed:number){
+  const u = new URL(window.location.href)
+  u.searchParams.set('seed', String(seed))
+  window.location.href = u.toString()
+}
+
 export default function GameMount(){
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(()=>{
@@ -12,10 +24,14 @@ export default function GameMount(){
     if(ref.current){
       const g = createGame(ref.current)
 
-      const eng = new Engine(30,30,1)
+      const seed = getSeedFromUrl()
+      const eng = new Engine(30,30,seed)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
+        getSeed: ()=> seed,
+        resetSameSeed: ()=> navigateWithSeed(seed),
+        resetNewSeed: ()=> navigateWithSeed(Math.floor(Math.random()*1_000_000)+1),
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) }
       }
 

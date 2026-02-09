@@ -82,8 +82,30 @@ Interpretation:
 - Attempted headed run again on live Pages.
 - Still blocked by live asset mismatch (`/src/main.tsx` 404), so direct in-browser gameplay verification remains unavailable from deployed URL.
 
+## Follow-up Pass — Death Summary + Seeded Restart
+Implemented in this pass:
+- Added end-of-run summary overlay (floor reached, score, HP, seed).
+- Added **Restart same seed** and **New seed** actions.
+- Exposed active seed in HUD.
+- Added URL-seeded runs (`?seed=<n>`) so repro runs are deterministic.
+
+### Updated automated playtest (8 seeded runs)
+- Average floor reached: **2.13**
+- Average score: **1059**
+- Max floor: **3**
+- Defeats: **7/8**
+
+Interpretation:
+- The new post-run UX is much better for iteration and balancing.
+- Core difficulty is still on the hard side; survivability tuning remains the main lever.
+
+### Headed browser playtest note (this pass)
+- Attempted headed playtest again (local dev URL and live Pages).
+- Local browser session loaded an empty document body (`<body></body>`), and live Pages still showed asset mismatch 404 in prior checks.
+- Continued with deterministic automated playtest + compile/build validation while the browser serving issue is unresolved.
+
 ## Suggested next changes
-1. Add **death summary modal** with run stats and “restart with same seed”.
-2. Add **floor modifiers** every 2 floors (e.g., “Brute-heavy”, “Low potion”).
-3. Add **spawn pacing guards** to reduce extreme spike floors.
-4. Tune dash with **i-frames or knockback** to improve survivability feel.
+1. Add **floor modifiers** every 2 floors (e.g., “Brute-heavy”, “Low potion”).
+2. Add **spawn pacing guards** to reduce extreme spike floors.
+3. Tune dash with **i-frames or knockback** to improve survivability feel.
+4. Fix deployment/runtime serving path so headed browser playtests can be consistently executed.

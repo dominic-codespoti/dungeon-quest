@@ -15,12 +15,14 @@ type Snapshot = {
 export default function App(){
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Clear each floor, then descend the stairs')
+  const [seed,setSeed] = useState<number | null>(null)
 
   useEffect(()=>{
     const poll = setInterval(()=>{
       const g = (window as any).game
       if(g?.getState){
         setSnapshot(g.getState())
+        if(g.getSeed) setSeed(g.getSeed())
       }
     }, 120)
 
@@ -61,12 +63,15 @@ export default function App(){
   const move = (dir:'up'|'down'|'left'|'right')=> (window as any).game?.step?.({type:'move',dir})
   const dash = (dir:'up'|'down'|'left'|'right')=> (window as any).game?.step?.({type:'dash',dir})
   const wait = ()=> (window as any).game?.step?.({type:'wait'})
+  const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
+  const newSeed = ()=> (window as any).game?.resetNewSeed?.()
 
   return (
-    <div style={{fontFamily: 'system-ui, sans-serif',padding:12}}>
+    <div style={{fontFamily: 'system-ui, sans-serif',padding:12, position:'relative'}}>
       <h1>Dungeon Quest — WIP</h1>
       <p>{status}</p>
       <div style={{display:'flex',gap:12,marginBottom:8,flexWrap:'wrap'}}>
+        <strong>Seed: {seed ?? '-'}</strong>
         <strong>Floor: {snapshot?.floor ?? '-'}</strong>
         <strong>HP: {String(playerHp)}</strong>
         <strong>Monsters: {String(monstersLeft)}</strong>
@@ -85,7 +90,7 @@ export default function App(){
         <button onClick={()=>dash('left')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ←</button>
         <button onClick={()=>dash('down')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash ↓</button>
         <button onClick={()=>dash('right')} disabled={snapshot?.gameOver || (snapshot?.dashCooldown ?? 0) > 0}>Dash →</button>
-        <button onClick={()=>window.location.reload()}>New Run</button>
+        <button onClick={newSeed}>New Run</button>
         <span style={{opacity:0.8}}>Controls: Arrow keys / WASD / Space, Shift+Direction = Dash</span>
         <span style={{opacity:0.8}}>Enemies: red=chaser, dark red=brute, orange=skitter; blue=potion, cyan=relic, violet=stairs</span>
       </div>
@@ -93,6 +98,22 @@ export default function App(){
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
         <GameMount />
       </div>
+
+      {snapshot?.gameOver && (
+        <div style={{position:'absolute', inset:0, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center'}}>
+          <div style={{background:'#1e1e1e', color:'#fff', border:'1px solid #555', padding:18, width:360, borderRadius:8}}>
+            <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
+            <p style={{margin:'6px 0'}}>Floor reached: <strong>{snapshot.floor}</strong></p>
+            <p style={{margin:'6px 0'}}>Final score: <strong>{snapshot.score}</strong></p>
+            <p style={{margin:'6px 0'}}>Final HP: <strong>{String(playerHp)}</strong></p>
+            <p style={{margin:'6px 0'}}>Seed: <strong>{seed ?? '-'}</strong></p>
+            <div style={{display:'flex', gap:8, marginTop:12}}>
+              <button onClick={sameSeed}>Restart same seed</button>
+              <button onClick={newSeed}>New seed</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <pre id="event-log" style={{height:120,overflow:'auto',background:'#111',color:'#0f0',padding:10,marginTop:12}}></pre>
       <hr/>
