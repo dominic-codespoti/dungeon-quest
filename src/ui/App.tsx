@@ -647,7 +647,7 @@ export default function App(){
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, eff {lastRun.efficiency ?? 0}/turn, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button title='best_score + best_floor' onClick={async()=>{ try{ await navigator.clipboard.writeText(`best_score=${bestScore} best_floor=${bestFloor}`); setStatus('Best stats copied.') }catch{} }}>Copy Best Stats</button>
-                <button onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Daily in Create</button>
+                <button title='prefill create with daily loadout' onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Daily in Create</button>
                 <button title='K' onClick={copyProfileSummary}>Copy Profile Summary</button>
                 <button title='structured JSON' onClick={async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify({bestScore,bestFloor,dailyPreset,lastRun}, null, 2)); setStatus('Profile JSON copied.') }catch{} }}>Copy Profile JSON</button>
                 <button title='daily seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
@@ -655,10 +655,10 @@ export default function App(){
                 <button title='J' onClick={copyDailyLink}>Copy Daily Link</button>
                 <button title='I' onClick={copyBundleLinks}>Copy Link Bundle</button>
                 {lastRun && <button title='Y' onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
-                {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
+                {lastRun && <button title='prefill create with last-run loadout' onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
-                {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
-                {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
+                {lastRun && <button title='copy last-run launch URL' onClick={copyLastRunLink}>Copy Last Run Link</button>}
+                {lastRun && <button title='remove stored last-run snapshot' onClick={clearLastRun}>Clear Last Run</button>}
                 {!confirmReset && <button onClick={()=>setConfirmReset(true)}>Reset</button>}
                 {confirmReset && <button onClick={resetRecords} style={{color:'#ffb3b3'}}>Confirm Reset</button>}
                 {confirmReset && <button onClick={()=>setConfirmReset(false)}>Cancel</button>}
