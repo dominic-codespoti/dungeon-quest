@@ -15,6 +15,7 @@ const checks = [
   ["shared helper: open create preset", "const openCreatePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{"],
   ["shared helper: launch preset game", "const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{"],
   ["shared helper: copy create launch link", "const copyCreateLaunchLink = async ()=>{"],
+  ["create launch link helper: uses resolved seed", "u.searchParams.set('seed', String(resolveChosenSeed(customSeed)))"],
   ["menu hotkey: Z daily build", "if(ev.key==='z' || ev.key==='Z') openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: D daily challenge", "if(ev.key==='d' || ev.key==='D') launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu button: daily challenge uses launcher", "<button onClick={()=>launchGamePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily challenge now'>Daily Challenge"],
