@@ -18,6 +18,8 @@ const checks = [
   ["create status: surprise feedback", "setStatus('Surprise class/race applied.')"],
   ["create status: reroll feedback", "setStatus('Rerolled class, race, and seed.')"],
   ["create action: reroll build+seed button", ">Reroll Build+Seed</button>"],
+  ["create hint: back alias shown", "B/Esc back"],
+  ["create button tooltip: back alias", "title='B / Esc'>Back</button>"],
   ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun){"],
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["create hotkey: B back to menu", "if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})"],
