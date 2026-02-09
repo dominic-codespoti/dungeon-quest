@@ -86,6 +86,7 @@ export default function App(){
   const [showPatchNotes,setShowPatchNotes] = useState(false)
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
+  const [showMeta,setShowMeta] = useState(false)
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [newRecord,setNewRecord] = useState<string | null>(null)
@@ -182,6 +183,7 @@ export default function App(){
       if(ev.key==='p' || ev.key==='P') setShowRunPrimer(true)
       if(ev.key==='n' || ev.key==='N') setShowPatchNotes(true)
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
+      if(ev.key==='o' || ev.key==='O') setShowMeta(true)
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
@@ -354,12 +356,13 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
-          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P Primer · N Notes · L Legend</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
+            <button onClick={()=>setShowMeta(true)}>Records</button>
           </div>
         </div>
 
@@ -409,6 +412,17 @@ export default function App(){
                 <li>Gold object: chest/vault reward source.</li>
               </ul>
               <button onClick={()=>setShowLegend(false)}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {showMeta && (
+          <div className='dq-overlay'>
+            <div className='box'>
+              <h2 style={{marginTop:0}}>Records</h2>
+              <p>Best Score: <b>{bestScore}</b></p>
+              <p>Best Floor: <b>{bestFloor}</b></p>
+              <button onClick={()=>setShowMeta(false)}>Close</button>
             </div>
           </div>
         )}
