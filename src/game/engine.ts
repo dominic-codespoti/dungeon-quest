@@ -3,8 +3,7 @@ import eventBus from './eventBus'
 
 function rng(seed:number){
   let s = seed >>> 0
-  return ()=>{ s = Math.imul(1664525, s) + 1013904223 | 0; return ((s >>> 0) / 4294967296)
-  }
+  return ()=>{ s = Math.imul(1664525, s) + 1013904223 | 0; return ((s >>> 0) / 4294967296) }
 }
 
 export class Engine{
@@ -22,26 +21,40 @@ export class Engine{
     this.width = width
     this.height = height
     this.rand = rng(seed)
-    // place player
-    this.entities.push({id:'p',type:'player',pos:{x:Math.floor(width/2),y:Math.floor(height/2)},hp:10})
 
-    // place a small pack of monsters for immediate challenge
-    for(let i=1;i<=4;i++){
-      let placed = false
-      while(!placed){
-        const pos = {x:Math.floor(this.rand()*width), y:Math.floor(this.rand()*height)}
-        const occupied = this.entities.some(e=>e.pos.x===pos.x && e.pos.y===pos.y)
-        const nearPlayer = Math.abs(pos.x-Math.floor(width/2)) + Math.abs(pos.y-Math.floor(height/2)) < 4
-        if(!occupied && !nearPlayer){
-          this.entities.push({id:`m${i}`,type:'monster',pos,hp:4})
-          placed = true
-        }
-      }
-    }
+    this.entities.push({id:'p',type:'player',pos:{x:Math.floor(width/2),y:Math.floor(height/2)},hp:12})
+
+    // Monster pack with different behavior profiles
+    this.spawnMonster('m1','chaser',4)
+    this.spawnMonster('m2','chaser',4)
+    this.spawnMonster('m3','brute',7)
+    this.spawnMonster('m4','skitter',3)
+
+    // Tactical pickups
+    this.spawnItem('i1','potion')
+    this.spawnItem('i2','relic')
 
     const ev:GameEvent = {tick:this.tick,type:'init',payload:{width,height,entities:this.entities}}
     this.events.push(ev)
     eventBus.publish(ev)
+  }
+
+  private spawnFreePos(minPlayerDistance=4){
+    const player = this.entities.find(e=>e.id==='p')
+    while(true){
+      const pos = {x:Math.floor(this.rand()*this.width), y:Math.floor(this.rand()*this.height)}
+      const occupied = this.entities.some(e=>e.pos.x===pos.x && e.pos.y===pos.y)
+      const nearPlayer = player ? (Math.abs(pos.x-player.pos.x) + Math.abs(pos.y-player.pos.y) < minPlayerDistance) : false
+      if(!occupied && !nearPlayer) return pos
+    }
+  }
+
+  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter',hp:number){
+    this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
+  }
+
+  private spawnItem(id:string,kind:'potion'|'relic'){
+    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(3)})
   }
 
   getState(): GameSnapshot{
@@ -56,66 +69,95 @@ export class Engine{
     }
   }
 
+  private emit(ev:GameEvent){
+    this.events.push(ev)
+    eventBus.publish(ev)
+  }
+
   step(action: PlayerAction){
     if(this.gameOver) return this.getState()
     this.tick++
-    const player = this.entities.find(e=>e.type==='player')!
+
+    const player = this.entities.find(e=>e.type==='player')
     if(!player) throw new Error('no player')
+
     if(action.type==='move'){
       const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
       const delta = d[action.dir]
       const nd = {x:player.pos.x + delta.x, y: player.pos.y + delta.y}
-      // simple bounds check
+
       if(nd.x>=0 && nd.x<this.width && nd.y>=0 && nd.y<this.height){
-        // check collisions
         const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
-        if(occ && occ.type==='monster'){
-          // simple combat
-          occ.hp = (occ.hp||1) - 3
-          const ev:GameEvent = {tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage:3}}
-          this.events.push(ev)
-          eventBus.publish(ev)
+
+        if(occ?.type==='monster'){
+          const damage = 3
+          occ.hp = (occ.hp||1) - damage
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage}})
           if((occ.hp||0) <=0){
-            const evd:GameEvent = {tick:this.tick,type:'die',payload:{id:occ.id}}
-            this.events.push(evd)
-            eventBus.publish(evd)
+            this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
             this.entities = this.entities.filter(e=>e.id!==occ.id)
-            this.score += 100
+            this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           }
+        } else if(occ?.type==='item'){
+          player.pos = nd
+          if(occ.kind==='potion'){
+            player.hp = Math.min(12, (player.hp||0) + 4)
+            this.score += 25
+          } else if(occ.kind==='relic') {
+            this.score += 200
+          }
+          this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+          this.entities = this.entities.filter(e=>e.id!==occ.id)
+          this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
         } else {
           player.pos = nd
-          const evm:GameEvent = {tick:this.tick,type:'move',payload:{id:'p',to:nd}}
-          this.events.push(evm)
-          eventBus.publish(evm)
+          this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
         }
       }
     } else {
-      const evw:GameEvent = {tick:this.tick,type:'wait'}
-    this.events.push(evw)
-    eventBus.publish(evw)
+      this.emit({tick:this.tick,type:'wait'})
     }
 
-    // monsters take a naive turn: move towards player if adjacent
     const playerPos = player.pos
-    this.entities.filter(e=>e.type==='monster').forEach(m=>{
+    const monsters = this.entities.filter(e=>e.type==='monster')
+
+    monsters.forEach(m=>{
+      const kind = m.kind || 'chaser'
+      const attacks = kind==='skitter' && this.tick % 3 === 0 ? 0 : 1
+      if(attacks===0) return
+
       const dx = playerPos.x - m.pos.x
       const dy = playerPos.y - m.pos.y
-      // Move one axis per turn to keep pursuit readable/fair
-      const stepX = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx) : 0
-      const stepY = stepX===0 ? Math.sign(dy) : 0
-      const nd = {x:m.pos.x+stepX,y:m.pos.y+stepY}
-      if(nd.x===playerPos.x && nd.y===playerPos.y){
-        // attack player
-        player.hp = (player.hp||0) - 1
-        const evc:GameEvent = {tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:1}}
-        this.events.push(evc)
-        eventBus.publish(evc)
+      const distance = Math.abs(dx)+Math.abs(dy)
+
+      // skitter tries lateral movement first, brute always commits forward, chaser tracks directly
+      const movePref: Coord[] = []
+      if(kind==='skitter'){
+        movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)})
+      } else if(kind==='brute'){
+        movePref.push({x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
       } else {
-        // move if not occupied
+        const stepX = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx) : 0
+        const stepY = stepX===0 ? Math.sign(dy) : 0
+        movePref.push({x:stepX,y:stepY},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
+      }
+
+      // Adjacent -> attack
+      if(distance===1){
+        const dmg = kind==='brute' ? 2 : 1
+        player.hp = (player.hp||0) - dmg
+        this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})
+        return
+      }
+
+      for(const step of movePref){
+        const nd = {x:m.pos.x + step.x, y:m.pos.y + step.y}
+        if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) continue
         const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y)
         if(!occ){
           m.pos = nd
-          this.events.push({tick:this.tick,type:'move',payload:{id:m.id,to:nd}})
+          this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd}})
+          break
         }
       }
     })
@@ -124,16 +166,12 @@ export class Engine{
     if(monstersLeft===0){
       this.gameOver = true
       this.outcome = 'victory'
-      const evWin:GameEvent = {tick:this.tick,type:'victory',payload:{reason:'all_monsters_defeated',score:this.score}}
-      this.events.push(evWin)
-      eventBus.publish(evWin)
+      this.emit({tick:this.tick,type:'victory',payload:{reason:'all_monsters_defeated',score:this.score}})
     }
     if((player.hp||0)<=0){
       this.gameOver = true
       this.outcome = 'defeat'
-      const evLose:GameEvent = {tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score}}
-      this.events.push(evLose)
-      eventBus.publish(evLose)
+      this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score}})
     }
 
     return this.getState()

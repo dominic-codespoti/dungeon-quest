@@ -3,6 +3,7 @@ export type Coord = {x:number,y:number}
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
+  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'
   pos: Coord
   hp?: number
 }

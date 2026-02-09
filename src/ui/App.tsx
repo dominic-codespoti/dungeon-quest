@@ -26,6 +26,8 @@ export default function App(){
     const unsub = g?.subscribe?.((e:any)=>{
       if(e.type==='victory') setStatus('🏆 Victory! All monsters defeated.')
       if(e.type==='defeat') setStatus('☠️ Defeat! You were overwhelmed.')
+      if(e.type==='pickup' && e.payload?.kind==='potion') setStatus('🧪 Potion grabbed. HP restored.')
+      if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
     })
 
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
@@ -70,6 +72,7 @@ export default function App(){
         <button onClick={wait} disabled={snapshot?.gameOver}>Wait</button>
         <button onClick={()=>window.location.reload()}>New Run</button>
         <span style={{opacity:0.8}}>Controls: Arrow keys / WASD / Space</span>
+        <span style={{opacity:0.8}}>Enemies: red=chaser, dark red=brute, orange=skitter; blue=potion, cyan=relic</span>
       </div>
 
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
