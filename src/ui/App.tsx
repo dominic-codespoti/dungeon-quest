@@ -108,6 +108,7 @@ export default function App(){
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
       if(e.type==='spit_used') setStatus(`Spitter spits for ${e.payload?.damage ?? 0}.`)
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
+      if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='shrine_boon') setStatus(`Shrine grants ${e.payload?.boon}.`)
       if(e.type==='relic_boon') setStatus(`Relic resonates with ${e.payload?.boon}.`)

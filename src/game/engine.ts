@@ -452,6 +452,7 @@ export class Engine{
     if(dropRoll < 0.5) this.spawnItem(`i${this.floor}-boss-bomb-${this.tick}`,'bomb')
     else this.spawnItem(`i${this.floor}-boss-shard-${this.tick}`,'blink-shard')
     this.emit({tick:this.tick,type:'boss_loot',payload:{floor:this.floor,drop:dropRoll<0.5?'bomb':'blink-shard'}})
+    this.emit({tick:this.tick,type:'boss_defeated_unlock',payload:{floor:this.floor}})
   }
 
   step(action: PlayerAction){
