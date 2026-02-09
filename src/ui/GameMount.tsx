@@ -4,6 +4,19 @@ import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
 import type {PlayerClass} from '../game/types'
 
+import floorTex from './assets/textures/floor.png'
+import wallTex from './assets/textures/wall.png'
+import knightSprite from './assets/sprites/knight.svg'
+import rogueSprite from './assets/sprites/rogue.svg'
+import chaserSprite from './assets/sprites/chaser.svg'
+import bruteSprite from './assets/sprites/brute.svg'
+import skitterSprite from './assets/sprites/skitter.svg'
+import stairsSprite from './assets/sprites/stairs.svg'
+import relicSprite from './assets/sprites/relic.svg'
+import gearSprite from './assets/sprites/gear.svg'
+import idolSprite from './assets/sprites/idol.svg'
+import potionIcon from './assets/icons/potion.svg'
+
 type Coord = {x:number,y:number}
 
 function getSeedFromUrl(){
@@ -60,6 +73,21 @@ export default function GameMount(){
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
           function toScreen(pos:{x:number,y:number}){ return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2} }
+
+          function textureForEntity(ent:any){
+            if(ent.type==='player') return klass==='rogue' ? rogueSprite : knightSprite
+            if(ent.type==='monster'){
+              if(ent.kind==='brute') return bruteSprite
+              if(ent.kind==='skitter') return skitterSprite
+              return chaserSprite
+            }
+            if(ent.kind==='stairs') return stairsSprite
+            if(ent.kind==='relic') return relicSprite
+            if(ent.kind==='potion' || ent.kind==='elixir') return potionIcon
+            if(ent.kind==='cursed-idol') return idolSprite
+            if(ent.kind==='gear') return gearSprite
+            return relicSprite
+          }
 
           function ensureFlashOverlay(){
             if(flashOverlay) return
@@ -135,32 +163,24 @@ export default function GameMount(){
                 const k = `${x},${y}`
                 const p = toScreen({x,y})
                 if(wallSet.has(k)){
-                  wallDisplays[k] = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
+                  const wall = sc.add.image(p.x,p.y,wallTex).setOrigin(0.5)
+                  wall.setDisplaySize(tileSize, tileSize)
+                  wall.setTint(0x8892b0)
+                  wallDisplays[k] = wall
                 } else {
-                  floorDisplays[k] = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1d2742).setOrigin(0.5)
+                  const floor = sc.add.image(p.x,p.y,floorTex).setOrigin(0.5)
+                  floor.setDisplaySize(tileSize, tileSize)
+                  floor.setTint(0x6f83b5)
+                  floorDisplays[k] = floor
                 }
               }
             }
 
             ;(payload.entities||[]).forEach((ent:any)=>{
               const p = toScreen(ent.pos)
-              const color = ent.type==='player'
-                ? 0x00ff88
-                : ent.type==='monster'
-                  ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff3355)
-                  : ent.kind==='stairs'
-                    ? 0xaa66ff
-                    : ent.kind==='relic'
-                      ? 0x00ffff
-                      : ent.kind==='elixir'
-                        ? 0xaaff66
-                        : ent.kind==='cursed-idol'
-                          ? 0xaa33aa
-                          : ent.kind==='gear'
-                            ? 0xffd166
-                            : 0x4488ff
-              const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
-              displays[ent.id] = r
+              const s = sc.add.image(p.x,p.y,textureForEntity(ent)).setOrigin(0.5)
+              s.setDisplaySize(tileSize-2, tileSize-2)
+              displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })
 
