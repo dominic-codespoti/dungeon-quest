@@ -177,6 +177,8 @@ export default function App(){
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
+  const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
+  const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
 
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
@@ -335,10 +337,12 @@ export default function App(){
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
+            <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
           <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
+          {nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
           <div style={{margin:'4px 0 6px'}}>
             <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
