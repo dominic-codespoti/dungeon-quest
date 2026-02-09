@@ -33,6 +33,7 @@ npm run verify
 - `Z` Daily Build (prefilled create)
 - `D` Daily Challenge (immediate launch)
 - `U` Copy Last Run Seed
+- `V` Copy Daily Preset (`seed class/race`)
 - `I` Copy Link Bundle
 - `J` Copy Daily Link
 - `K` Copy Profile Summary
