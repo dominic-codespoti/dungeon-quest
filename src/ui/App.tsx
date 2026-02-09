@@ -106,6 +106,7 @@ export default function App(){
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='shrine_boon') setStatus(`Shrine grants ${e.payload?.boon}.`)
+      if(e.type==='relic_boon') setStatus(`Relic resonates with ${e.payload?.boon}.`)
       if(e.type==='fountain_used') setStatus('Fountain restores full HP and refreshes skill cooldowns.')
       if(e.type==='rift_used') setStatus(`Rift Orb pulled ${e.payload?.pulled ?? 0} enemies close.`)
       if(e.type==='streak_bonus') setStatus(`Kill streak x${e.payload?.streak}: +${e.payload?.bonus} bonus score.`)

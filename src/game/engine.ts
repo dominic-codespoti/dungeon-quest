@@ -510,7 +510,22 @@ export class Engine{
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='relic'){
         this.score += 200
+        const r = this.rand()
+        let boon: 'power'|'ward'|'focus' = 'power'
+        if(r < 0.34){
+          this.attackBonus += 1
+          boon = 'power'
+        } else if(r < 0.67){
+          this.defenseBonus += 1
+          boon = 'ward'
+        } else {
+          this.dashCooldown = Math.max(0, this.dashCooldown - 1)
+          this.backstepCooldown = Math.max(0, this.backstepCooldown - 1)
+          this.guardCooldown = Math.max(0, this.guardCooldown - 1)
+          boon = 'focus'
+        }
         this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
+        this.emit({tick:this.tick,type:'relic_boon',payload:{boon,attackBonus:this.attackBonus,defenseBonus:this.defenseBonus}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='elixir'){
         player.hp = Math.min(this.maxHp, (player.hp||0) + 2)
