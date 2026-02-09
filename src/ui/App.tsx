@@ -215,6 +215,7 @@ export default function App(){
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
   const pace = snapshot ? ((snapshot.floor || 1) / Math.max(1, snapshot.tick || 1)) * 100 : 0
   const paceLabel = pace >= 3 ? 'FAST' : pace >= 1.8 ? 'STEADY' : 'SLOW'
+  const paceColor = paceLabel==='FAST' ? '#9dffb8' : paceLabel==='STEADY' ? '#ffd27a' : '#ff9c7a'
   const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
@@ -422,7 +423,7 @@ export default function App(){
             <div className='dq-stat'>Best<b>{bestScore}</b></div>
             <div className='dq-stat'>Best Floor<b>{bestFloor}</b></div>
             <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>
-            <div className='dq-stat'>Pace<b>{paceLabel}</b></div>
+            <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
