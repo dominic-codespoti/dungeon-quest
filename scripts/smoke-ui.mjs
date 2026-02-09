@@ -9,6 +9,8 @@ const checks = [
   ["menu hotkey: D daily challenge", "if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
   ["menu hotkey: G last build", "if((ev.key==='g' || ev.key==='G') && lastRun) navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["menu action: last build button", ">Last Build</button>"],
+  ["menu tooltip: quick start intent", "title='A · random class/race/seed'"],
+  ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun){"],
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
