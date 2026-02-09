@@ -125,6 +125,23 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
+
+  const closeMenuModals = ()=>{
+    setShowPatchNotes(false)
+    setShowRunPrimer(false)
+    setShowLegend(false)
+    setShowMeta(false)
+  }
+  const toggleMenuModal = (name:'patch'|'primer'|'legend'|'meta')=>{
+    const current = name==='patch' ? showPatchNotes : name==='primer' ? showRunPrimer : name==='legend' ? showLegend : showMeta
+    closeMenuModals()
+    if(!current){
+      if(name==='patch') setShowPatchNotes(true)
+      if(name==='primer') setShowRunPrimer(true)
+      if(name==='legend') setShowLegend(true)
+      if(name==='meta') setShowMeta(true)
+    }
+  }
   const [confirmReset,setConfirmReset] = useState(false)
   const [customSeed,setCustomSeed] = useState(()=> (getParams().get('seed') || '').replace(/[^0-9]/g,''))
   const [bestScore,setBestScore] = useState<number>(0)
@@ -244,22 +261,18 @@ export default function App(){
     const onMenuKey = (ev:KeyboardEvent)=>{
       if(ev.key==='Enter') navigate({screen:'create'})
       if(ev.key==='a' || ev.key==='A') navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})
-      if(ev.key==='p' || ev.key==='P') setShowRunPrimer(v=>!v)
-      if(ev.key==='n' || ev.key==='N') setShowPatchNotes(v=>!v)
-      if(ev.key==='l' || ev.key==='L') setShowLegend(v=>!v)
-      if(ev.key==='o' || ev.key==='O') setShowMeta(v=>!v)
-      if(ev.key==='r' || ev.key==='R') setShowRunPrimer(v=>!v)
+      if(ev.key==='p' || ev.key==='P') toggleMenuModal('primer')
+      if(ev.key==='n' || ev.key==='N') toggleMenuModal('patch')
+      if(ev.key==='l' || ev.key==='L') toggleMenuModal('legend')
+      if(ev.key==='o' || ev.key==='O') toggleMenuModal('meta')
+      if(ev.key==='r' || ev.key==='R') toggleMenuModal('primer')
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if((ev.key==='u' || ev.key==='U') && lastRun) copyLastRunSeed()
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
       if(ev.key==='i' || ev.key==='I') copyBundleLinks()
       if(ev.key==='j' || ev.key==='J') copyDailyLink()
       if(ev.key==='k' || ev.key==='K') copyProfileSummary()
-      if(ev.key==='Escape'){        setShowRunPrimer(false)
-        setShowPatchNotes(false)
-        setShowLegend(false)
-        setShowMeta(false)
-      }
+      if(ev.key==='Escape') closeMenuModals()
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
@@ -555,10 +568,10 @@ export default function App(){
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})} title='A'>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y'>Resume Last Run Seed</button>}
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D'>Daily Challenge ({dailyPreset.klass}/{dailyPreset.race})</button>
-            <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
-            <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
-            <button onClick={()=>setShowLegend(true)}>Legend</button>
-            <button onClick={()=>setShowMeta(true)}>Records</button>
+            <button onClick={()=>toggleMenuModal('patch')}>Patch Notes</button>
+            <button onClick={()=>toggleMenuModal('primer')}>Run Primer</button>
+            <button onClick={()=>toggleMenuModal('legend')}>Legend</button>
+            <button onClick={()=>toggleMenuModal('meta')}>Records</button>
           </div>
         </div>
 
