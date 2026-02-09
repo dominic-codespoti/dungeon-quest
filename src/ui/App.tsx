@@ -348,6 +348,15 @@ export default function App(){
     if(seed==null) return
     try{ await navigator.clipboard.writeText(String(seed)); setStatus(`Seed ${seed} copied.`) }catch{}
   }
+  const copyRunLink = async ()=>{
+    if(seed==null) return
+    const u = new URL(window.location.href)
+    u.searchParams.set('screen','game')
+    u.searchParams.set('seed', String(seed))
+    u.searchParams.set('class', klass)
+    u.searchParams.set('race', race)
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -506,6 +515,7 @@ export default function App(){
             <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
+            <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
             <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
             <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
             <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
@@ -605,6 +615,7 @@ export default function App(){
             {newRecord && <p style={{color:'#9dffb8'}}>{newRecord}</p>}
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               <button onClick={copySeed}>Copy seed</button>
+              <button onClick={copyRunLink}>Copy run link</button>
               <button onClick={sameSeed}>Restart same seed</button>
               <button onClick={newSeed}>New seed</button>
               <button onClick={backToMenu}>Main menu</button>
