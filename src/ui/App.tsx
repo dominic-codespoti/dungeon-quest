@@ -90,6 +90,15 @@ function getDailySeed(){
   return y*10000 + m*100 + day
 }
 
+function randomClassRace(){
+  const classes: PlayerClass[] = ['knight','rogue']
+  const races: PlayerRace[] = ['human','elf','dwarf']
+  return {
+    klass: classes[Math.floor(Math.random()*classes.length)] || 'knight',
+    race: races[Math.floor(Math.random()*races.length)] || 'human'
+  }
+}
+
 function getDailyPreset(){
   const seed = getDailySeed()
   const classes: PlayerClass[] = ['knight','rogue']
@@ -260,7 +269,10 @@ export default function App(){
     if(screen!=='menu') return
     const onMenuKey = (ev:KeyboardEvent)=>{
       if(ev.key==='Enter') navigate({screen:'create'})
-      if(ev.key==='a' || ev.key==='A') navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})
+      if(ev.key==='a' || ev.key==='A'){
+        const rr = randomClassRace()
+        navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+      }
       if(ev.key==='p' || ev.key==='P') toggleMenuModal('primer')
       if(ev.key==='h' || ev.key==='H') toggleMenuModal('primer')
       if(ev.key==='?' || ev.key==='/') toggleMenuModal('primer')
@@ -292,16 +304,14 @@ export default function App(){
       if(ev.key==='w' || ev.key==='W') setRace('elf')
       if(ev.key==='e' || ev.key==='E') setRace('dwarf')
       if(ev.key==='s' || ev.key==='S'){
-        const classes: PlayerClass[] = ['knight','rogue']
-        const races: PlayerRace[] = ['human','elf','dwarf']
-        setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
-        setRace(races[Math.floor(Math.random()*races.length)] || 'human')
+        const rr = randomClassRace()
+        setKlass(rr.klass)
+        setRace(rr.race)
       }
       if(ev.key==='r' || ev.key==='R'){
-        const classes: PlayerClass[] = ['knight','rogue']
-        const races: PlayerRace[] = ['human','elf','dwarf']
-        setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
-        setRace(races[Math.floor(Math.random()*races.length)] || 'human')
+        const rr = randomClassRace()
+        setKlass(rr.klass)
+        setRace(rr.race)
         setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
       }
       if(ev.key==='z' || ev.key==='Z'){
@@ -321,11 +331,8 @@ export default function App(){
       if(ev.key==='x' || ev.key==='X') setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
       if(ev.key==='c' || ev.key==='C') setCustomSeed('')
       if(ev.key==='a' || ev.key==='A'){
-        const classes: PlayerClass[] = ['knight','rogue']
-        const races: PlayerRace[] = ['human','elf','dwarf']
-        const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
-        const r = races[Math.floor(Math.random()*races.length)] || 'human'
-        navigate({screen:'game', class:c, race:r, seed:Math.floor(Math.random()*1_000_000)+1})
+        const rr = randomClassRace()
+        navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
       }
       if(ev.key==='Enter'){
         const chosenSeed = Number(customSeed)
@@ -590,7 +597,10 @@ export default function App(){
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
-            <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})} title='A · random class/race/seed'>Quick Start</button>
+            <button onClick={()=>{
+              const rr = randomClassRace()
+              navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
+            }} title='A · random class/race/seed'>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>}
             {lastRun && <button onClick={()=>navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='G · prefill create from last run'>Last Build</button>}
             <button onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='Z · prefill create from daily preset'>Daily Build</button>
@@ -740,20 +750,14 @@ export default function App(){
           <div style={{display:'flex', gap:8, marginTop:14, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'menu'})} title='B / Esc'>Back</button>
             <button onClick={()=>{
-              const classes: PlayerClass[] = ['knight','rogue']
-              const races: PlayerRace[] = ['human','elf','dwarf']
-              const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
-              const r = races[Math.floor(Math.random()*races.length)] || 'human'
-              setKlass(c)
-              setRace(r)
+              const rr = randomClassRace()
+              setKlass(rr.klass)
+              setRace(rr.race)
             }} title='S'>Surprise Me</button>
             <button onClick={()=>{
-              const classes: PlayerClass[] = ['knight','rogue']
-              const races: PlayerRace[] = ['human','elf','dwarf']
-              const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
-              const r = races[Math.floor(Math.random()*races.length)] || 'human'
-              setKlass(c)
-              setRace(r)
+              const rr = randomClassRace()
+              setKlass(rr.klass)
+              setRace(rr.race)
               setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
               setStatus('Rerolled class, race, and seed.')
             }} title='R'>Reroll Build+Seed</button>
@@ -772,11 +776,8 @@ export default function App(){
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{
-              const classes: PlayerClass[] = ['knight','rogue']
-              const races: PlayerRace[] = ['human','elf','dwarf']
-              const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
-              const r = races[Math.floor(Math.random()*races.length)] || 'human'
-              navigate({screen:'game', class:c, race:r, seed:Math.floor(Math.random()*1_000_000)+1})
+              const rr = randomClassRace()
+              navigate({screen:'game', class:rr.klass, race:rr.race, seed:Math.floor(Math.random()*1_000_000)+1})
             }} title='A'>Quick Start</button>
             <button onClick={()=>{
               const chosenSeed = Number(customSeed)
