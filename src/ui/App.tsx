@@ -81,6 +81,7 @@ export default function App(){
   const [screen,setScreen] = useState<Screen>(getScreen())
   const [targetSkill,setTargetSkill] = useState<TargetSkill | null>(null)
   const [targetDir,setTargetDir] = useState<Dir>('up')
+  const [showHelp,setShowHelp] = useState(false)
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -150,6 +151,7 @@ export default function App(){
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
       if(ev.key==='Escape') setTargetSkill(null)
+      if(ev.key==='/' || ev.key==='?') setShowHelp(v=>!v)
     }
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
@@ -288,7 +290,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · ? help</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -352,6 +354,21 @@ export default function App(){
           </div>
         </aside>
       </div>
+
+      {showHelp && (
+        <div className='dq-overlay'>
+          <div className='box'>
+            <h2 style={{marginTop:0}}>Controls & Goal</h2>
+            <p>Goal: clear floor 10.</p>
+            <p>Move: WASD/Arrows</p>
+            <p>Dash: Shift + direction</p>
+            <p>Rogue: Q backstep</p>
+            <p>Knight: B bash, G guard</p>
+            <p>Interact: E · Wait: Space</p>
+            <div style={{display:'flex', gap:8}}><button onClick={()=>setShowHelp(false)}>Close</button></div>
+          </div>
+        </div>
+      )}
 
       {snapshot?.gameOver && (
         <div className='dq-overlay'>
