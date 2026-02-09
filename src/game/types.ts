@@ -3,13 +3,14 @@ export type Coord = {x:number,y:number}
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
-  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'
+  kind?: 'chaser'|'brute'|'skitter'|'potion'|'relic'|'stairs'
   pos: Coord
   hp?: number
 }
 
 export type GameSnapshot = {
   tick: number
+  floor: number
   width: number
   height: number
   walls: Coord[]

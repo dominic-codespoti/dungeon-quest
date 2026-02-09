@@ -27,6 +27,7 @@ export default function GameMount(){
           const tileSize = Math.max(8, Math.min(tileW, tileH))
 
           const displays: Record<string, any> = {}
+          let wallDisplays: any[] = []
           let fogGraphics: any
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -47,9 +48,15 @@ export default function GameMount(){
 
           const handler = (e:any)=>{
             if(e.type==='init'){
+              Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
+              wallDisplays.forEach(w=>{ try{ w.destroy() }catch{} })
+              wallDisplays = []
+              if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
+
               ;(e.payload.walls||[]).forEach((w:any)=>{
                 const p = toScreen(w)
-                sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
+                const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
+                wallDisplays.push(wall)
               })
 
               ;(e.payload.entities||[]).forEach((ent:any)=>{
@@ -58,7 +65,7 @@ export default function GameMount(){
                   ? 0x00ff00
                   : ent.type==='monster'
                     ? (ent.kind==='brute' ? 0xaa0000 : ent.kind==='skitter' ? 0xff8800 : 0xff0000)
-                    : (ent.kind==='relic' ? 0x00ffff : 0x4488ff)
+                    : (ent.kind==='stairs' ? 0xaa66ff : ent.kind==='relic' ? 0x00ffff : 0x4488ff)
                 const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
                 displays[ent.id] = r
                 if(ent.id==='p') playerPos = ent.pos

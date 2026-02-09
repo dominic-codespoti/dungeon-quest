@@ -1,5 +1,6 @@
 node_modules/
 .serve/
+.playtest-tmp/
 logs/
 *.log
 .DS_Store

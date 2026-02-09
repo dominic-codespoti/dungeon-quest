@@ -10,6 +10,7 @@ const key = (p:Coord)=> `${p.x},${p.y}`
 
 export class Engine{
   tick = 0
+  floor = 1
   width:number
   height:number
   entities: Entity[] = []
@@ -24,27 +25,42 @@ export class Engine{
     this.width = width
     this.height = height
     this.rand = rng(seed)
+    this.setupFloor(true)
+  }
 
-    this.entities.push({id:'p',type:'player',pos:{x:Math.floor(width/2),y:Math.floor(height/2)},hp:12})
+  private setupFloor(initial=false){
+    const currentHp = this.entities.find(e=>e.id==='p')?.hp ?? 12
+    const preservedHp = initial ? 12 : Math.min(12, currentHp + 1)
+
+    this.entities = [{id:'p',type:'player',pos:{x:Math.floor(this.width/2),y:Math.floor(this.height/2)},hp:preservedHp}]
+    this.walls = new Set<string>()
     this.generateWalls()
 
-    // Monster pack with different behavior profiles
-    this.spawnMonster('m1','chaser',4)
-    this.spawnMonster('m2','chaser',4)
-    this.spawnMonster('m3','brute',7)
-    this.spawnMonster('m4','skitter',3)
+    const baseCount = 4
+    const monsterCount = Math.min(10, baseCount + (this.floor - 1) * 2)
+    for(let i=0;i<monsterCount;i++){
+      const pick = this.rand()
+      const kind = pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
+      const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
+      this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp)
+    }
 
-    // Tactical pickups
-    this.spawnItem('i1','potion')
-    this.spawnItem('i2','relic')
+    this.spawnItem(`i${this.floor}-p1`,'potion')
+    this.spawnItem(`i${this.floor}-r1`,'relic')
 
-    const ev:GameEvent = {tick:this.tick,type:'init',payload:{width,height,walls:this.getWalls(),entities:this.entities}}
-    this.events.push(ev)
-    eventBus.publish(ev)
+    if(!initial){
+      this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor}})
+    }
+    this.emit({
+      tick:this.tick,
+      type:'init',
+      payload:{floor:this.floor,width:this.width,height:this.height,walls:this.getWalls(),entities:this.entities}
+    })
   }
 
   private generateWalls(){
     const center = {x:Math.floor(this.width/2), y:Math.floor(this.height/2)}
+    const density = Math.min(0.2, 0.1 + (this.floor - 1) * 0.015)
     for(let y=0; y<this.height; y++){
       for(let x=0; x<this.width; x++){
         const isBorder = x===0 || y===0 || x===this.width-1 || y===this.height-1
@@ -53,7 +69,7 @@ export class Engine{
           continue
         }
         const nearStart = Math.abs(x-center.x) + Math.abs(y-center.y) <= 3
-        if(!nearStart && this.rand() < 0.1){
+        if(!nearStart && this.rand() < density){
           this.walls.add(key({x,y}))
         }
       }
@@ -75,27 +91,54 @@ export class Engine{
     return this.entities.some(e=>e.id!==exceptId && e.pos.x===pos.x && e.pos.y===pos.y)
   }
 
+  private hasPath(start:Coord, goal:Coord){
+    if(this.isWall(start) || this.isWall(goal)) return false
+    const q: Coord[] = [start]
+    const seen = new Set<string>([key(start)])
+    while(q.length){
+      const cur = q.shift()!
+      if(cur.x===goal.x && cur.y===goal.y) return true
+      const neighbors: Coord[] = [
+        {x:cur.x+1,y:cur.y},{x:cur.x-1,y:cur.y},{x:cur.x,y:cur.y+1},{x:cur.x,y:cur.y-1}
+      ]
+      for(const n of neighbors){
+        if(n.x<0 || n.x>=this.width || n.y<0 || n.y>=this.height) continue
+        if(this.isWall(n)) continue
+        const nk = key(n)
+        if(seen.has(nk)) continue
+        seen.add(nk)
+        q.push(n)
+      }
+    }
+    return false
+  }
+
   private spawnFreePos(minPlayerDistance=4){
     const player = this.entities.find(e=>e.id==='p')
-    while(true){
+    let tries = 0
+    while(tries < 1200){
+      tries++
       const pos = {x:Math.floor(this.rand()*this.width), y:Math.floor(this.rand()*this.height)}
       const occupied = this.isOccupiedByEntity(pos)
       const nearPlayer = player ? (Math.abs(pos.x-player.pos.x) + Math.abs(pos.y-player.pos.y) < minPlayerDistance) : false
-      if(!occupied && !nearPlayer && !this.isWall(pos)) return pos
+      const reachable = player ? this.hasPath(player.pos, pos) : true
+      if(!occupied && !nearPlayer && !this.isWall(pos) && reachable) return pos
     }
+    return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
   }
 
   private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter',hp:number){
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'){
-    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(3)})
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'){
+    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3)})
   }
 
   getState(): GameSnapshot{
     return {
       tick:this.tick,
+      floor:this.floor,
       width:this.width,
       height:this.height,
       walls:this.getWalls(),
@@ -109,6 +152,15 @@ export class Engine{
   private emit(ev:GameEvent){
     this.events.push(ev)
     eventBus.publish(ev)
+  }
+
+  private trySpawnStairs(){
+    const monstersLeft = this.entities.filter(e=>e.type==='monster').length
+    const hasStairs = this.entities.some(e=>e.type==='item' && e.kind==='stairs')
+    if(monstersLeft===0 && !hasStairs){
+      this.spawnItem(`i${this.floor}-stairs`,'stairs')
+      this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor}})
+    }
   }
 
   step(action: PlayerAction){
@@ -143,11 +195,19 @@ export class Engine{
             if(occ.kind==='potion'){
               player.hp = Math.min(12, (player.hp||0) + 4)
               this.score += 25
+              this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+              this.entities = this.entities.filter(e=>e.id!==occ.id)
             } else if(occ.kind==='relic') {
               this.score += 200
+              this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
+              this.entities = this.entities.filter(e=>e.id!==occ.id)
+            } else if(occ.kind==='stairs'){
+              this.score += 150 + this.floor * 25
+              this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
+              this.floor += 1
+              this.setupFloor(false)
+              return this.getState()
             }
-            this.emit({tick:this.tick,type:'pickup',payload:{id:occ.id,kind:occ.kind}})
-            this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd}})
           } else {
             player.pos = nd
@@ -173,7 +233,7 @@ export class Engine{
 
       const movePref: Coord[] = []
       if(kind==='skitter'){
-        movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)})
+        movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
       } else if(kind==='brute'){
         movePref.push({x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
       } else {
@@ -202,16 +262,12 @@ export class Engine{
       }
     })
 
-    const monstersLeft = this.entities.filter(e=>e.type==='monster').length
-    if(monstersLeft===0){
-      this.gameOver = true
-      this.outcome = 'victory'
-      this.emit({tick:this.tick,type:'victory',payload:{reason:'all_monsters_defeated',score:this.score}})
-    }
+    this.trySpawnStairs()
+
     if((player.hp||0)<=0){
       this.gameOver = true
       this.outcome = 'defeat'
-      this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score}})
+      this.emit({tick:this.tick,type:'defeat',payload:{reason:'player_dead',score:this.score,floor:this.floor}})
     }
 
     return this.getState()

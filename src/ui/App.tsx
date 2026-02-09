@@ -4,15 +4,16 @@ import GameMount from './GameMount'
 
 type Snapshot = {
   tick:number
+  floor:number
   score:number
   gameOver:boolean
   outcome?:'victory'|'defeat'
-  entities: Array<{id:string,type:string,hp?:number}>
+  entities: Array<{id:string,type:string,kind?:string,hp?:number}>
 }
 
 export default function App(){
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
-  const [status,setStatus] = useState('Survive and clear all monsters')
+  const [status,setStatus] = useState('Clear each floor, then descend the stairs')
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -28,6 +29,9 @@ export default function App(){
       if(e.type==='defeat') setStatus('☠️ Defeat! You were overwhelmed.')
       if(e.type==='pickup' && e.payload?.kind==='potion') setStatus('🧪 Potion grabbed. HP restored.')
       if(e.type==='pickup' && e.payload?.kind==='relic') setStatus('💎 Relic secured. Score boosted.')
+      if(e.type==='stairs_spawned') setStatus('🪜 Stairs appeared. Descend to next floor!')
+      if(e.type==='stairs_used') setStatus('⬇️ Descending... deeper into the dungeon.')
+      if(e.type==='floor') setStatus(`⚔️ Floor ${e.payload?.floor} — enemies are getting tougher.`)
     })
 
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
@@ -58,6 +62,7 @@ export default function App(){
       <h1>Dungeon Quest — WIP</h1>
       <p>{status}</p>
       <div style={{display:'flex',gap:12,marginBottom:8,flexWrap:'wrap'}}>
+        <strong>Floor: {snapshot?.floor ?? '-'}</strong>
         <strong>HP: {String(playerHp)}</strong>
         <strong>Monsters: {String(monstersLeft)}</strong>
         <strong>Tick: {snapshot?.tick ?? '-'}</strong>
@@ -72,7 +77,7 @@ export default function App(){
         <button onClick={wait} disabled={snapshot?.gameOver}>Wait</button>
         <button onClick={()=>window.location.reload()}>New Run</button>
         <span style={{opacity:0.8}}>Controls: Arrow keys / WASD / Space</span>
-        <span style={{opacity:0.8}}>Enemies: red=chaser, dark red=brute, orange=skitter; blue=potion, cyan=relic</span>
+        <span style={{opacity:0.8}}>Enemies: red=chaser, dark red=brute, orange=skitter; blue=potion, cyan=relic, violet=stairs</span>
       </div>
 
       <div style={{border:'1px solid #ccc',padding:8,background:'#fafafa'}}>
