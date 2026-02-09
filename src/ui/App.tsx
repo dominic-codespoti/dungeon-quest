@@ -90,6 +90,17 @@ function getDailySeed(){
   return y*10000 + m*100 + day
 }
 
+function getDailyPreset(){
+  const seed = getDailySeed()
+  const classes: PlayerClass[] = ['knight','rogue']
+  const races: PlayerRace[] = ['human','elf','dwarf']
+  return {
+    seed,
+    klass: classes[seed % classes.length] || 'knight',
+    race: races[seed % races.length] || 'human'
+  }
+}
+
 export default function App(){
   const adminView = getParams().get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
@@ -214,7 +225,7 @@ export default function App(){
       if(ev.key==='o' || ev.key==='O') setShowMeta(true)
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
-      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:'knight', race:'human', seed:getDailySeed()})
+      if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
       if(ev.key==='Escape'){
         setShowRunPrimer(false)
         setShowPatchNotes(false)
@@ -304,6 +315,7 @@ export default function App(){
   },[snapshot])
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
+  const dailyPreset = getDailyPreset()
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
   const pace = snapshot ? ((snapshot.floor || 1) / Math.max(1, snapshot.tick || 1)) * 100 : 0
@@ -442,14 +454,14 @@ export default function App(){
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
           <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
-            <span>Daily seed: {getDailySeed()}</span>
-            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
+            <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race})</span>
+            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} onClick={async()=>{
               const u = new URL(window.location.href)
               u.searchParams.set('screen','game')
-              u.searchParams.set('seed', String(getDailySeed()))
-              u.searchParams.set('class','knight')
-              u.searchParams.set('race','human')
+              u.searchParams.set('seed', String(dailyPreset.seed))
+              u.searchParams.set('class',dailyPreset.klass)
+              u.searchParams.set('race',dailyPreset.race)
               try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
             }}>Copy Link</button>
           </div>
@@ -457,7 +469,7 @@ export default function App(){
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>navigate({screen:'game', class:['knight','rogue'][Math.floor(Math.random()*2)] || 'knight', race:['human','elf','dwarf'][Math.floor(Math.random()*3)] || 'human', seed:Math.floor(Math.random()*1_000_000)+1})}>Quick Start</button>
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run Seed</button>}
-            <button onClick={()=>navigate({screen:'game', class:'knight', race:'human', seed:getDailySeed()})}>Daily Challenge</button>
+            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Daily Challenge</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
             <button onClick={()=>setShowRunPrimer(true)}>Run Primer</button>
             <button onClick={()=>setShowLegend(true)}>Legend</button>
@@ -521,16 +533,16 @@ export default function App(){
               <h2 style={{marginTop:0}}>Records</h2>
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
-              <p>Daily Seed: <b>{getDailySeed()}</b></p>
+              <p>Daily Seed: <b>{dailyPreset.seed}</b> ({dailyPreset.klass}/{dailyPreset.race})</p>
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
-                <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(getDailySeed())); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
+                <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button onClick={async()=>{
                   const u = new URL(window.location.href)
                   u.searchParams.set('screen','game')
-                  u.searchParams.set('seed', String(getDailySeed()))
-                  u.searchParams.set('class','knight')
-                  u.searchParams.set('race','human')
+                  u.searchParams.set('seed', String(dailyPreset.seed))
+                  u.searchParams.set('class',dailyPreset.klass)
+                  u.searchParams.set('race',dailyPreset.race)
                   try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
                 }}>Copy Daily Link</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
