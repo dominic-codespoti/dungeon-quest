@@ -1,5 +1,33 @@
 import Phaser from 'phaser'
 
+import floorTex from '../ui/assets/textures/floor.png'
+import wallTex from '../ui/assets/textures/wall.png'
+import knightSprite from '../ui/assets/sprites/knight.svg'
+import rogueSprite from '../ui/assets/sprites/rogue.svg'
+import chaserSprite from '../ui/assets/sprites/chaser.svg'
+import bruteSprite from '../ui/assets/sprites/brute.svg'
+import skitterSprite from '../ui/assets/sprites/skitter.svg'
+import stairsSprite from '../ui/assets/sprites/stairs.svg'
+import relicSprite from '../ui/assets/sprites/relic.svg'
+import gearSprite from '../ui/assets/sprites/gear.svg'
+import idolSprite from '../ui/assets/sprites/idol.svg'
+import potionIcon from '../ui/assets/icons/potion.svg'
+
+export const TEX_KEYS = {
+  floor: 'tex-floor',
+  wall: 'tex-wall',
+  knight: 'spr-knight',
+  rogue: 'spr-rogue',
+  chaser: 'spr-chaser',
+  brute: 'spr-brute',
+  skitter: 'spr-skitter',
+  stairs: 'spr-stairs',
+  relic: 'spr-relic',
+  gear: 'spr-gear',
+  idol: 'spr-idol',
+  potion: 'spr-potion'
+} as const
+
 export function createGame(container: HTMLElement){
   const w = container.clientWidth || window.innerWidth
   const h = container.clientHeight || window.innerHeight
@@ -10,7 +38,20 @@ export function createGame(container: HTMLElement){
     width: w,
     height: h,
     scene: {
-      preload(){},
+      preload(){
+        this.load.image(TEX_KEYS.floor, floorTex)
+        this.load.image(TEX_KEYS.wall, wallTex)
+        this.load.image(TEX_KEYS.knight, knightSprite)
+        this.load.image(TEX_KEYS.rogue, rogueSprite)
+        this.load.image(TEX_KEYS.chaser, chaserSprite)
+        this.load.image(TEX_KEYS.brute, bruteSprite)
+        this.load.image(TEX_KEYS.skitter, skitterSprite)
+        this.load.image(TEX_KEYS.stairs, stairsSprite)
+        this.load.image(TEX_KEYS.relic, relicSprite)
+        this.load.image(TEX_KEYS.gear, gearSprite)
+        this.load.image(TEX_KEYS.idol, idolSprite)
+        this.load.image(TEX_KEYS.potion, potionIcon)
+      },
       create(){
         const g = this.add.graphics()
         g.fillStyle(0x111827)

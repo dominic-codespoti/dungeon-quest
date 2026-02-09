@@ -1,21 +1,10 @@
 import React, {useEffect, useRef} from 'react'
-import { createGame } from '../game'
+import { createGame, TEX_KEYS } from '../game'
 import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
 import type {PlayerClass} from '../game/types'
 
-import floorTex from './assets/textures/floor.png'
-import wallTex from './assets/textures/wall.png'
-import knightSprite from './assets/sprites/knight.svg'
-import rogueSprite from './assets/sprites/rogue.svg'
-import chaserSprite from './assets/sprites/chaser.svg'
-import bruteSprite from './assets/sprites/brute.svg'
-import skitterSprite from './assets/sprites/skitter.svg'
-import stairsSprite from './assets/sprites/stairs.svg'
-import relicSprite from './assets/sprites/relic.svg'
-import gearSprite from './assets/sprites/gear.svg'
-import idolSprite from './assets/sprites/idol.svg'
-import potionIcon from './assets/icons/potion.svg'
+// textures/sprites loaded in Phaser preload via TEX_KEYS
 
 type Coord = {x:number,y:number}
 
@@ -75,18 +64,18 @@ export default function GameMount(){
           function toScreen(pos:{x:number,y:number}){ return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2} }
 
           function textureForEntity(ent:any){
-            if(ent.type==='player') return klass==='rogue' ? rogueSprite : knightSprite
+            if(ent.type==='player') return klass==='rogue' ? TEX_KEYS.rogue : TEX_KEYS.knight
             if(ent.type==='monster'){
-              if(ent.kind==='brute') return bruteSprite
-              if(ent.kind==='skitter') return skitterSprite
-              return chaserSprite
+              if(ent.kind==='brute') return TEX_KEYS.brute
+              if(ent.kind==='skitter') return TEX_KEYS.skitter
+              return TEX_KEYS.chaser
             }
-            if(ent.kind==='stairs') return stairsSprite
-            if(ent.kind==='relic') return relicSprite
-            if(ent.kind==='potion' || ent.kind==='elixir') return potionIcon
-            if(ent.kind==='cursed-idol') return idolSprite
-            if(ent.kind==='gear') return gearSprite
-            return relicSprite
+            if(ent.kind==='stairs') return TEX_KEYS.stairs
+            if(ent.kind==='relic') return TEX_KEYS.relic
+            if(ent.kind==='potion' || ent.kind==='elixir') return TEX_KEYS.potion
+            if(ent.kind==='cursed-idol') return TEX_KEYS.idol
+            if(ent.kind==='gear') return TEX_KEYS.gear
+            return TEX_KEYS.relic
           }
 
           function ensureFlashOverlay(){
@@ -163,12 +152,12 @@ export default function GameMount(){
                 const k = `${x},${y}`
                 const p = toScreen({x,y})
                 if(wallSet.has(k)){
-                  const wall = sc.add.image(p.x,p.y,wallTex).setOrigin(0.5)
+                  const wall = sc.add.image(p.x,p.y,TEX_KEYS.wall).setOrigin(0.5)
                   wall.setDisplaySize(tileSize, tileSize)
                   wall.setTint(0x8892b0)
                   wallDisplays[k] = wall
                 } else {
-                  const floor = sc.add.image(p.x,p.y,floorTex).setOrigin(0.5)
+                  const floor = sc.add.image(p.x,p.y,TEX_KEYS.floor).setOrigin(0.5)
                   floor.setDisplaySize(tileSize, tileSize)
                   floor.setTint(0x6f83b5)
                   floorDisplays[k] = floor
