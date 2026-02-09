@@ -98,6 +98,13 @@ export class Engine{
       threat += cost
     }
 
+    // Mini-boss prototype: every 3rd floor gets one heavy elite.
+    if(this.floor >= 3 && this.floor % 3 === 0){
+      const bossHp = 14 + this.floor
+      this.spawnMonster(`boss-${this.floor}`,'boss',bossHp)
+      this.emit({tick:this.tick,type:'boss_spawned',payload:{floor:this.floor,hp:bossHp}})
+    }
+
     const potionCount = this.floorModifier==='scarce-potions' ? 0 : this.floor>=4 ? 2 : 1
     for(let i=0;i<potionCount;i++) this.spawnItem(`i${this.floor}-p${i+1}`,'potion')
     this.spawnItem(`i${this.floor}-r1`,'relic')
@@ -290,7 +297,7 @@ export class Engine{
     return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
   }
 
-  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter',hp:number){
+  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'boss',hp:number){
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
@@ -440,7 +447,7 @@ export class Engine{
         if((occ.hp||0) <=0){
           this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
           this.entities = this.entities.filter(e=>e.id!==occ.id)
-          this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+          this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
             this.emit({tick:this.tick,type:'dash_refresh',payload:{cooldown:this.dashCooldown}})
@@ -558,7 +565,7 @@ export class Engine{
           if((occ.hp||0) <=0){
             this.emit({tick:this.tick,type:'die',payload:{id:occ.id,kind:occ.kind}})
             this.entities = this.entities.filter(e=>e.id!==occ.id)
-            this.score += occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
+            this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='skitter' ? 120 : 100
           }
         }
       }
@@ -574,13 +581,13 @@ export class Engine{
     const monsters = this.entities.filter(e=>e.type==='monster')
     monsters.forEach(m=>{
       const kind = m.kind || 'chaser'
-      const attacks = kind==='skitter' && this.tick % 3 === 0 ? 0 : 1
+      const attacks = (kind==='skitter' && this.tick % 3 === 0) || (kind==='boss' && this.tick % 2 === 0) ? 0 : 1
       if(attacks===0) return
 
       const dx = playerPos.x - m.pos.x
       const dy = playerPos.y - m.pos.y
       const distance = Math.abs(dx)+Math.abs(dy)
-      const senseRadius = this.floorModifier==='swarm' ? 9 : 7
+      const senseRadius = kind==='boss' ? 10 : (this.floorModifier==='swarm' ? 9 : 7)
       const canSense = distance <= senseRadius && this.hasLineOfSight(m.pos, playerPos)
       if(!canSense){
         if(this.rand() < 0.25){
@@ -598,7 +605,7 @@ export class Engine{
       }
 
       if(distance===1){
-        let dmg = kind==='brute' ? 2 : 1
+        let dmg = kind==='boss' ? 3 : kind==='brute' ? 2 : 1
         dmg = Math.max(0, dmg - this.defenseBonus)
         if(this.guardActive){ dmg = Math.max(0, dmg-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
         player.hp = (player.hp||0) - dmg

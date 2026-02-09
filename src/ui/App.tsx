@@ -25,11 +25,14 @@ type Snapshot = {
   guardCooldown:number
   gameOver:boolean
   outcome?:'victory'|'defeat'
-  entities: Array<{id:string,type:string,hp?:number}>
+  walls?: Array<{x:number,y:number}>
+  entities: Array<{id:string,type:string,kind?:string,hp?:number,pos?:{x:number,y:number}}>
 }
 
 type Screen = 'menu'|'create'|'game'
 type Race = PlayerRace
+type Dir = 'up'|'down'|'left'|'right'
+type TargetSkill = 'dash'|'backstep'|'bash'
 
 const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
 
@@ -72,6 +75,8 @@ export default function App(){
   const [klass,setKlass] = useState<PlayerClass>(getClassFromUrl())
   const [race,setRace] = useState<Race>(getRaceFromUrl())
   const [screen,setScreen] = useState<Screen>(getScreen())
+  const [targetSkill,setTargetSkill] = useState<TargetSkill | null>(null)
+  const [targetDir,setTargetDir] = useState<Dir>('up')
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -99,29 +104,89 @@ export default function App(){
     const onKey = (ev:KeyboardEvent)=>{
       const g = (window as any).game
       if(!g?.step) return
-      if(ev.key==='ArrowUp' || ev.key==='w' || ev.key==='W') g.step({type:'move',dir:'up'})
-      if(ev.key==='ArrowDown' || ev.key==='s' || ev.key==='S') g.step({type:'move',dir:'down'})
-      if(ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A') g.step({type:'move',dir:'left'})
-      if(ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D') g.step({type:'move',dir:'right'})
-      if(ev.shiftKey && (ev.key==='ArrowUp' || ev.key==='w' || ev.key==='W')) g.step({type:'dash',dir:'up'})
-      if(ev.shiftKey && (ev.key==='ArrowDown' || ev.key==='s' || ev.key==='S')) g.step({type:'dash',dir:'down'})
-      if(ev.shiftKey && (ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A')) g.step({type:'dash',dir:'left'})
-      if(ev.shiftKey && (ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D')) g.step({type:'dash',dir:'right'})
+
+      const dirFromKey = (key:string): Dir | null => {
+        if(key==='ArrowUp' || key==='w' || key==='W') return 'up'
+        if(key==='ArrowDown' || key==='s' || key==='S') return 'down'
+        if(key==='ArrowLeft' || key==='a' || key==='A') return 'left'
+        if(key==='ArrowRight' || key==='d' || key==='D') return 'right'
+        return null
+      }
+
+      const dir = dirFromKey(ev.key)
+      if(targetSkill && dir){ setTargetDir(dir); return }
+      if(targetSkill && (ev.key==='Enter' || ev.key==='f' || ev.key==='F')){
+        g.step({type:targetSkill, dir:targetDir})
+        setTargetSkill(null)
+        return
+      }
+
+      if(dir && ev.shiftKey){ g.step({type:'dash',dir}); return }
+      if(dir){ g.step({type:'move',dir}); return }
       if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})
-      if(ev.key==='q' || ev.key==='Q') g.step({type:'backstep',dir:'up'})
+      if(ev.key==='q' || ev.key==='Q') castOrArm('backstep')
+      if(ev.key==='b' || ev.key==='B') castOrArm('bash')
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
+      if(ev.key==='Escape') setTargetSkill(null)
     }
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
-  },[screen])
+  },[screen,targetSkill,targetDir])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
 
-  const move = (dir:'up'|'down'|'left'|'right')=> (window as any).game?.step?.({type:'move',dir})
-  const dash = ()=> (window as any).game?.step?.({type:'dash',dir:'up'})
-  const bash = ()=> (window as any).game?.step?.({type:'bash',dir:'up'})
+  const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
+
+  const computeTargetTiles = (skill:TargetSkill, selectedDir:Dir)=>{
+    const p = snapshot?.entities.find(e=>e.id==='p')?.pos
+    if(!snapshot || !p) return [] as Array<{x:number,y:number,kind:string,selected?:boolean}>
+    const dirs: Record<Dir,{x:number,y:number}> = {up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
+    const walls = new Set((snapshot.walls||[]).map(w=>`${w.x},${w.y}`))
+    const occupied = new Set((snapshot.entities||[]).filter(e=>e.id!=='p').map(e=>`${e.pos?.x},${e.pos?.y}`))
+    const monsterAt = new Set((snapshot.entities||[]).filter(e=>e.type==='monster').map(e=>`${e.pos?.x},${e.pos?.y}`))
+
+    return (Object.entries(dirs) as Array<[Dir,{x:number,y:number}]>).flatMap(([dir,delta])=>{
+      if(skill==='dash'){
+        const a = {x:p.x+delta.x,y:p.y+delta.y}
+        const b = {x:p.x+delta.x*2,y:p.y+delta.y*2}
+        const kindA = walls.has(`${a.x},${a.y}`) ? 'blocked' : (monsterAt.has(`${a.x},${a.y}`) ? 'enemy' : (occupied.has(`${a.x},${a.y}`) ? 'blocked' : 'valid'))
+        const kindB = walls.has(`${b.x},${b.y}`) ? 'blocked' : (monsterAt.has(`${b.x},${b.y}`) ? 'enemy' : (occupied.has(`${b.x},${b.y}`) ? 'blocked' : 'valid'))
+        return [{...a,kind:kindA,selected:dir===selectedDir},{...b,kind:kindB,selected:false}]
+      }
+      if(skill==='backstep'){
+        const t = {x:p.x-delta.x,y:p.y-delta.y}
+        const kind = walls.has(`${t.x},${t.y}`) || occupied.has(`${t.x},${t.y}`) ? 'blocked' : 'valid'
+        return [{...t,kind,selected:dir===selectedDir}]
+      }
+      const t = {x:p.x+delta.x,y:p.y+delta.y}
+      const kind = monsterAt.has(`${t.x},${t.y}`) ? 'enemy' : 'blocked'
+      return [{...t,kind,selected:dir===selectedDir}]
+    })
+  }
+
+  useEffect(()=>{
+    ;(window as any).gameTargeting = targetSkill ? {active:true, skill:targetSkill, dir:targetDir, tiles:computeTargetTiles(targetSkill,targetDir)} : {active:false}
+  },[targetSkill,targetDir,snapshot])
+
+  const castOrArm = (skill:TargetSkill)=>{
+    const g = (window as any).game
+    if(!g?.step) return
+    if(targetSkill===skill){
+      g.step({type:skill, dir:targetDir})
+      setTargetSkill(null)
+      setStatus(`${skill} used.`)
+      return
+    }
+    setTargetSkill(skill)
+    setTargetDir('up')
+    setStatus(`${skill.toUpperCase()} targeting: choose direction, press again to confirm.`)
+  }
+
+  const dash = ()=> castOrArm('dash')
+  const backstep = ()=> castOrArm('backstep')
+  const bash = ()=> castOrArm('bash')
   const guard = ()=> (window as any).game?.step?.({type:'guard'})
   const wait = ()=> (window as any).game?.step?.({type:'wait'})
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
@@ -183,7 +248,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift dash · G guard · E interact · Space wait</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -214,16 +279,17 @@ export default function App(){
           </div>
 
           <div className='dq-controls'>
-            <button onClick={()=>move('up')}>↑</button><button onClick={()=>move('left')}>←</button>
-            <button onClick={()=>move('down')}>↓</button><button onClick={()=>move('right')}>→</button>
+            <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button><button onClick={()=> targetSkill ? setTargetDir('left') : move('left')}>←</button>
+            <button onClick={()=> targetSkill ? setTargetDir('down') : move('down')}>↓</button><button onClick={()=> targetSkill ? setTargetDir('right') : move('right')}>→</button>
             <button onClick={wait}>Wait</button><button onClick={()=>(window as any).game?.step?.({type:'interact'})}>Interact (E)</button><button onClick={newSeed}>New Run</button>
           </div>
 
           <div className='dq-skillrow'>
-            {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>Dash</button>}
-            {klass==='rogue' && <button onClick={()=> (window as any).game?.step?.({type:'backstep',dir:'up'})}><I src={bootsIcon}/>Backstep (Q)</button>}
+            {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : 'Dash'}</button>}
+            {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : 'Backstep (Q)'}</button>}
             {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard</button>}
-            {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>Bash</button>}
+            {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash (B)'}</button>}
+            {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel Targeting</button>}
           </div>
 
           <h3 style={{margin:'8px 0 0'}}><I src={treasureIcon}/>Equipment</h3>

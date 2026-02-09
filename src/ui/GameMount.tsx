@@ -69,6 +69,7 @@ export default function GameMount(){
           const floorDisplays: Record<string, any> = {}
           let fogGraphics: any
           let flashOverlay: any
+          let targetingGraphics: any
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
           function toScreen(pos:{x:number,y:number}){ return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2} }
@@ -76,6 +77,7 @@ export default function GameMount(){
           function textureForEntity(ent:any){
             if(ent.type==='player') return klass==='rogue' ? TEX_KEYS.rogue : TEX_KEYS.knight
             if(ent.type==='monster'){
+              if(ent.kind==='boss') return TEX_KEYS.brute
               if(ent.kind==='brute') return TEX_KEYS.brute
               if(ent.kind==='skitter') return TEX_KEYS.skitter
               return TEX_KEYS.chaser
@@ -115,6 +117,22 @@ export default function GameMount(){
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
           }
 
+          function drawTargeting(){
+            if(!targetingGraphics) return
+            targetingGraphics.clear()
+            const t = (window as any).gameTargeting
+            if(!t?.active || !Array.isArray(t.tiles)) return
+            for(const tile of t.tiles){
+              const p = toScreen(tile)
+              const color = tile.kind==='enemy' ? 0xff6677 : tile.kind==='blocked' ? 0xffcc66 : 0x67a6ff
+              const alpha = tile.selected ? 0.55 : 0.3
+              targetingGraphics.fillStyle(color, alpha)
+              targetingGraphics.fillRect(p.x - tileSize/2 + 1, p.y - tileSize/2 + 1, tileSize-2, tileSize-2)
+              targetingGraphics.lineStyle(1, color, 0.95)
+              targetingGraphics.strokeRect(p.x - tileSize/2 + 1, p.y - tileSize/2 + 1, tileSize-2, tileSize-2)
+            }
+          }
+
           function applyVision(){
             const state = (window as any).game?.getState?.()
             if(!state) return
@@ -140,7 +158,9 @@ export default function GameMount(){
               if(ent.id==='p') d.setAlpha(1)
               else d.setAlpha(vis.has(k) ? 1 : 0)
               d.clearTint()
+              if(ent.kind==='boss') d.setTint(0xff8a66)
             })
+            drawTargeting()
           }
 
           function rebuildMapAndEntities(payload:any){
@@ -148,6 +168,7 @@ export default function GameMount(){
             Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
             Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].destroy() }catch{}; delete floorDisplays[k] })
             if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
+            if(targetingGraphics){ try{ targetingGraphics.destroy() }catch{}; targetingGraphics = undefined }
 
             const wallSet = new Set((payload.walls||[]).map((w:any)=>`${w.x},${w.y}`))
             for(let y=0;y<eng.height;y++){
@@ -170,13 +191,16 @@ export default function GameMount(){
               const p = toScreen(ent.pos)
               const s = sc.add.image(p.x,p.y,textureForEntity(ent)).setOrigin(0.5)
               s.setDisplaySize(tileSize-2, tileSize-2)
+              if(ent.kind==='boss') s.setTint(0xff8a66)
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })
 
             fogGraphics = sc.add.graphics().setDepth(500)
+            targetingGraphics = sc.add.graphics().setDepth(700)
             paintFog()
             applyVision()
+            drawTargeting()
           }
 
           const handler = (e:any)=>{
