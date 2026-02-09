@@ -125,6 +125,7 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
+  const [confirmReset,setConfirmReset] = useState(false)
   const [customSeed,setCustomSeed] = useState(()=> (getParams().get('seed') || '').replace(/[^0-9]/g,''))
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
@@ -428,6 +429,7 @@ export default function App(){
       localStorage.removeItem('dq_last_run')
     }catch{}
     setStatus('Records reset.')
+    setConfirmReset(false)
   }
   const clearLastRun = ()=>{
     setLastRun(null)
@@ -580,8 +582,10 @@ export default function App(){
                 }}>Copy Daily Link</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
-                <button onClick={resetRecords}>Reset</button>
-                <button onClick={()=>setShowMeta(false)}>Close</button>
+                {!confirmReset && <button onClick={()=>setConfirmReset(true)}>Reset</button>}
+                {confirmReset && <button onClick={resetRecords} style={{color:'#ffb3b3'}}>Confirm Reset</button>}
+                {confirmReset && <button onClick={()=>setConfirmReset(false)}>Cancel</button>}
+                <button onClick={()=>{ setConfirmReset(false); setShowMeta(false) }}>Close</button>
               </div>
             </div>
           </div>
