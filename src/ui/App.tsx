@@ -82,6 +82,7 @@ export default function App(){
   const [targetSkill,setTargetSkill] = useState<TargetSkill | null>(null)
   const [targetDir,setTargetDir] = useState<Dir>('up')
   const [showHelp,setShowHelp] = useState(false)
+  const [showPatchNotes,setShowPatchNotes] = useState(false)
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -246,8 +247,29 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
-          <button onClick={()=>navigate({screen:'create'})}>Play</button>
+          <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+            <button onClick={()=>navigate({screen:'create'})}>Play</button>
+            <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
+          </div>
         </div>
+
+        {showPatchNotes && (
+          <div className='dq-overlay'>
+            <div className='box'>
+              <h2 style={{marginTop:0}}>Patch Notes (Recent)</h2>
+              <ul style={{marginTop:0,paddingLeft:18}}>
+                <li>Main menu → character creation flow</li>
+                <li>Class/race setup with race bonuses</li>
+                <li>Skill targeting + confirm mode</li>
+                <li>Bosses with charge/slam telegraphs + rewards</li>
+                <li>New enemies: Spitter, Sentinel</li>
+                <li>New items: Bomb, Blink Shard, Chest, Shrine, Fountain, Rift Orb</li>
+                <li>Run goal: clear floor 10 to win</li>
+              </ul>
+              <button onClick={()=>setShowPatchNotes(false)}>Close</button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
