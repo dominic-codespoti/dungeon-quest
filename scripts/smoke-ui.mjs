@@ -33,6 +33,7 @@ const checks = [
   ["create action: reroll build+seed button", ">Reroll Build+Seed</button>"],
   ["create tooltip: surprise intent", "title='S · randomize class/race only'"],
   ["create tooltip: quickstart intent", "title='A · random build + seed and launch'"],
+  ["create button: quick start uses launcher", "title='A · random build + seed and launch'>Quick Start</button>"],
   ["create hint: back alias shown", "B/Esc back"],
   ["create button tooltip: back alias", "title='B / Esc'>Back</button>"],
   ["create hotkey: Y apply last run", "if((ev.key==='y' || ev.key==='Y') && lastRun) applyLastRunPresetToCreate()"],
