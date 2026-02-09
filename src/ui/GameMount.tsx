@@ -101,18 +101,9 @@ export default function GameMount(){
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
-            fogGraphics.setBlendMode(Phaser.BlendModes.MULTIPLY)
-            fogGraphics.fillStyle(0x000000, 0.82)
+            // Keep a very subtle vignette only; tile visibility is controlled by applyVision alpha.
+            fogGraphics.fillStyle(0x000000, 0.18)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
-
-            const p = toScreen(playerPos)
-            // Multiply mode trick: white restores brightness (visible zone), grays form soft edge.
-            fogGraphics.fillStyle(0x777777, 1)
-            fogGraphics.fillCircle(p.x, p.y, tileSize * 5.2)
-            fogGraphics.fillStyle(0xbbbbbb, 1)
-            fogGraphics.fillCircle(p.x, p.y, tileSize * 4.5)
-            fogGraphics.fillStyle(0xffffff, 1)
-            fogGraphics.fillCircle(p.x, p.y, tileSize * 3.8)
           }
 
           function applyVision(){
