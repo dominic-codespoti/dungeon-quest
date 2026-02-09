@@ -129,7 +129,7 @@ export default function App(){
   const [customSeed,setCustomSeed] = useState(()=> (getParams().get('seed') || '').replace(/[^0-9]/g,''))
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
-  const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace}|null>(null)
+  const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace,efficiency?:number}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
 
   useEffect(()=>{
@@ -306,7 +306,7 @@ export default function App(){
     }
     setNewRecord(recordMsg.length ? `New record: ${recordMsg.join(' + ')}` : null)
 
-    const lr = {score, floor, seed:String(seed ?? '-'), klass, race}
+    const lr = {score, floor, seed:String(seed ?? '-'), klass, race, efficiency: (snapshot.tick>0 ? Number((score/Math.max(1,snapshot.tick)).toFixed(2)) : 0)}
     setLastRun(lr)
     try{ localStorage.setItem('dq_last_run', JSON.stringify(lr)) }catch{}
   },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor, seed, klass, race])
@@ -606,7 +606,7 @@ export default function App(){
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
               <p>Daily Seed: <b>{dailyPreset.seed}</b> ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</p>
-              {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
+              {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, eff {lastRun.efficiency ?? 0}/turn, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button title='best_score + best_floor' onClick={async()=>{ try{ await navigator.clipboard.writeText(`best_score=${bestScore} best_floor=${bestFloor}`); setStatus('Best stats copied.') }catch{} }}>Copy Best Stats</button>
                 <button title='K' onClick={copyProfileSummary}>Copy Profile Summary</button>
