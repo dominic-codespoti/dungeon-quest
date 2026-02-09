@@ -236,8 +236,8 @@ export default function App(){
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
-      if(ev.key==='Escape'){
-        setShowRunPrimer(false)
+      if(ev.key==='k' || ev.key==='K') copyProfileSummary()
+      if(ev.key==='Escape'){        setShowRunPrimer(false)
         setShowPatchNotes(false)
         setShowLegend(false)
         setShowMeta(false)
@@ -458,6 +458,15 @@ export default function App(){
     u.searchParams.set('race', lastRun.race)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Last run link copied.') }catch{}
   }
+  const copyProfileSummary = async ()=>{
+    const parts = [
+      `best_score=${bestScore}`,
+      `best_floor=${bestFloor}`,
+      `daily=${dailyPreset.seed}:${dailyPreset.klass}/${dailyPreset.race}`,
+      lastRun ? `last=${lastRun.score}@${lastRun.floor}:${lastRun.klass}/${lastRun.race}:${lastRun.seed}` : 'last=none'
+    ]
+    try{ await navigator.clipboard.writeText(parts.join(' ')); setStatus('Profile summary copied.') }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -473,7 +482,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
@@ -560,15 +569,7 @@ export default function App(){
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(`best_score=${bestScore} best_floor=${bestFloor}`); setStatus('Best stats copied.') }catch{} }}>Copy Best Stats</button>
-                <button onClick={async()=>{
-                  const parts = [
-                    `best_score=${bestScore}`,
-                    `best_floor=${bestFloor}`,
-                    `daily=${dailyPreset.seed}:${dailyPreset.klass}/${dailyPreset.race}`,
-                    lastRun ? `last=${lastRun.score}@${lastRun.floor}:${lastRun.klass}/${lastRun.race}:${lastRun.seed}` : 'last=none'
-                  ]
-                  try{ await navigator.clipboard.writeText(parts.join(' ')); setStatus('Profile summary copied.') }catch{}
-                }}>Copy Profile Summary</button>
+                <button onClick={copyProfileSummary}>Copy Profile Summary</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify({bestScore,bestFloor,dailyPreset,lastRun}, null, 2)); setStatus('Profile JSON copied.') }catch{} }}>Copy Profile JSON</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Daily Preset</button>
