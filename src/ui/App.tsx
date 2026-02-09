@@ -236,6 +236,7 @@ export default function App(){
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
       if((ev.key==='y' || ev.key==='Y') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
+      if(ev.key==='j' || ev.key==='J') copyDailyLink()
       if(ev.key==='k' || ev.key==='K') copyProfileSummary()
       if(ev.key==='Escape'){        setShowRunPrimer(false)
         setShowPatchNotes(false)
@@ -467,6 +468,14 @@ export default function App(){
     ]
     try{ await navigator.clipboard.writeText(parts.join(' ')); setStatus('Profile summary copied.') }catch{}
   }
+  const copyDailyLink = async ()=>{
+    const u = new URL(window.location.href)
+    u.searchParams.set('screen','game')
+    u.searchParams.set('seed', String(dailyPreset.seed))
+    u.searchParams.set('class',dailyPreset.klass)
+    u.searchParams.set('race',dailyPreset.race)
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
+  }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
@@ -482,19 +491,12 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · J Copy Daily Link · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Preset</button>
-            <button style={{fontSize:10}} onClick={async()=>{
-              const u = new URL(window.location.href)
-              u.searchParams.set('screen','game')
-              u.searchParams.set('seed', String(dailyPreset.seed))
-              u.searchParams.set('class',dailyPreset.klass)
-              u.searchParams.set('race',dailyPreset.race)
-              try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
-            }}>Copy Link</button>
+            <button style={{fontSize:10}} onClick={copyDailyLink}>Copy Link</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
@@ -573,14 +575,7 @@ export default function App(){
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify({bestScore,bestFloor,dailyPreset,lastRun}, null, 2)); setStatus('Profile JSON copied.') }catch{} }}>Copy Profile JSON</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Daily Preset</button>
-                <button onClick={async()=>{
-                  const u = new URL(window.location.href)
-                  u.searchParams.set('screen','game')
-                  u.searchParams.set('seed', String(dailyPreset.seed))
-                  u.searchParams.set('class',dailyPreset.klass)
-                  u.searchParams.set('race',dailyPreset.race)
-                  try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
-                }}>Copy Daily Link</button>
+                <button onClick={copyDailyLink}>Copy Daily Link</button>
                 {lastRun && <button onClick={copyLastRunLink}>Copy Last Run Link</button>}
                 {lastRun && <button onClick={clearLastRun}>Clear Last Run</button>}
                 {!confirmReset && <button onClick={()=>setConfirmReset(true)}>Reset</button>}
