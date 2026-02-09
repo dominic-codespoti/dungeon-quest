@@ -170,7 +170,10 @@ export default function App(){
       if(ev.key==='c' || ev.key==='C') copySeed()
       if(ev.key==='v' || ev.key==='V') copyRunLink()
       if(ev.key==='m' || ev.key==='M') backToMenu()
-      if(ev.key==='Escape') setTargetSkill(null)
+      if(ev.key==='Escape'){
+        setTargetSkill(null)
+        setShowHelp(false)
+      }
       if(ev.key==='/' || ev.key==='?' || ev.key==='h' || ev.key==='H') setShowHelp(v=>!v)
     }
     window.addEventListener('keydown', onKey)
@@ -186,6 +189,12 @@ export default function App(){
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
       if(ev.key==='o' || ev.key==='O') setShowMeta(true)
       if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
+      if(ev.key==='Escape'){
+        setShowRunPrimer(false)
+        setShowPatchNotes(false)
+        setShowLegend(false)
+        setShowMeta(false)
+      }
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
