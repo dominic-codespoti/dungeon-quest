@@ -3,6 +3,8 @@ import { createGame } from '../game'
 import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
 
+type Coord = {x:number,y:number}
+
 export default function GameMount(){
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(()=>{
@@ -10,7 +12,6 @@ export default function GameMount(){
     if(ref.current){
       const g = createGame(ref.current)
 
-      // attach engine to window for automation/debugging
       const eng = new Engine(30,30,1)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
@@ -18,7 +19,6 @@ export default function GameMount(){
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) }
       }
 
-      // when the Phaser scene is ready, set up simple renderer
       const scene = g.scene.scenes[0]
       function setupScene(sc:any){
         try{
@@ -27,13 +27,31 @@ export default function GameMount(){
           const tileSize = Math.max(8, Math.min(tileW, tileH))
 
           const displays: Record<string, any> = {}
+          let fogGraphics: any
+          let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
           function toScreen(pos:{x:number,y:number}){
             return {x: pos.x * tileSize + tileSize/2, y: pos.y * tileSize + tileSize/2}
           }
 
+          function paintFog(){
+            if(!fogGraphics) return
+            fogGraphics.clear()
+            fogGraphics.fillStyle(0x000000, 0.55)
+            fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
+
+            const p = toScreen(playerPos)
+            fogGraphics.fillStyle(0x000000, 0)
+            fogGraphics.fillCircle(p.x, p.y, tileSize * 3.5)
+          }
+
           const handler = (e:any)=>{
             if(e.type==='init'){
+              ;(e.payload.walls||[]).forEach((w:any)=>{
+                const p = toScreen(w)
+                sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3a3a).setOrigin(0.5)
+              })
+
               ;(e.payload.entities||[]).forEach((ent:any)=>{
                 const p = toScreen(ent.pos)
                 const color = ent.type==='player'
@@ -43,7 +61,11 @@ export default function GameMount(){
                     : (ent.kind==='relic' ? 0x00ffff : 0x4488ff)
                 const r = sc.add.rectangle(p.x,p.y,tileSize-2,tileSize-2,color).setOrigin(0.5)
                 displays[ent.id] = r
+                if(ent.id==='p') playerPos = ent.pos
               })
+
+              fogGraphics = sc.add.graphics()
+              paintFog()
             } else if(e.type==='move'){
               const id = e.payload.id
               const to = e.payload.to
@@ -51,6 +73,10 @@ export default function GameMount(){
               if(d){
                 const p = toScreen(to)
                 sc.tweens.add({targets:d,x:p.x,y:p.y,duration:120,ease:'Linear'})
+              }
+              if(id==='p'){
+                playerPos = to
+                paintFog()
               }
             } else if(e.type==='die'){
               const id = e.payload.id
@@ -63,12 +89,9 @@ export default function GameMount(){
             }
           }
 
-          // subscribe to future events
           unsub = eventBus.subscribe(handler)
-
-          // process existing events (so we don't miss the init already published)
           eventBus.getLines().forEach(l=>{
-            try{ handler(JSON.parse(l)) }catch(_){}
+            try{ handler(JSON.parse(l)) }catch(_){ }
           })
         }catch(err){
           console.error('renderer setup failed',err)
@@ -76,14 +99,12 @@ export default function GameMount(){
       }
 
       if(scene && scene.sys && scene.sys.events){
-        // if create already happened, setup immediately; otherwise wait for 'create'
         if(scene.sys.settings && scene.sys.settings.active){
           setupScene(scene)
         } else {
           scene.sys.events.once('create',()=> setupScene(scene))
         }
       } else {
-        // fallback: try after a short delay
         setTimeout(()=>{
           const s2 = g.scene.scenes[0]
           if(s2) setupScene(s2)

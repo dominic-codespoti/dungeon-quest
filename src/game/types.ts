@@ -12,6 +12,7 @@ export type GameSnapshot = {
   tick: number
   width: number
   height: number
+  walls: Coord[]
   entities: Entity[]
   score: number
   gameOver: boolean
