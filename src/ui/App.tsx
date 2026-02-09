@@ -28,6 +28,7 @@ type Snapshot = {
   gameOver:boolean
   outcome?:'victory'|'defeat'
   walls?: Array<{x:number,y:number}>
+  visible?: Array<{x:number,y:number}>
   entities: Array<{id:string,type:string,kind?:string,hp?:number,pos?:{x:number,y:number}}>
 }
 
@@ -153,6 +154,20 @@ export default function App(){
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
+  const danger = useMemo(()=>{
+    if(!snapshot) return 0
+    const p = snapshot.entities.find(e=>e.id==='p')?.pos
+    if(!p) return 0
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    return snapshot.entities.filter(e=>e.type==='monster' && e.pos).reduce((acc,e)=>{
+      const d = Math.abs((e.pos?.x||0)-p.x)+Math.abs((e.pos?.y||0)-p.y)
+      const inVis = vis.has(`${e.pos?.x},${e.pos?.y}`)
+      if(d<=1) return acc+3
+      if(inVis && d<=3) return acc+2
+      if(inVis) return acc+1
+      return acc
+    },0)
+  },[snapshot])
 
   const move = (dir:Dir)=> (window as any).game?.step?.({type:'move',dir})
 
@@ -282,6 +297,7 @@ export default function App(){
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
+            <div className='dq-stat'>Danger<b>{danger}</b></div>
           </div>
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
