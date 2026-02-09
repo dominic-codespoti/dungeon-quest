@@ -77,3 +77,16 @@ Stored in browser localStorage:
 - last run snapshot (score, floor, class, race, seed, efficiency)
 
 Records modal includes copy/share tools and quick reopen actions for daily/last-run builds.
+
+## Share Link Formats
+
+The game exposes copy helpers that generate URL-style launch links (seed/class/race encoded in query params).
+
+Typical forms:
+
+- Run link: `...?seed=<number>&class=<knight|rogue>&race=<human|elf|dwarf>`
+- Daily link: same shape, using current UTC daily seed/preset
+- Last-run link: same shape, using persisted last-run snapshot
+- Link bundle: multiline export combining key launch/copy variants for sharing
+
+Use these links to relaunch deterministic presets quickly across sessions/devices.
