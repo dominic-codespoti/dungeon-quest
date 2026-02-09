@@ -531,10 +531,10 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · U Copy Last Seed · D Daily Challenge · I Copy Links · J Copy Daily Link · K Copy Profile · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
-            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
-            <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Preset</button>
-            <button style={{fontSize:10}} onClick={copyDailyLink}>Copy Link</button>
-            <button style={{fontSize:10}} onClick={copyBundleLinks}>Copy Bundle</button>
+            <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
+            <button style={{fontSize:10}} title='copies seed + class/race' onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Preset</button>
+            <button style={{fontSize:10}} title='J' onClick={copyDailyLink}>Copy Link</button>
+            <button style={{fontSize:10}} title='I' onClick={copyBundleLinks}>Copy Bundle</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
