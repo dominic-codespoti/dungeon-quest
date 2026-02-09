@@ -79,6 +79,19 @@ Stored in browser localStorage:
 
 Records modal includes copy/share tools and quick reopen actions for daily/last-run builds.
 
+Records quick-key strip (contextual):
+
+- `Y` Resume Last Run *(only when last-run snapshot exists)*
+- `G` Open Last Build *(only when last-run snapshot exists)*
+- `U` Copy Last Run Seed *(only when last-run snapshot exists)*
+- `Z` Open Daily Build in Create
+- `D` Play Daily Challenge
+- `V` Copy Daily Preset
+- `J` Copy Daily Link
+- `I` Copy Link Bundle
+- `K` Copy Profile Summary
+- `Esc` Close
+
 ## Share Link Formats
 
 The game exposes copy helpers that generate URL-style launch links (seed/class/race encoded in query params).
