@@ -107,7 +107,9 @@ export class Engine{
     if(this.floor >= 3 && this.floor % 3 === 0){
       const bossHp = 14 + this.floor
       this.spawnMonster(`boss-${this.floor}`,'boss',bossHp)
+      this.spawnItem(`i${this.floor}-vault-${this.tick}`,'chest')
       this.emit({tick:this.tick,type:'boss_spawned',payload:{floor:this.floor,hp:bossHp}})
+      this.emit({tick:this.tick,type:'vault_spawned',payload:{floor:this.floor,reward:'chest'}})
     }
 
     const potionCount = this.floorModifier==='scarce-potions' ? 0 : this.floor>=4 ? 2 : 1

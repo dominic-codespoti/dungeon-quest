@@ -98,6 +98,7 @@ export default function App(){
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
       if(e.type==='clear_reward') setStatus('Floor cleared: reward chest spawned.')
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
+      if(e.type==='vault_spawned') setStatus('Vault chest detected on this boss floor.')
       if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
       if(e.type==='spit_used') setStatus(`Spitter spits for ${e.payload?.damage ?? 0}.`)
