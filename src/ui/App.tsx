@@ -95,6 +95,7 @@ export default function App(){
     const unsub = g?.subscribe?.((e:any)=>{
       if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`Equipped: ${e.payload?.gear?.name || 'gear'}`)
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
+      if(e.type==='clear_reward') setStatus('Floor cleared: reward chest spawned.')
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
       if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)

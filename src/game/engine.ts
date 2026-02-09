@@ -432,6 +432,10 @@ export class Engine{
     const hasStairs = this.entities.some(e=>e.type==='item' && e.kind==='stairs')
     if(monstersLeft===0 && !hasStairs){
       this.spawnItem(`i${this.floor}-stairs`,'stairs')
+      if(this.floor >= 2){
+        this.spawnItem(`i${this.floor}-clear-reward-${this.tick}`,'chest')
+        this.emit({tick:this.tick,type:'clear_reward',payload:{floor:this.floor,reward:'chest'}})
+      }
       this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor}})
     }
   }
