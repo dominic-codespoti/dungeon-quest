@@ -641,6 +641,14 @@ export class Engine{
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25
+        // Run goal: clear floor 10 to win.
+        if(this.floor >= 10){
+          this.gameOver = true
+          this.outcome = 'victory'
+          this.emit({tick:this.tick,type:'victory',payload:{floor:this.floor,score:this.score}})
+          this.entities = this.entities.filter(e=>e.id!==item.id)
+          return {changedFloor:false}
+        }
         this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
         this.floor += 1
         this.setupFloor(false)

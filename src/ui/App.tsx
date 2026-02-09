@@ -113,6 +113,7 @@ export default function App(){
       if(e.type==='streak_reward') setStatus(`Streak reward! Spawned ${e.payload?.reward}.`)
       if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)
       if(e.type==='blink_used') setStatus('Blink shard warps you to safer ground.')
+      if(e.type==='victory') setStatus('Victory! You conquered the dungeon run.')
       if(e.type==='defeat') setStatus('Defeat.')
     })
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
