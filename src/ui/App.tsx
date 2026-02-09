@@ -569,6 +569,7 @@ export default function App(){
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} title='copies seed + class/race' onClick={async()=>{ try{ await navigator.clipboard.writeText(`${dailyPreset.seed} ${dailyPreset.klass}/${dailyPreset.race}`); setStatus('Daily preset copied.') }catch{} }}>Copy Preset</button>
+            <button style={{fontSize:10}} title='Z' onClick={()=>navigate({screen:'create', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Build</button>
             <button style={{fontSize:10}} title='J' onClick={copyDailyLink}>Copy Link</button>
             <button style={{fontSize:10}} title='I' onClick={copyBundleLinks}>Copy Bundle</button>
           </div>
