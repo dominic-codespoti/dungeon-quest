@@ -213,6 +213,7 @@ export default function App(){
       if(ev.key==='t' || ev.key==='T') sameSeed()
       if(ev.key==='c' || ev.key==='C') copySeed()
       if(ev.key==='v' || ev.key==='V') copyRunLink()
+      if(ev.key==='p' || ev.key==='P') openCreateForCurrent()
       if(ev.key==='m' || ev.key==='M') backToMenu()
       if(ev.key==='Escape'){
         setTargetSkill(null)
@@ -456,6 +457,9 @@ export default function App(){
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
+  }
+  const openCreateForCurrent = ()=>{
+    navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
   }
   const copyLastRunLink = async ()=>{
     if(!lastRun) return
@@ -708,7 +712,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · M menu · ?/H help</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -816,7 +820,7 @@ export default function App(){
             <p>Dash: Shift + direction</p>
             <p>Rogue: Q backstep</p>
             <p>Knight: B bash, G guard</p>
-            <p>Interact: E · Wait: Space · New run: R · Retry seed: T · Copy seed: C · Copy link: V · Main menu: M</p>
+            <p>Interact: E · Wait: Space · New run: R · Retry seed: T · Copy seed: C · Copy link: V · Pregame: P · Main menu: M</p>
             <p>Tips: Danger meter tracks nearby threat, boss charge warning means slam incoming.</p>
             <p>Run target: Floor 10. Use chests/shrines/fountains/rift orbs to spike power.</p>
             <div style={{display:'flex', gap:8}}><button onClick={()=>setShowHelp(false)}>Close</button></div>
