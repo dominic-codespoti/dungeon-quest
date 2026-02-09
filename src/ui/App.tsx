@@ -16,6 +16,7 @@ type Snapshot = {
   playerClass: PlayerClass
   playerRace: PlayerRace
   score:number
+  killStreak:number
   attackBonus:number
   defenseBonus:number
   maxHp:number
@@ -101,6 +102,7 @@ export default function App(){
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
       if(e.type==='shrine_boon') setStatus(`Shrine grants ${e.payload?.boon}.`)
+      if(e.type==='streak_bonus') setStatus(`Kill streak x${e.payload?.streak}: +${e.payload?.bonus} bonus score.`)
       if(e.type==='bomb_blast') setStatus(`Bomb detonated: ${e.payload?.hits ?? 0} hit(s).`)
       if(e.type==='blink_used') setStatus('Blink shard warps you to safer ground.')
       if(e.type==='defeat') setStatus('Defeat.')
@@ -272,6 +274,7 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
             <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
           </div>
 

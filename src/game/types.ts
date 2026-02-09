@@ -40,6 +40,7 @@ export type GameSnapshot = {
   discovered: Coord[]
   entities: Entity[]
   score: number
+  killStreak: number
   attackBonus: number
   defenseBonus: number
   maxHp: number

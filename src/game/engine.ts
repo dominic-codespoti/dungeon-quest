@@ -20,6 +20,7 @@ export class Engine{
   events: GameEvent[] = []
   walls = new Set<string>()
   score = 0
+  killStreak = 0
   attackBonus = 0
   defenseBonus = 0
   maxHp = 12
@@ -392,6 +393,7 @@ export class Engine{
       discovered:[...this.discovered].map(k=>{ const p=k.split(','); return {x:Number(p[0]??0),y:Number(p[1]??0)} }),
       entities:JSON.parse(JSON.stringify(this.entities)),
       score:this.score,
+      killStreak:this.killStreak,
       attackBonus:this.attackBonus,
       defenseBonus:this.defenseBonus,
       maxHp:this.maxHp,
@@ -450,6 +452,7 @@ export class Engine{
     if(!player) throw new Error('no player')
 
     const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
+    let playerScoredKill = false
     const stepInto = (nd:Coord, moveType:'move'|'dash'):{changedFloor:boolean, stopped:boolean} => {
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return {changedFloor:false,stopped:true}
       if(this.isWall(nd)){ this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}}); return {changedFloor:false,stopped:true} }
@@ -465,6 +468,7 @@ export class Engine{
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.maybeBossLoot(occ)
           this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+          playerScoredKill = true
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
             this.emit({tick:this.tick,type:'dash_refresh',payload:{cooldown:this.dashCooldown}})
@@ -543,6 +547,7 @@ export class Engine{
             this.entities = this.entities.filter(e=>e.id!==m.id)
             this.maybeBossLoot(m)
             this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='spitter' ? 140 : m.kind==='skitter' ? 120 : 100
+            playerScoredKill = true
           }
         }
         this.score += 40 + hits*25
@@ -649,6 +654,7 @@ export class Engine{
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.maybeBossLoot(occ)
             this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+            playerScoredKill = true
           }
         }
       }
@@ -657,6 +663,17 @@ export class Engine{
       if(res.changedFloor) return this.getState()
     } else {
       this.emit({tick:this.tick,type:'wait'})
+    }
+
+    if(playerScoredKill){
+      this.killStreak += 1
+      const bonus = this.killStreak >= 2 ? this.killStreak * 10 : 0
+      if(bonus > 0){
+        this.score += bonus
+        this.emit({tick:this.tick,type:'streak_bonus',payload:{streak:this.killStreak,bonus}})
+      }
+    } else {
+      this.killStreak = 0
     }
 
     this.updateVision()
