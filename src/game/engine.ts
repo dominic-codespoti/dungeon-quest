@@ -641,6 +641,12 @@ export class Engine{
         this.emit({tick:this.tick,type:'rift_used',payload:{pulled}})
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
+        const bossAlive = this.entities.some(e=>e.type==='monster' && e.kind==='boss')
+        if(bossAlive){
+          this.emit({tick:this.tick,type:'stairs_blocked_boss',payload:{floor:this.floor}})
+          return {changedFloor:false}
+        }
+
         this.score += 150 + this.floor * 25
         // Run goal: clear floor 10 to win.
         if(this.floor >= 10){
