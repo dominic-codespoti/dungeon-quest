@@ -17,6 +17,7 @@ const checks = [
   ["daily row action: open build", ">Open Build</button>"],
   ["daily row tooltip: open build intent", "title='Z · open daily build in create'"],
   ["records action: play daily", ">Play Daily Challenge</button>"],
+  ["records tooltip: play daily intent", "title='D · launch daily challenge immediately from records'"],
   ["records action: open daily in create", ">Open Daily in Create</button>"],
   ["records hint strip", "Quick keys:"],
 ]
