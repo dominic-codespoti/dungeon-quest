@@ -87,6 +87,7 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [bestScore,setBestScore] = useState<number>(0)
   const [bestFloor,setBestFloor] = useState<number>(0)
+  const [newRecord,setNewRecord] = useState<string | null>(null)
 
   useEffect(()=>{
     try{
@@ -173,14 +174,18 @@ export default function App(){
     if(!snapshot?.gameOver) return
     const score = snapshot.score ?? 0
     const floor = snapshot.floor ?? 0
+    let recordMsg: string[] = []
     if(score > bestScore){
       setBestScore(score)
+      recordMsg.push('Best Score')
       try{ localStorage.setItem('dq_best_score', String(score)) }catch{}
     }
     if(floor > bestFloor){
       setBestFloor(floor)
+      recordMsg.push('Best Floor')
       try{ localStorage.setItem('dq_best_floor', String(floor)) }catch{}
     }
+    setNewRecord(recordMsg.length ? `New record: ${recordMsg.join(' + ')}` : null)
   },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
@@ -509,6 +514,7 @@ export default function App(){
           <div className='box'>
             <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
             <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p><p>Efficiency: <b>{snapshot.tick>0 ? (snapshot.score/Math.max(1,snapshot.tick)).toFixed(1) : '0.0'} score/turn</b></p>
+            {newRecord && <p style={{color:'#9dffb8'}}>{newRecord}</p>}
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               <button onClick={sameSeed}>Restart same seed</button>
               <button onClick={newSeed}>New seed</button>
