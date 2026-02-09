@@ -129,9 +129,8 @@ export default function GameMount(){
               if(!d) return
               const k = `${ent.pos.x},${ent.pos.y}`
               if(ent.id==='p') d.setAlpha(1)
-              else d.setAlpha(vis.has(k) ? (ent.used ? 0.42 : 1) : 0)
-              if(ent.used) d.setTint(0x7a7a7a)
-              else d.clearTint()
+              else d.setAlpha(vis.has(k) ? 1 : 0)
+              d.clearTint()
             })
           }
 

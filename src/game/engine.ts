@@ -424,7 +424,7 @@ export class Engine{
 
       player.pos = nd
       if(occ?.type==='item'){
-        this.emit({tick:this.tick,type:'item_here',payload:{id:occ.id,kind:occ.kind,used:!!occ.used}})
+        this.emit({tick:this.tick,type:'item_here',payload:{id:occ.id,kind:occ.kind}})
       }
       this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:moveType}})
       return {changedFloor:false,stopped:false}
@@ -436,42 +436,37 @@ export class Engine{
         this.emit({tick:this.tick,type:'interact_none'})
         return {changedFloor:false}
       }
-      if(item.used && item.kind!=='stairs'){
-        this.emit({tick:this.tick,type:'interact_spent',payload:{id:item.id,kind:item.kind}})
-        return {changedFloor:false}
-      }
-
       if(item.kind==='potion'){
         player.hp = Math.min(12, (player.hp||0) + 4)
         this.score += 25
-        item.used = true
-        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='relic'){
         this.score += 200
-        item.used = true
-        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='elixir'){
         player.hp = Math.min(12, (player.hp||0) + 2)
         this.dashCooldown = Math.max(0, this.dashCooldown - 1)
         this.guardCooldown = Math.max(0, this.guardCooldown - 1)
         this.score += 60
-        item.used = true
-        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['heal+2','cooldowns-1'],used:true}})
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['heal+2','cooldowns-1']}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='cursed-idol'){
         player.hp = (player.hp||0) - 2
         this.score += 350
-        item.used = true
-        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['hp-2','score+350'],used:true}})
+        this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,effects:['hp-2','score+350']}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='gear'){
         const gear = item.loot
         if(gear){
           this.equipGear(gear, player)
           this.score += gear.scoreValue
-          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,gear,used:true}})
+          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,gear}})
         } else {
-          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind,used:true}})
+          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
         }
-        item.used = true
+        this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         this.score += 150 + this.floor * 25
         this.emit({tick:this.tick,type:'stairs_used',payload:{fromFloor:this.floor,toFloor:this.floor+1}})
