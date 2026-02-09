@@ -1,4 +1,5 @@
 import React, {useEffect, useRef} from 'react'
+import Phaser from 'phaser'
 import { createGame, TEX_KEYS } from '../game'
 import Engine from '../game/engine'
 import eventBus from '../game/eventBus'
@@ -100,16 +101,17 @@ export default function GameMount(){
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
-            fogGraphics.fillStyle(0x000000, 0.84)
+            fogGraphics.setBlendMode(Phaser.BlendModes.MULTIPLY)
+            fogGraphics.fillStyle(0x000000, 0.82)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
 
             const p = toScreen(playerPos)
-            // soft edge: erase large then inner circles for smoother falloff
-            fogGraphics.fillStyle(0x000000, 0)
+            // Multiply mode trick: white restores brightness (visible zone), grays form soft edge.
+            fogGraphics.fillStyle(0x777777, 1)
             fogGraphics.fillCircle(p.x, p.y, tileSize * 5.2)
-            fogGraphics.fillStyle(0x000000, 0.08)
+            fogGraphics.fillStyle(0xbbbbbb, 1)
             fogGraphics.fillCircle(p.x, p.y, tileSize * 4.5)
-            fogGraphics.fillStyle(0x000000, 0.15)
+            fogGraphics.fillStyle(0xffffff, 1)
             fogGraphics.fillCircle(p.x, p.y, tileSize * 3.8)
           }
 
