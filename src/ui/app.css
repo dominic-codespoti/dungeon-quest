@@ -76,3 +76,19 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
 .dq-overlay { position: fixed; inset: 0; background: rgba(4,8,18,.65); display:flex; align-items:center; justify-content:center; z-index:20; }
 .dq-overlay .box { width: 360px; background: #121a2f; border:1px solid #3b4f86; border-radius: 12px; padding: 14px; }
+
+.dq-menu {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(1200px 700px at 30% -20%, #22325b 0%, #070b16 58%);
+}
+.dq-menu-card {
+  width: min(560px, calc(100vw - 32px));
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}

@@ -24,14 +24,39 @@ type Snapshot = {
   entities: Array<{id:string,type:string,hp?:number}>
 }
 
+type Screen = 'menu'|'create'|'game'
+type Race = 'human'|'elf'|'dwarf'
+
 const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
 
+function getParams(){ return new URLSearchParams(window.location.search) }
+function getScreen(): Screen {
+  const s = getParams().get('screen')
+  if(s==='create' || s==='game') return s
+  return 'menu'
+}
+function getClassFromUrl(): PlayerClass {
+  return getParams().get('class')==='rogue' ? 'rogue' : 'knight'
+}
+function getRaceFromUrl(): Race {
+  const r = getParams().get('race')
+  if(r==='elf' || r==='dwarf') return r
+  return 'human'
+}
+function navigate(patch: Record<string,string|number|undefined>){
+  const u = new URL(window.location.href)
+  Object.entries(patch).forEach(([k,v])=>{ if(v===undefined) u.searchParams.delete(k); else u.searchParams.set(k, String(v)) })
+  window.location.href = u.toString()
+}
+
 export default function App(){
-  const adminView = new URLSearchParams(window.location.search).get('view')==='admin'
+  const adminView = getParams().get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Explore, loot, survive.')
   const [seed,setSeed] = useState<number | null>(null)
-  const [klass,setKlass] = useState<PlayerClass>('knight')
+  const [klass,setKlass] = useState<PlayerClass>(getClassFromUrl())
+  const [race,setRace] = useState<Race>(getRaceFromUrl())
+  const [screen,setScreen] = useState<Screen>(getScreen())
 
   useEffect(()=>{
     const poll = setInterval(()=>{
@@ -42,6 +67,7 @@ export default function App(){
         if(g.getSeed) setSeed(g.getSeed())
         if(g.getClass) setKlass(g.getClass())
       }
+      setScreen(getScreen())
     }, 120)
     const g = (window as any).game
     const unsub = g?.subscribe?.((e:any)=>{
@@ -53,6 +79,7 @@ export default function App(){
   },[])
 
   useEffect(()=>{
+    if(screen!=='game') return
     const onKey = (ev:KeyboardEvent)=>{
       const g = (window as any).game
       if(!g?.step) return
@@ -70,7 +97,7 @@ export default function App(){
     }
     window.addEventListener('keydown', onKey)
     return ()=> window.removeEventListener('keydown', onKey)
-  },[])
+  },[screen])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
@@ -82,15 +109,56 @@ export default function App(){
   const wait = ()=> (window as any).game?.step?.({type:'wait'})
   const sameSeed = ()=> (window as any).game?.resetSameSeed?.()
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
-  const setClass = (c:PlayerClass)=> (window as any).game?.setClass?.(c)
+  const setClass = (c:PlayerClass)=> navigate({class:c})
 
   if(adminView) return <AdminPage />
+
+  if(screen==='menu'){
+    return (
+      <div className='dq-menu'>
+        <div className='dq-menu-card'>
+          <h1>Dungeon Quest</h1>
+          <p>A tactical dungeon crawler roguelike.</p>
+          <button onClick={()=>navigate({screen:'create'})}>Play</button>
+        </div>
+      </div>
+    )
+  }
+
+  if(screen==='create'){
+    return (
+      <div className='dq-menu'>
+        <div className='dq-menu-card'>
+          <h2>Character Creation</h2>
+          <p>Pick class and race. (Race effects coming next.)</p>
+
+          <div style={{marginBottom:8}}>Class</div>
+          <div className='dq-class'>
+            <button onClick={()=>setKlass('knight')} style={{outline: klass==='knight' ? '2px solid #7c9cff' : 'none'}}>Knight</button>
+            <button onClick={()=>setKlass('rogue')} style={{outline: klass==='rogue' ? '2px solid #7c9cff' : 'none'}}>Rogue</button>
+          </div>
+
+          <div style={{margin:'10px 0 8px'}}>Race</div>
+          <div className='dq-class'>
+            <button onClick={()=>setRace('human')} style={{outline: race==='human' ? '2px solid #7c9cff' : 'none'}}>Human</button>
+            <button onClick={()=>setRace('elf')} style={{outline: race==='elf' ? '2px solid #7c9cff' : 'none'}}>Elf</button>
+            <button onClick={()=>setRace('dwarf')} style={{outline: race==='dwarf' ? '2px solid #7c9cff' : 'none'}}>Dwarf</button>
+          </div>
+
+          <div style={{display:'flex', gap:8, marginTop:14}}>
+            <button onClick={()=>navigate({screen:'menu'})}>Back</button>
+            <button onClick={()=>navigate({screen:'game', class:klass, race, seed:Math.floor(Math.random()*1_000_000)+1})}>Start Adventure</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift dash · G guard · Space wait</div>
+          <div className='dq-center-head'>WASD/Arrows move · Shift dash · G guard · E interact · Space wait</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -100,6 +168,7 @@ export default function App(){
 
           <div className='dq-stats'>
             <div className='dq-stat'>Class<b>{klass}</b></div>
+            <div className='dq-stat'>Race<b>{race}</b></div>
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
@@ -149,7 +218,7 @@ export default function App(){
         <div className='dq-overlay'>
           <div className='box'>
             <h2 style={{marginTop:0}}>{snapshot.outcome==='defeat' ? 'Run Over' : 'Run Complete'}</h2>
-            <p>Class: <b>{klass}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p>
+            <p>Class: <b>{klass}</b></p><p>Race: <b>{race}</b></p><p>Floor: <b>{snapshot.floor}</b></p><p>Score: <b>{snapshot.score}</b></p>
             <div style={{display:'flex', gap:8}}><button onClick={sameSeed}>Restart same seed</button><button onClick={newSeed}>New seed</button></div>
           </div>
         </div>
