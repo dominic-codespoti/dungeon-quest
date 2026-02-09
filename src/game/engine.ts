@@ -96,8 +96,8 @@ export class Engine{
 
     for(let i=0;i<monsterCount;i++){
       const kind = this.rollMonsterKind()
-      const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : kind==='spitter' ? 4 + Math.floor((this.floor-1)/4) : 3 + Math.floor((this.floor-1)/3)
-      const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : kind==='spitter' ? 1.8 : 1.2
+      const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : kind==='spitter' ? 4 + Math.floor((this.floor-1)/4) : kind==='sentinel' ? 8 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
+      const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : kind==='spitter' ? 1.8 : kind==='sentinel' ? 2.6 : 1.2
       if(i>1 && threat + cost > threatCap) continue
       this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp)
       threat += cost
@@ -146,9 +146,10 @@ export class Engine{
     return 'none'
   }
 
-  private rollMonsterKind(): 'chaser'|'brute'|'skitter'|'spitter' {
+  private rollMonsterKind(): 'chaser'|'brute'|'skitter'|'spitter'|'sentinel' {
     const pick = this.rand()
-    if(this.floor >= 4 && pick > 0.86) return 'spitter'
+    if(this.floor >= 6 && pick > 0.92) return 'sentinel'
+    if(this.floor >= 4 && pick > 0.82) return 'spitter'
     if(this.floorModifier==='brute-heavy') return pick < 0.45 ? 'brute' : pick < 0.75 ? 'chaser' : 'skitter'
     if(this.floorModifier==='swarm') return pick < 0.2 ? 'brute' : pick < 0.5 ? 'chaser' : 'skitter'
     return pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
@@ -308,7 +309,7 @@ export class Engine{
     return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
   }
 
-  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'boss',hp:number){
+  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss',hp:number){
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
   }
 
@@ -475,7 +476,7 @@ export class Engine{
           this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.maybeBossLoot(occ)
-          this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+          this.score += occ.kind==='boss' ? 500 : occ.kind==='sentinel' ? 210 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
           playerScoredKill = true
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
@@ -554,7 +555,7 @@ export class Engine{
             this.bossCharged.delete(m.id)
             this.entities = this.entities.filter(e=>e.id!==m.id)
             this.maybeBossLoot(m)
-            this.score += m.kind==='boss' ? 500 : m.kind==='brute' ? 180 : m.kind==='spitter' ? 140 : m.kind==='skitter' ? 120 : 100
+            this.score += m.kind==='boss' ? 500 : m.kind==='sentinel' ? 210 : m.kind==='brute' ? 180 : m.kind==='spitter' ? 140 : m.kind==='skitter' ? 120 : 100
             playerScoredKill = true
           }
         }
@@ -669,7 +670,7 @@ export class Engine{
             this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.maybeBossLoot(occ)
-            this.score += occ.kind==='boss' ? 500 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+            this.score += occ.kind==='boss' ? 500 : occ.kind==='sentinel' ? 210 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
             playerScoredKill = true
           }
         }
@@ -752,8 +753,13 @@ export class Engine{
         return
       }
 
+      if(kind==='sentinel' && distance>1){
+        // Sentinel anchors space: no chase, only zone control.
+        return
+      }
+
       if(distance===1){
-        let dmg = kind==='boss' ? 3 : kind==='brute' ? 2 : 1
+        let dmg = kind==='boss' ? 3 : kind==='sentinel' ? 2 : kind==='brute' ? 2 : 1
         dmg = Math.max(0, dmg - this.defenseBonus)
         if(this.guardActive){ dmg = Math.max(0, dmg-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
         player.hp = (player.hp||0) - dmg
