@@ -297,6 +297,13 @@ export default function App(){
         setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
         setRace(races[Math.floor(Math.random()*races.length)] || 'human')
       }
+      if(ev.key==='r' || ev.key==='R'){
+        const classes: PlayerClass[] = ['knight','rogue']
+        const races: PlayerRace[] = ['human','elf','dwarf']
+        setKlass(classes[Math.floor(Math.random()*classes.length)] || 'knight')
+        setRace(races[Math.floor(Math.random()*races.length)] || 'human')
+        setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+      }
       if(ev.key==='z' || ev.key==='Z'){
         setKlass(dailyPreset.klass)
         setRace(dailyPreset.race)
@@ -688,7 +695,7 @@ export default function App(){
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
           <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
-          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · Enter start · B/Esc back</p>
+          <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · R reroll build+seed · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · Enter start · B/Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>
           <div style={{display:'grid',gap:8,marginBottom:10}}>
@@ -723,8 +730,8 @@ export default function App(){
             <div style={{fontSize:12,marginBottom:4}}>Seed (optional)</div>
             <div style={{display:'flex',gap:8}}>
               <input value={customSeed} onChange={e=>setCustomSeed(e.target.value.replace(/[^0-9]/g,''))} placeholder='Random if empty' style={{width:'100%',padding:'8px',borderRadius:8,border:'1px solid #33456f',background:'#0d1429',color:'#d9e6ff'}} />
-              <button onClick={()=>setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))}>Random</button>
-              <button onClick={()=>setCustomSeed('')}>Clear</button>
+              <button onClick={()=>setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))} title='X'>Random</button>
+              <button onClick={()=>setCustomSeed('')} title='C'>Clear</button>
             </div>
           </div>
 
@@ -738,6 +745,15 @@ export default function App(){
               setKlass(c)
               setRace(r)
             }} title='S'>Surprise Me</button>
+            <button onClick={()=>{
+              const classes: PlayerClass[] = ['knight','rogue']
+              const races: PlayerRace[] = ['human','elf','dwarf']
+              const c = classes[Math.floor(Math.random()*classes.length)] || 'knight'
+              const r = races[Math.floor(Math.random()*races.length)] || 'human'
+              setKlass(c)
+              setRace(r)
+              setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+            }} title='R'>Reroll Build+Seed</button>
             <button onClick={()=>{
               setKlass(dailyPreset.klass)
               setRace(dailyPreset.race)

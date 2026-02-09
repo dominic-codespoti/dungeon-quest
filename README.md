@@ -49,6 +49,7 @@ npm run verify
 - `2` Rogue
 - `Q/W/E` Human/Elf/Dwarf
 - `S` Surprise class/race
+- `R` Reroll class/race + seed
 - `Z` Apply Daily Preset
 - `Y` Apply Last-Run Preset
 - `L` Start Last-Run Preset
