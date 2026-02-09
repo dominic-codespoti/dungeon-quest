@@ -308,11 +308,13 @@ export default function App(){
         setKlass(dailyPreset.klass)
         setRace(dailyPreset.race)
         setCustomSeed(String(dailyPreset.seed))
+        setStatus('Daily preset loaded into creation.')
       }
       if((ev.key==='y' || ev.key==='Y') && lastRun){
         setKlass(lastRun.klass)
         setRace(lastRun.race)
         setCustomSeed(String(lastRun.seed))
+        setStatus('Last-run preset loaded into creation.')
       }
       if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})
       if(ev.key==='d' || ev.key==='D') navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})
@@ -753,16 +755,19 @@ export default function App(){
               setKlass(c)
               setRace(r)
               setCustomSeed(String(Math.floor(Math.random()*1_000_000)+1))
+              setStatus('Rerolled class, race, and seed.')
             }} title='R'>Reroll Build+Seed</button>
             <button onClick={()=>{
               setKlass(dailyPreset.klass)
               setRace(dailyPreset.race)
               setCustomSeed(String(dailyPreset.seed))
+              setStatus('Daily preset loaded into creation.')
             }} title='Z'>Use Daily Preset</button>
             {lastRun && <button onClick={()=>{
               setKlass(lastRun.klass)
               setRace(lastRun.race)
               setCustomSeed(String(lastRun.seed))
+              setStatus('Last-run preset loaded into creation.')
             }} title='Y'>Use Last Run Preset</button>}
             {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
             <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
