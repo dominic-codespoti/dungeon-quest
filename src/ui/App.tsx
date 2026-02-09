@@ -764,8 +764,8 @@ export default function App(){
               setRace(lastRun.race)
               setCustomSeed(String(lastRun.seed))
             }} title='Y'>Use Last Run Preset</button>}
-            {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L'>Start Last Run Preset</button>}
-            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D'>Start Daily Preset</button>
+            {lastRun && <button onClick={()=>navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='L · launch last-run preset now'>Start Last Run Preset</button>}
+            <button onClick={()=>navigate({screen:'game', class:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})} title='D · launch daily preset now'>Start Daily Preset</button>
             <button onClick={()=>{
               const classes: PlayerClass[] = ['knight','rogue']
               const races: PlayerRace[] = ['human','elf','dwarf']

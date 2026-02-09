@@ -19,6 +19,8 @@ const checks = [
   ["create hotkey: L start last run", "if((ev.key==='l' || ev.key==='L') && lastRun) navigate({screen:'game', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["create hotkey: B back to menu", "if(ev.key==='Escape' || ev.key==='b' || ev.key==='B') navigate({screen:'menu'})"],
   ["create action: start daily preset button", ">Start Daily Preset</button>"],
+  ["create tooltip: start daily preset intent", "title='D · launch daily preset now'"],
+  ["create tooltip: start last-run preset intent", "title='L · launch last-run preset now'"],
   ["daily row action: open build", ">Open Build</button>"],
   ["daily row tooltip: open build intent", "title='Z · open daily build in create'"],
   ["records action: play daily", ">Play Daily Challenge</button>"],
