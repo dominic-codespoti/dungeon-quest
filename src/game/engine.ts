@@ -27,6 +27,7 @@ export class Engine{
   visible = new Set<string>()
   discovered = new Set<string>()
   dashCooldown = 0
+  backstepCooldown = 0
   guardCooldown = 0
   guardActive = false
   gameOver = false
@@ -74,6 +75,7 @@ export class Engine{
       this.applyRaceBonuses()
     }
     this.dashCooldown = 0
+    this.backstepCooldown = 0
     this.guardCooldown = 0
     this.guardActive = false
     this.discovered.clear()
@@ -381,6 +383,7 @@ export class Engine{
       maxHp:this.maxHp,
       inventory: JSON.parse(JSON.stringify(this.inventory)),
       dashCooldown:this.dashCooldown,
+      backstepCooldown:this.backstepCooldown,
       guardCooldown:this.guardCooldown,
       guardActive:this.guardActive,
       gameOver:this.gameOver,
@@ -418,6 +421,7 @@ export class Engine{
     if(this.gameOver) return this.getState()
     this.tick++
     if(this.dashCooldown > 0) this.dashCooldown--
+    if(this.backstepCooldown > 0) this.backstepCooldown--
     if(this.guardCooldown > 0) this.guardCooldown--
 
     const player = this.entities.find(e=>e.type==='player')
@@ -516,6 +520,21 @@ export class Engine{
           const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'dash')
           if(res.changedFloor) return this.getState()
           if(res.stopped) break
+        }
+      }
+    } else if(action.type==='backstep'){
+      if(this.playerClass!=='rogue') this.emit({tick:this.tick,type:'skill_blocked',payload:{skill:'backstep',class:this.playerClass}})
+      else if(this.backstepCooldown>0) this.emit({tick:this.tick,type:'backstep_blocked',payload:{cooldown:this.backstepCooldown}})
+      else {
+        const delta = d[action.dir]
+        const nd = {x:player.pos.x - delta.x, y: player.pos.y - delta.y}
+        if(nd.x>=0 && nd.x<this.width && nd.y>=0 && nd.y<this.height && !this.isWall(nd) && !this.entities.some(e=>e.id!=='p' && e.pos.x===nd.x && e.pos.y===nd.y)){
+          player.pos = nd
+          this.backstepCooldown = 3
+          this.emit({tick:this.tick,type:'backstep_used',payload:{to:nd,cooldown:this.backstepCooldown}})
+          this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:'backstep'}})
+        } else {
+          this.emit({tick:this.tick,type:'backstep_blocked',payload:{reason:'occupied_or_wall'}})
         }
       }
     } else if(action.type==='guard'){

@@ -21,6 +21,7 @@ type Snapshot = {
   maxHp:number
   inventory?: Gear[]
   dashCooldown:number
+  backstepCooldown:number
   guardCooldown:number
   gameOver:boolean
   outcome?:'victory'|'defeat'
@@ -107,6 +108,7 @@ export default function App(){
       if(ev.shiftKey && (ev.key==='ArrowLeft' || ev.key==='a' || ev.key==='A')) g.step({type:'dash',dir:'left'})
       if(ev.shiftKey && (ev.key==='ArrowRight' || ev.key==='d' || ev.key==='D')) g.step({type:'dash',dir:'right'})
       if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})
+      if(ev.key==='q' || ev.key==='Q') g.step({type:'backstep',dir:'up'})
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
     }
@@ -203,6 +205,7 @@ export default function App(){
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
+          <div style={{fontSize:12}}><I src={bootsIcon}/>Backstep CD: {snapshot?.backstepCooldown ?? 0}</div>
           <div style={{fontSize:12, marginBottom:4}}><I src={shieldIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}</div>
 
           <div className='dq-class'>
@@ -218,6 +221,7 @@ export default function App(){
 
           <div className='dq-skillrow'>
             {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>Dash</button>}
+            {klass==='rogue' && <button onClick={()=> (window as any).game?.step?.({type:'backstep',dir:'up'})}><I src={bootsIcon}/>Backstep (Q)</button>}
             {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard</button>}
             {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>Bash</button>}
           </div>

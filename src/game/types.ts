@@ -45,6 +45,7 @@ export type GameSnapshot = {
   maxHp: number
   inventory: GeneratedItem[]
   dashCooldown: number
+  backstepCooldown: number
   guardCooldown: number
   guardActive: boolean
   gameOver: boolean
@@ -56,6 +57,7 @@ export type PlayerAction =
   | {type:'dash',dir: 'up'|'down'|'left'|'right'}
   | {type:'guard'}
   | {type:'bash',dir:'up'|'down'|'left'|'right'}
+  | {type:'backstep',dir:'up'|'down'|'left'|'right'}
   | {type:'interact'}
   | {type:'wait'}
 
