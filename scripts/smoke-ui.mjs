@@ -18,6 +18,7 @@ const checks = [
   ["menu hotkey: V copy daily preset", "if(ev.key==='v' || ev.key==='V') copyDailyPreset()"],
   ["menu hotkey: G last build", "if((ev.key==='g' || ev.key==='G') && lastRun) navigate({screen:'create', class:lastRun.klass, race:lastRun.race, seed:lastRun.seed})"],
   ["menu action: last build button", ">Last Build</button>"],
+  ["menu button: resume last uses launcher", "<button onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})} title='Y · relaunch last snapshot'>Resume Last Run</button>"],
   ["menu tooltip: quick start intent", "title='A · random class/race/seed'"],
   ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],
