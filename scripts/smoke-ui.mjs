@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const appPath = resolve(process.cwd(), 'src/ui/App.tsx')
+const mountPath = resolve(process.cwd(), 'src/ui/GameMount.tsx')
 const src = readFileSync(appPath, 'utf8')
+const mountSrc = readFileSync(mountPath, 'utf8')
 
 const checks = [
   ["shared helper: random seed", "function randomSeed(){"],
@@ -64,15 +66,26 @@ const checks = [
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
 
+const mountChecks = [
+  ["mount helper: float numbers from url", "function getFloatNumbersFromUrl(){"],
+  ["mount flag: showDamageNumbers", "const showDamageNumbers = getFloatNumbersFromUrl()"],
+  ["boss bar phase marker", "const phase = ratio > 0.66 ? 'PHASE I' : ratio > 0.33 ? 'PHASE II' : 'PHASE III'"],
+  ["boss intro title card", "showBossIntro('BOSS ENCOUNTER')"],
+  ["enemy hp bar store tracks last hp", "const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}"],
+  ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
+]
+const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
+
 const legacySeedExpr = "Math.floor(Math.random()*1_000_000)+1"
 const seedExprCount = src.split(legacySeedExpr).length - 1
 const seedExprGuardFailed = seedExprCount !== 1
 
-if (failures.length || seedExprGuardFailed) {
+if (failures.length || mountFailures.length || seedExprGuardFailed) {
   console.error('UI smoke checks failed:')
   for (const [name] of failures) console.error(`- missing: ${name}`)
+  for (const [name] of mountFailures) console.error(`- mount missing: ${name}`)
   if (seedExprGuardFailed) console.error(`- guard: expected exactly 1 random-seed expression (in helper), found ${seedExprCount}`)
   process.exit(1)
 }
 
-console.log(`UI smoke checks passed (${checks.length} checks, 1 guard).`)
+console.log(`UI smoke checks passed (${checks.length + mountChecks.length} checks, 1 guard).`)
