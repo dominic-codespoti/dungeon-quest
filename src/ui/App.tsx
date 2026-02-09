@@ -185,6 +185,7 @@ export default function App(){
       if(ev.key==='n' || ev.key==='N') setShowPatchNotes(true)
       if(ev.key==='l' || ev.key==='L') setShowLegend(true)
       if(ev.key==='o' || ev.key==='O') setShowMeta(true)
+      if(ev.key==='r' || ev.key==='R') setShowRunPrimer(true)
     }
     window.addEventListener('keydown', onMenuKey)
     return ()=> window.removeEventListener('keydown', onMenuKey)
@@ -372,7 +373,7 @@ export default function App(){
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
-          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:8}}>Hotkeys: Enter Play · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})}>Play</button>
             <button onClick={()=>setShowPatchNotes(true)}>Patch Notes</button>
