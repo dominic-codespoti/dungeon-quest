@@ -101,6 +101,15 @@ function getDailyPreset(){
   }
 }
 
+function getDailyResetEta(){
+  const now = new Date()
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1, 0, 0, 0))
+  const ms = Math.max(0, next.getTime() - now.getTime())
+  const h = Math.floor(ms / (1000*60*60))
+  const m = Math.floor((ms % (1000*60*60)) / (1000*60))
+  return `${h}h ${m}m`
+}
+
 export default function App(){
   const adminView = getParams().get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
@@ -454,7 +463,7 @@ export default function App(){
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
           <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · D Daily Challenge · P/R Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
-            <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race})</span>
+            <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} onClick={async()=>{
               const u = new URL(window.location.href)
