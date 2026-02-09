@@ -301,7 +301,7 @@ export default function App(){
           <div className='dq-stats'>
             <div className='dq-stat'>Class<b>{klass}</b></div>
             <div className='dq-stat'>Race<b>{race}</b></div>
-            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
+            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'} / 10</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
@@ -313,6 +313,12 @@ export default function App(){
 
           <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
           <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
+          <div style={{margin:'4px 0 6px'}}>
+            <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
+            <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
+              <div style={{height:'100%', width:`${Math.min(100, ((snapshot?.floor ?? 1)/10)*100)}%`, background:'#6ca2ff', borderRadius:999}} />
+            </div>
+          </div>
           {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
           {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
