@@ -454,6 +454,14 @@ export default function App(){
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
     return snapshot.entities.filter(e=>e.type==='monster' && e.pos && vis.has(`${e.pos.x},${e.pos.y}`)).length
   }, [snapshot])
+  const enemiesRemaining = useMemo(()=>{
+    if(!snapshot) return '-'
+    return snapshot.entities.filter(e=>e.type==='monster').length
+  }, [snapshot])
+  const stairsVisible = useMemo(()=>{
+    if(!snapshot) return '-'
+    return snapshot.entities.some(e=>e.type==='item' && e.kind==='stairs') ? 'Yes' : 'No'
+  }, [snapshot])
   const rangedVisible = useMemo(()=>{
     if(!snapshot) return '-'
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
@@ -961,6 +969,8 @@ export default function App(){
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
+            <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
+            <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
             <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>
             <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>
             <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>

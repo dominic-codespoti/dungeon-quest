@@ -94,6 +94,8 @@ const checks = [
   ["game hotkey sort inventory", "if(ev.key==='z' || ev.key==='Z') (window as any).game?.sortInventory?.()"],
   ["game hotkey unequip all", "if(ev.key==='u' || ev.key==='U') (window as any).game?.unequipAll?.()"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
+  ["sidebar stat: enemies left", "Enemies Left"],
+  ["sidebar stat: stairs visible", "Stairs"],
   ["sidebar stat: visible ranged", "Visible Ranged"],
   ["sidebar stat: ranged in range", "Ranged In Range"],
   ["sidebar stat: visible elites", "Visible Elites"],
