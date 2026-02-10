@@ -99,7 +99,8 @@ export class Engine{
       const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : kind==='spitter' ? 4 + Math.floor((this.floor-1)/4) : kind==='sentinel' ? 8 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
       const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : kind==='spitter' ? 1.8 : kind==='sentinel' ? 2.6 : 1.2
       if(i>1 && threat + cost > threatCap) continue
-      this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp)
+      const minDist = this.floor===1 ? (i===0 ? 2 : 3) : this.floor===2 ? 4 : 5
+      this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp,minDist)
       threat += cost
     }
 
@@ -315,8 +316,8 @@ export class Engine{
     return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
   }
 
-  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss',hp:number){
-    this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(5),hp})
+  private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss',hp:number,minPlayerDistance=5){
+    this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(minPlayerDistance),hp})
   }
 
   private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'){
@@ -470,13 +471,38 @@ export class Engine{
 
     const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
     let playerScoredKill = false
+
+    const adjacentMonsterCount = (pos:Coord, exceptId?:string)=> this.entities.filter(e=>{
+      if(e.type!=='monster') return false
+      if(exceptId && e.id===exceptId) return false
+      const dist = Math.abs(e.pos.x-pos.x) + Math.abs(e.pos.y-pos.y)
+      return dist===1
+    }).length
+
+    const isCorridorTile = (pos:Coord)=>{
+      const lw = this.isWall({x:pos.x-1,y:pos.y})
+      const rw = this.isWall({x:pos.x+1,y:pos.y})
+      const uw = this.isWall({x:pos.x,y:pos.y-1})
+      const dw = this.isWall({x:pos.x,y:pos.y+1})
+      return (lw && rw && !uw && !dw) || (uw && dw && !lw && !rw)
+    }
+
+    const tunedMeleeDamage = (base:number, targetId:string)=>{
+      let dmg = base
+      const crowd = adjacentMonsterCount(player.pos, targetId)
+      if(crowd>=2) dmg -= 1
+      if(isCorridorTile(player.pos)) dmg += 1
+      return Math.max(1, dmg)
+    }
+
     const stepInto = (nd:Coord, moveType:'move'|'dash'):{changedFloor:boolean, stopped:boolean} => {
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return {changedFloor:false,stopped:true}
       if(this.isWall(nd)){ this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}}); return {changedFloor:false,stopped:true} }
 
       const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
       if(occ?.type==='monster'){
-        const damage = (moveType==='dash' ? 5 : 3) + this.attackBonus
+        const raw = (moveType==='dash' ? 5 : 3) + this.attackBonus
+        const damage = tunedMeleeDamage(raw, occ.id)
         occ.hp = (occ.hp||1) - damage
         this.emit({tick:this.tick,type:'combat',payload:{attacker:'p',target:occ.id,damage,via:moveType}})
         if((occ.hp||0) <=0){
@@ -713,7 +739,8 @@ export class Engine{
         const occ = this.entities.find(e=>e.type==='monster' && e.pos.x===target.x && e.pos.y===target.y)
         if(!occ){ this.emit({tick:this.tick,type:'bash_miss'}) }
         else {
-          const bashDmg = 3 + Math.floor(this.attackBonus/2)
+          const rawBash = 3 + Math.floor(this.attackBonus/2)
+          const bashDmg = tunedMeleeDamage(rawBash, occ.id)
           occ.hp = (occ.hp||1) - bashDmg
           const push = {x:target.x + delta.x, y:target.y + delta.y}
           const canPush = !this.isWall(push) && !this.entities.some(e=>e.id!==occ.id && e.pos.x===push.x && e.pos.y===push.y)
