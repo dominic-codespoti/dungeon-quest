@@ -463,10 +463,18 @@ export default function App(){
     return snapshot.entities.filter(e=>e.type==='monster' && e.pos).reduce((acc,e)=>{
       const d = Math.abs((e.pos?.x||0)-p.x)+Math.abs((e.pos?.y||0)-p.y)
       const inVis = vis.has(`${e.pos?.x},${e.pos?.y}`)
-      if(d<=1) return acc+3
-      if(inVis && d<=3) return acc+2
-      if(inVis) return acc+1
-      return acc
+      if(!inVis) return acc
+
+      let next = acc
+      if(d<=1) next += 3
+      else if(d<=3) next += 2
+      else next += 1
+
+      const kind = String(e.kind || '')
+      const rangedInRange = (kind==='spitter' && d>1 && d<=5) || (kind==='sentinel' && d>1 && d<=2)
+      if(rangedInRange) next += 2
+      if(kind==='boss' && d<=3) next += 2
+      return next
     },0)
   },[snapshot])
 
