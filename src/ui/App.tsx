@@ -149,6 +149,7 @@ export default function App(){
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
   const [showInventoryPanel,setShowInventoryPanel] = useState(false)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
+  const [showRendererFallback,setShowRendererFallback] = useState(false)
 
   const closeMenuModals = ()=>{
     setShowPatchNotes(false)
@@ -376,6 +377,15 @@ export default function App(){
     if(snapshot?.gameOver) return
     if(newRecord) setNewRecord(null)
   },[snapshot?.gameOver, newRecord])
+
+  useEffect(()=>{
+    if(snapshot){
+      setShowRendererFallback(false)
+      return
+    }
+    const t = window.setTimeout(()=>setShowRendererFallback(true), 1600)
+    return ()=> window.clearTimeout(t)
+  },[snapshot])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
   const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
@@ -824,7 +834,7 @@ export default function App(){
         <div className='dq-center'>
           <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'>
-            {!snapshot && (
+            {showRendererFallback && (
               <div style={{position:'absolute', left:16, top:40, zIndex:20, background:'rgba(8,12,20,0.88)', border:'1px solid rgba(124,156,255,0.5)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#dce8ff'}}>
                 Renderer still initializing… <button onClick={retryRenderer} style={{marginLeft:8}}>Retry</button>
               </div>
