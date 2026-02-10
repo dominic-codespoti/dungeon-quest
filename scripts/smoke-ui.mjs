@@ -84,6 +84,7 @@ const mountChecks = [
   ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
   ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],
   ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
+  ["deterministic state bootstrap rebuild", "if(st) rebuildMapAndEntities(st)"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 

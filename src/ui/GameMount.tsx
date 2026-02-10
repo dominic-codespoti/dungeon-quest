@@ -708,6 +708,15 @@ export default function GameMount(){
           unsub = eventBus.subscribe(handler)
           eventBus.getLines().forEach(l=>{ try{ handler(JSON.parse(l)) }catch(_){ } })
 
+          // Simple deterministic bootstrap: render directly from live state once.
+          // Keeps startup robust without watchdog complexity.
+          try{
+            const st = (window as any).game?.getState?.()
+            if(st) rebuildMapAndEntities(st)
+          }catch(err){
+            console.error('[GameMount] state bootstrap rebuild failed', err)
+          }
+
           const visionPoll = setInterval(applyVision, 140)
           const oldUnsub = unsub
           unsub = ()=>{ clearInterval(visionPoll); oldUnsub() }
