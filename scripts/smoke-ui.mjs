@@ -35,6 +35,8 @@ const checks = [
   ["hotkey: A quick start uses launcher", "if(ev.key==='a' || ev.key==='A'){\n        const rr = randomClassRace()\n        launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})\n      }"],
   ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["menu action: damage numbers toggle button", "<button onClick={toggleFloatingNumbers} title='F'>Damage Numbers:"],
+  ["copy run link preserves visual preset", "u.searchParams.set('vis', visualPreset)"],
+  ["copy run link preserves contrast flag", "u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')"],
   ["visual preset helper exists", "function getVisualPresetFromUrl(): VisualPreset"],
   ["visual preset default readable", "return getParams().get('contrast') === '0' ? 'normal' : 'readable'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],

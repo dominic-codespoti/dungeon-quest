@@ -659,6 +659,8 @@ export default function App(){
     u.searchParams.set('seed', String(seed))
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
+    u.searchParams.set('vis', visualPreset)
+    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
   }
   const copyCreateLaunchLink = async ()=>{
@@ -667,6 +669,8 @@ export default function App(){
     u.searchParams.set('seed', String(resolveChosenSeed(customSeed)))
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
+    u.searchParams.set('vis', visualPreset)
+    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Create launch link copied.') }catch{}
   }
   const openCreateForCurrent = ()=>{
@@ -685,6 +689,8 @@ export default function App(){
     u.searchParams.set('seed', String(lastRun.seed))
     u.searchParams.set('class', lastRun.klass)
     u.searchParams.set('race', lastRun.race)
+    u.searchParams.set('vis', visualPreset)
+    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Last run link copied.') }catch{}
   }
   const copyLastRunSeed = async ()=>{
@@ -728,6 +734,8 @@ export default function App(){
     u.searchParams.set('seed', String(dailyPreset.seed))
     u.searchParams.set('class',dailyPreset.klass)
     u.searchParams.set('race',dailyPreset.race)
+    u.searchParams.set('vis', visualPreset)
+    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
   }
   const copyBundleLinks = async ()=>{
@@ -739,6 +747,8 @@ export default function App(){
     daily.searchParams.set('seed', String(dailyPreset.seed))
     daily.searchParams.set('class',dailyPreset.klass)
     daily.searchParams.set('race',dailyPreset.race)
+    daily.searchParams.set('vis', visualPreset)
+    daily.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
     links.push(`daily=${daily.toString()}`)
 
     if(lastRun){
@@ -747,6 +757,8 @@ export default function App(){
       last.searchParams.set('seed', String(lastRun.seed))
       last.searchParams.set('class', lastRun.klass)
       last.searchParams.set('race', lastRun.race)
+      last.searchParams.set('vis', visualPreset)
+      last.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
       links.push(`last=${last.toString()}`)
     }
 
