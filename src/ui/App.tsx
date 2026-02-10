@@ -1241,11 +1241,11 @@ export default function App(){
           )}
           </div>
 
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          {showUtilityPanel && <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div className='dq-side-section-label' style={{marginTop:0}}>Build / Economy</div>
             <button style={{fontSize:10,padding:'3px 7px'}} onClick={()=>setShowBuildPanel(v=>!v)}>{showBuildPanel ? 'Hide' : 'Show'}</button>
-          </div>
-          {showBuildPanel && <div className='dq-build-module'>
+          </div>}
+          {showUtilityPanel && showBuildPanel && <div className='dq-build-module'>
           <div className='dq-build-snapshot'>
             <div className='dq-build-chip'>Essence <b>{snapshot?.essence ?? 0}</b></div>
             <div className='dq-build-chip'>Spirits <b>{snapshot?.spiritCores?.filter(s=>s.equipped).length ?? 0} equipped</b></div>
