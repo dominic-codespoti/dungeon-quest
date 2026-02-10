@@ -1010,8 +1010,9 @@ export default function App(){
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
-            <h3 style={{margin:0}}><I src={bootsIcon}/>Skills</h3>
+            <h3 style={{margin:0}}><I src={bootsIcon}/>Hotbar</h3>
           </div>
+          <div style={{fontSize:11,opacity:0.72,margin:'-2px 0 6px'}}>Combat skills live here; inventory/loadout sits directly below for quick tactical swaps.</div>
           <div className='dq-skillrow'>
             {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}</button>}
             {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}</button>}
@@ -1036,7 +1037,7 @@ export default function App(){
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory</h3>
+            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout</h3>
             <div style={{display:'flex',gap:6}}>
               <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
               <button onClick={()=> (window as any).game?.unequipAll?.()} style={{fontSize:11}}>Unequip All</button>
