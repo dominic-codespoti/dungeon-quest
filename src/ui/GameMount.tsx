@@ -325,9 +325,9 @@ export default function GameMount(){
               }
             }
 
-            const floorSeenAlpha = highContrast ? 0.62 : 0.42
+            const floorSeenAlpha = highContrast ? 0.72 : 0.52
             const floorHiddenAlpha = 0
-            const wallSeenAlpha = highContrast ? 0.68 : 0.5
+            const wallSeenAlpha = highContrast ? 0.78 : 0.6
             const wallHiddenAlpha = 0
 
             Object.keys(floorDisplays).forEach(k=>{
@@ -503,8 +503,9 @@ export default function GameMount(){
                 const k = `${x},${y}`
                 const p = toScreen({x,y})
                 if(wallSet.has(k)){
-                  const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3f52).setOrigin(0.5)
-                  wall.setStrokeStyle(1, 0x6f7aa1, 0.65)
+                  const wall = sc.add.image(p.x, p.y, TEX_KEYS.wall).setOrigin(0.5)
+                  wall.setDisplaySize(tileSize-1, tileSize-1)
+                  wall.setTint(highContrast ? 0xe6eeff : 0xc8d3f0)
                   wall.setInteractive()
                   wall.on('pointerdown', ()=>{
                     selectedEnemyId = null
@@ -513,8 +514,9 @@ export default function GameMount(){
                   })
                   wallDisplays[k] = wall
                 } else {
-                  const floor = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1b2340).setOrigin(0.5)
-                  floor.setStrokeStyle(1, 0x2f3d66, 0.28)
+                  const floor = sc.add.image(p.x, p.y, TEX_KEYS.floor).setOrigin(0.5)
+                  floor.setDisplaySize(tileSize-1, tileSize-1)
+                  floor.setTint(highContrast ? 0xf2f6ff : 0xd7e2ff)
                   floor.setInteractive({cursor:'pointer'})
                   floor.on('pointerdown', ()=>{
                     selectedEnemyId = null
