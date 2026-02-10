@@ -149,6 +149,7 @@ const absentChecks = [
   ["legacy sidebar title removed", "className='dq-title'"],
   ["legacy sidebar objective block removed", "Objective: {objectiveText}"],
   ["player halo removed", "playerHalo"],
+  ["legacy run-complete floor-cap copy removed", "Use stairs to complete the run."],
 ]
 const absentFailures = absentChecks.filter(([, needle]) => src.includes(needle))
 

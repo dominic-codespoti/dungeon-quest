@@ -449,11 +449,9 @@ export default function App(){
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
   const bossAlive = bossCount > 0
   const objectiveText = snapshot
-    ? (snapshot.floor >= 10
-      ? 'Use stairs to complete the run.'
-      : (isBossFloor && bossAlive
-        ? 'Defeat the boss to unseal stairs.'
-        : 'Clear threats, collect power, and keep descending.'))
+    ? (isBossFloor && bossAlive
+      ? 'Defeat the boss to unseal stairs.'
+      : 'Clear threats, collect power, and keep descending.')
     : 'Initialize run...'
 
   const visibleThreats = useMemo(()=>{
