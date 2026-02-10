@@ -73,7 +73,9 @@ export default function GameMount(){
         unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index),
         autoEquipBest: ()=> eng.autoEquipBest(),
         unequipAll: ()=> eng.unequipAll(),
-        sortInventory: ()=> eng.sortInventory()
+        sortInventory: ()=> eng.sortInventory(),
+        equipSpiritCore: (index:number)=> eng.equipSpiritCore(index),
+        unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index)
       }
 
       const scene = g.scene.scenes[0]

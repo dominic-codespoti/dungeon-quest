@@ -79,6 +79,8 @@ const checks = [
   ["sidebar stat: boss charge countdown", "Boss CD"],
   ["sidebar stat: essence", "Essence"],
   ["sidebar stat: spirits", "Spirits"],
+  ["spirit panel header", "Spirits</h3>"],
+  ["spirit panel implant action", "Implant"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
@@ -123,6 +125,8 @@ const mountChecks = [
   ["mount exposes unequip api", "unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index)"],
   ["mount exposes unequip-all api", "unequipAll: ()=> eng.unequipAll()"],
   ["mount exposes sort api", "sortInventory: ()=> eng.sortInventory()"],
+  ["mount exposes spirit equip api", "equipSpiritCore: (index:number)=> eng.equipSpiritCore(index)"],
+  ["mount exposes spirit unequip api", "unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index)"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -161,6 +165,8 @@ const engineChecks = [
   ["engine sort helper", "sortInventory(){"],
   ["engine spirit modifier roll helper", "private rollSpiritModifier(): SpiritModifier {"],
   ["engine spirit loot drop helper", "private maybeDropSpiritLoot(dead: Entity){"],
+  ["engine spirit equip method", "equipSpiritCore(index:number){"],
+  ["engine spirit unequip method", "unequipSpiritCore(index:number){"],
   ["engine score helper", "private scoreForKill(kind:string|undefined){"],
   ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]

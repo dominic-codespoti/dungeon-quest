@@ -29,6 +29,7 @@ export class Engine{
   essence = 0
   spiritCores: SpiritCore[] = []
   spiritMajorSlots = 1
+  spiritMinorSlots = 0
   visible = new Set<string>()
   discovered = new Set<string>()
   dashCooldown = 0
@@ -114,6 +115,7 @@ export class Engine{
       this.essence = 0
       this.spiritCores = []
       this.spiritMajorSlots = 1
+      this.spiritMinorSlots = 0
       this.discovered.clear()
       this.applyRaceBonuses()
       const player = this.entities.find(e=>e.id==='p')
@@ -128,6 +130,14 @@ export class Engine{
       this.emit({tick:this.tick,type:'class_scaling',payload:{floor:this.floor,playerClass:this.playerClass,attack:s.attack,defense:s.defense,dash:s.dashCooldownBonus,backstep:s.backstepCooldownBonus}})
       if(player && (s.attack || s.defense)){
         this.emit({tick:this.tick,type:'status',payload:{text:`${this.playerClass} scaling applied (+${s.attack} atk, +${s.defense} def)`}})
+      }
+      const prevMajor = this.spiritMajorSlots
+      const prevMinor = this.spiritMinorSlots
+      if(this.floor>=4) this.spiritMinorSlots = Math.max(this.spiritMinorSlots, 1)
+      if(this.floor>=7) this.spiritMajorSlots = Math.max(this.spiritMajorSlots, 2)
+      if(this.floor>=9) this.spiritMinorSlots = Math.max(this.spiritMinorSlots, 2)
+      if(this.spiritMajorSlots!==prevMajor || this.spiritMinorSlots!==prevMinor){
+        this.emit({tick:this.tick,type:'spirit_slots_unlocked',payload:{major:this.spiritMajorSlots,minor:this.spiritMinorSlots}})
       }
     }
     this.dashCooldown = 0
@@ -640,6 +650,7 @@ export class Engine{
       essence:this.essence,
       spiritCores: JSON.parse(JSON.stringify(this.spiritCores)),
       spiritMajorSlots:this.spiritMajorSlots,
+      spiritMinorSlots:this.spiritMinorSlots,
       dashCooldown:this.dashCooldown,
       backstepCooldown:this.backstepCooldown,
       guardCooldown:this.guardCooldown,
@@ -739,6 +750,57 @@ export class Engine{
       return a.name.localeCompare(b.name)
     })
     this.emit({tick:this.tick,type:'inventory_sorted',payload:{count:this.inventory.length}})
+    return this.getState()
+  }
+
+  private setSpiritEquipped(core: SpiritCore, equipped:boolean, player: Entity){
+    if(Boolean(core.equipped)===equipped) return
+    if(equipped){
+      this.attackBonus += core.bonuses.atk
+      this.defenseBonus += core.bonuses.def
+      this.maxHp += core.bonuses.hp
+      player.hp = Math.min(this.maxHp, (player.hp||0) + core.bonuses.hp)
+      core.equipped = true
+      return
+    }
+    this.attackBonus = Math.max(0, this.attackBonus - core.bonuses.atk)
+    this.defenseBonus = Math.max(0, this.defenseBonus - core.bonuses.def)
+    this.maxHp = Math.max(6, this.maxHp - core.bonuses.hp)
+    player.hp = Math.min(this.maxHp, Math.max(1, player.hp||1))
+    core.equipped = false
+  }
+
+  equipSpiritCore(index:number){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+    const core = this.spiritCores[index]
+    if(!core) return this.getState()
+    if(core.equipped) return this.getState()
+
+    const equipped = this.spiritCores.filter(c=>c.equipped)
+    const majorUsed = equipped.filter(c=>c.tier==='major').length
+    const minorUsed = equipped.filter(c=>c.tier==='minor').length
+    if(core.tier==='major' && majorUsed>=this.spiritMajorSlots){
+      this.emit({tick:this.tick,type:'spirit_equip_blocked',payload:{reason:'major_slots_full',major:this.spiritMajorSlots}})
+      return this.getState()
+    }
+    if(core.tier==='minor' && minorUsed>=this.spiritMinorSlots){
+      this.emit({tick:this.tick,type:'spirit_equip_blocked',payload:{reason:'minor_slots_full',minor:this.spiritMinorSlots}})
+      return this.getState()
+    }
+
+    this.setSpiritEquipped(core, true, player)
+    this.emit({tick:this.tick,type:'spirit_core_equipped',payload:{id:core.id,spirit:core.spirit,tier:core.tier,modifier:core.modifier}})
+    return this.getState()
+  }
+
+  unequipSpiritCore(index:number){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+    const core = this.spiritCores[index]
+    if(!core || !core.equipped) return this.getState()
+    this.setSpiritEquipped(core, false, player)
+    this.emit({tick:this.tick,type:'spirit_core_unequipped',payload:{id:core.id,spirit:core.spirit}})
     return this.getState()
   }
 

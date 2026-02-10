@@ -15,6 +15,7 @@ export type SpiritCore = {
   modifier: SpiritModifier
   bonuses: {atk:number,def:number,hp:number,dex:number}
   note: string
+  equipped?: boolean
 }
 
 export type GeneratedItem = {
@@ -64,6 +65,7 @@ export type GameSnapshot = {
   essence: number
   spiritCores: SpiritCore[]
   spiritMajorSlots: number
+  spiritMinorSlots: number
   dashCooldown: number
   backstepCooldown: number
   guardCooldown: number

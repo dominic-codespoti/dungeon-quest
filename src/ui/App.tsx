@@ -25,8 +25,9 @@ type Snapshot = {
   maxHp:number
   inventory?: Gear[]
   essence?: number
-  spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,note?:string}>
+  spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,bonuses:{atk:number,def:number,hp:number,dex:number},note?:string,equipped?:boolean}>
   spiritMajorSlots?: number
+  spiritMinorSlots?: number
   dashCooldown:number
   backstepCooldown:number
   guardCooldown:number
@@ -256,6 +257,10 @@ export default function App(){
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
       if(e.type==='essence_pickup') setStatus(`Essence +${e.payload?.amount || 0} (total ${e.payload?.total || 0}).`)
       if(e.type==='spirit_core_pickup') setStatus(`Spirit core acquired: ${e.payload?.core?.spirit || 'Unknown'} (${e.payload?.core?.modifier || 'pure'}).`)
+      if(e.type==='spirit_slots_unlocked') setStatus(`Spirit slots unlocked: ${e.payload?.major || 1} major / ${e.payload?.minor || 0} minor.`)
+      if(e.type==='spirit_core_equipped') setStatus(`Spirit equipped: ${e.payload?.spirit || 'core'} (${e.payload?.modifier || 'pure'}).`)
+      if(e.type==='spirit_core_unequipped') setStatus(`Spirit unequipped: ${e.payload?.spirit || 'core'}.`)
+      if(e.type==='spirit_equip_blocked') setStatus(e.payload?.reason==='major_slots_full' ? 'Major spirit slots full.' : 'Minor spirit slots full.')
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
@@ -1033,6 +1038,24 @@ export default function App(){
               })}
             </div>
           )}
+
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
+            <h3 style={{margin:0}}>Spirits</h3>
+            <div style={{fontSize:11,opacity:0.8}}>Slots: {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='major').length ?? 0}/{snapshot?.spiritMajorSlots ?? 1}M · {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='minor').length ?? 0}/{snapshot?.spiritMinorSlots ?? 0}m</div>
+          </div>
+          <div className='dq-equip-list'>
+            {(snapshot?.spiritCores || []).length===0 && <div style={{opacity:0.7}}>No spirit cores collected yet.</div>}
+            {(snapshot?.spiritCores || []).map((s,idx)=>(
+              <div className='dq-item' key={s.id} style={{outline: s.equipped ? '1px solid #b996ff' : 'none', background: s.equipped ? 'rgba(185,150,255,0.08)' : undefined}}>
+                <div className='name'>{s.spirit} {s.equipped ? '• Implanted' : ''}</div>
+                <div className='meta'>{s.tier} · {s.modifier} · from {s.source}</div>
+                <div>ATK+{s.bonuses?.atk||0} DEF+{s.bonuses?.def||0} HP+{s.bonuses?.hp||0} DEX+{s.bonuses?.dex||0}</div>
+                <div className='meta'>{s.note}</div>
+                {!s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
+                {s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipSpiritCore?.(idx)}>Remove</button>}
+              </div>
+            ))}
+          </div>
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
