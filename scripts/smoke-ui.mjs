@@ -105,6 +105,8 @@ const engineChecks = [
   ["rogue unlock kit item", "name:'Throwing Knife Kit'"],
   ["tactical cache unlock adds chest", "if(this.unlocks.tacticalCache && this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-cache-${this.tick}`,'chest')"],
   ["veteran insight raises vision radius", "const radius = this.unlocks.veteranInsight ? 9 : 8"],
+  ["high-floor encounter template branch", "if(this.floor >= 4){"],
+  ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 

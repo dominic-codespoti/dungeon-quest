@@ -413,7 +413,8 @@ export class Engine{
 
     if(this.floorModifier==='swarm'){
       const pattern: Coord[] = [
-        {x:anchor.x,y:anchor.y}, {x:anchor.x+1,y:anchor.y}, {x:anchor.x-1,y:anchor.y}, {x:anchor.x,y:anchor.y+1}
+        {x:anchor.x,y:anchor.y}, {x:anchor.x+1,y:anchor.y}, {x:anchor.x-1,y:anchor.y}, {x:anchor.x,y:anchor.y+1},
+        {x:anchor.x,y:anchor.y-1}, {x:anchor.x+1,y:anchor.y+1}
       ]
       monsters.slice(0, Math.min(pattern.length, monsters.length)).forEach((m,i)=> this.tryRepositionMonster(m, pattern[i]!, 4))
       return
@@ -426,6 +427,19 @@ export class Engine{
       if(ranged) this.tryRepositionMonster(ranged, {x:anchor.x+2,y:anchor.y}, 5)
       const flank = monsters.find(m=>m.id!==brute?.id && m.id!==ranged?.id)
       if(flank) this.tryRepositionMonster(flank, {x:anchor.x+1,y:anchor.y+1}, 4)
+      return
+    }
+
+    // Higher floors bias to frontline+ranged crossfire packs.
+    if(this.floor >= 4){
+      const frontline = byKind('brute')[0] || byKind('chaser')[0] || monsters[0]
+      const rangedA = byKind('sentinel')[0] || byKind('spitter')[0] || monsters.find(m=>m.id!==frontline?.id)
+      const rangedB = byKind('spitter').find(m=>m.id!==rangedA?.id) || byKind('sentinel').find(m=>m.id!==rangedA?.id) || monsters.find(m=>m.id!==frontline?.id && m.id!==rangedA?.id)
+      if(frontline) this.tryRepositionMonster(frontline, {x:anchor.x,y:anchor.y}, 4)
+      if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)
+      if(rangedB) this.tryRepositionMonster(rangedB, {x:anchor.x-2,y:anchor.y+1}, 5)
+      const skirmisher = byKind('skitter')[0] || monsters.find(m=>m.id!==frontline?.id && m.id!==rangedA?.id && m.id!==rangedB?.id)
+      if(skirmisher) this.tryRepositionMonster(skirmisher, {x:anchor.x+1,y:anchor.y+2}, 4)
       return
     }
 
