@@ -10,6 +10,8 @@ import treasureIcon from './assets/icons/treasure.svg'
 import bootsIcon from './assets/icons/boots.svg'
 
 type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[],equipped?:boolean}
+type MetaProgress = {unlocks:{rogueKit:boolean, tacticalCache:boolean, veteranInsight:boolean},milestones:{bestFloor:number,bestScore:number,runs:number}}
+
 type Snapshot = {
   tick:number
   floor:number
@@ -114,6 +116,45 @@ function resolveChosenSeed(seedInput:string){
   return Number.isFinite(chosenSeed) && chosenSeed>0 ? chosenSeed : randomSeed()
 }
 
+function getDefaultMetaProgress(bestFloor=0,bestScore=0,runs=0): MetaProgress {
+  return {
+    unlocks: {
+      rogueKit: bestFloor >= 2,
+      tacticalCache: bestFloor >= 4,
+      veteranInsight: bestScore >= 2500 || bestFloor >= 6,
+    },
+    milestones: {bestFloor, bestScore, runs}
+  }
+}
+
+function hydrateMetaProgress(bestFloor:number,bestScore:number): MetaProgress {
+  try{
+    const raw = localStorage.getItem('dq_meta_progress')
+    if(!raw) return getDefaultMetaProgress(bestFloor,bestScore,0)
+    const parsed = JSON.parse(raw)
+    const runs = Number(parsed?.milestones?.runs || 0)
+    const merged = getDefaultMetaProgress(bestFloor,bestScore,runs)
+    return {
+      unlocks: {
+        rogueKit: Boolean(parsed?.unlocks?.rogueKit) || merged.unlocks.rogueKit,
+        tacticalCache: Boolean(parsed?.unlocks?.tacticalCache) || merged.unlocks.tacticalCache,
+        veteranInsight: Boolean(parsed?.unlocks?.veteranInsight) || merged.unlocks.veteranInsight,
+      },
+      milestones: {
+        bestFloor: Math.max(bestFloor, Number(parsed?.milestones?.bestFloor || 0)),
+        bestScore: Math.max(bestScore, Number(parsed?.milestones?.bestScore || 0)),
+        runs
+      }
+    }
+  }catch{
+    return getDefaultMetaProgress(bestFloor,bestScore,0)
+  }
+}
+
+function persistMetaProgress(meta:MetaProgress){
+  try{ localStorage.setItem('dq_meta_progress', JSON.stringify(meta)) }catch{}
+}
+
 function getDailyPreset(){
   const seed = getDailySeed()
   const classes: PlayerClass[] = ['knight','rogue']
@@ -176,6 +217,7 @@ export default function App(){
   const [bestFloor,setBestFloor] = useState<number>(0)
   const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace,efficiency?:number}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
+  const [metaProgress,setMetaProgress] = useState<MetaProgress>(getDefaultMetaProgress())
   const floatingNumbers = getFloatNumbersFromUrl()
   const highContrast = getHighContrastFromUrl()
 
@@ -199,6 +241,7 @@ export default function App(){
           })
         }
       }
+      setMetaProgress(hydrateMetaProgress(Number.isFinite(bf) ? bf : 0, Number.isFinite(bs) ? bs : 0))
     }catch{}
     const poll = setInterval(()=>{
       const g = (window as any).game
@@ -375,6 +418,21 @@ export default function App(){
     const lr = {score, floor, seed:String(seed ?? '-'), klass, race, efficiency: (snapshot.tick>0 ? Number((score/Math.max(1,snapshot.tick)).toFixed(2)) : 0)}
     setLastRun(lr)
     try{ localStorage.setItem('dq_last_run', JSON.stringify(lr)) }catch{}
+
+    const nextMeta: MetaProgress = {
+      unlocks: {
+        rogueKit: metaProgress.unlocks.rogueKit || floor >= 2,
+        tacticalCache: metaProgress.unlocks.tacticalCache || floor >= 4,
+        veteranInsight: metaProgress.unlocks.veteranInsight || score >= 2500 || floor >= 6,
+      },
+      milestones: {
+        bestFloor: Math.max(metaProgress.milestones.bestFloor, floor),
+        bestScore: Math.max(metaProgress.milestones.bestScore, score),
+        runs: (metaProgress.milestones.runs || 0) + 1,
+      }
+    }
+    setMetaProgress(nextMeta)
+    persistMetaProgress(nextMeta)
   },[snapshot?.gameOver, snapshot?.score, snapshot?.floor, bestScore, bestFloor, seed, klass, race])
 
   useEffect(()=>{
@@ -522,6 +580,8 @@ export default function App(){
       localStorage.removeItem('dq_best_floor')
       localStorage.removeItem('dq_last_run')
     }catch{}
+    setMetaProgress(getDefaultMetaProgress())
+    try{ localStorage.removeItem('dq_meta_progress') }catch{}
     setStatus('Records reset.')
     setConfirmReset(false)
   }
@@ -733,7 +793,9 @@ export default function App(){
               <h2 style={{marginTop:0}}>Records</h2>
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
+              <p>Runs: <b>{metaProgress.milestones.runs}</b></p>
               <p>Daily Seed: <b>{dailyPreset.seed}</b> ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</p>
+              <p style={{fontSize:12,opacity:0.9}}>Unlocks: {metaProgress.unlocks.rogueKit ? 'Rogue Kit' : '—'} · {metaProgress.unlocks.tacticalCache ? 'Tactical Cache' : '—'} · {metaProgress.unlocks.veteranInsight ? 'Veteran Insight' : '—'}</p>
               <p style={{fontSize:11,opacity:0.7,marginTop:-4}}>Quick keys: {lastRun ? 'Y resume last · G open last build · U copy last seed · ' : ''}Z open daily build · D play daily · V daily preset · J daily link · I link bundle · K profile · Esc close</p>
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, eff {lastRun.efficiency ?? 0}/turn, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
