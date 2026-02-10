@@ -230,7 +230,7 @@ export default function App(){
       if(e.type==='floor_brief'){
         const mod = String(e.payload?.modifier || 'none')
         const modLabel = mod==='ambush' ? 'ambush' : mod==='brute-heavy' ? 'brute-heavy' : mod==='scarce-potions' ? 'scarce-potions' : mod==='swarm' ? 'swarm' : 'none'
-        setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${modLabel}).`)
+        setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters (${e.payload?.ranged ?? '?'} ranged, ${e.payload?.elites ?? '?'} elites), ${e.payload?.items ?? '?'} items (${modLabel}).`)
       }
       if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')

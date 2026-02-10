@@ -91,6 +91,7 @@ const checks = [
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],
+  ["floor brief status includes comp counts", "monsters (${e.payload?.ranged ?? '?'} ranged, ${e.payload?.elites ?? '?'} elites)"],
   ["stairs status previews next floor", "setStatus(`Stairs found. Next: floor ${nextFloor ?? '?'}, ${nextMod}, ${nextBoss}.`)"],
 ]
 
@@ -128,6 +129,7 @@ const engineChecks = [
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
+  ["floor brief includes ranged+elite counts", "payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow,ranged:rangedNow,elites:eliteNow}"],
   ["stairs event includes next-floor preview", "this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})"],
   ["ambush clear reward includes potion", "if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')"],
   ["brute-heavy clear reward includes gear", "if(this.floorModifier==='brute-heavy') this.spawnItem(`i${this.floor}-brute-reward-${this.tick}`,'gear')"],

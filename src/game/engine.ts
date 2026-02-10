@@ -190,9 +190,11 @@ export class Engine{
     this.updateVision()
     const monstersNow = this.entities.filter(e=>e.type==='monster').length
     const itemsNow = this.entities.filter(e=>e.type==='item').length
+    const rangedNow = this.entities.filter(e=>e.type==='monster' && (e.kind==='spitter' || e.kind==='sentinel')).length
+    const eliteNow = this.entities.filter(e=>e.type==='monster' && (e.kind==='brute' || e.kind==='sentinel' || e.kind==='boss')).length
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
-      this.emit({tick:this.tick,type:'floor_brief',payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow}})
+      this.emit({tick:this.tick,type:'floor_brief',payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow,ranged:rangedNow,elites:eliteNow}})
       const modHint = this.floorModifier==='ambush'
         ? 'Ambush floor: expect pincer packs, rear pressure, and heavier ranged hits.'
         : this.floorModifier==='brute-heavy'
