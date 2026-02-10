@@ -265,9 +265,6 @@ export default function App(){
 
       if(dir && ev.shiftKey){ g.step({type:'dash',dir}); return }
       if(dir){ g.step({type:'move',dir}); return }
-      if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})
-      if(ev.key==='q' || ev.key==='Q') castOrArm('backstep')
-      if(ev.key==='b' || ev.key==='B') castOrArm('bash')
       if(ev.key==='e' || ev.key==='E') g.step({type:'interact'})
       if(ev.key===' ') g.step({type:'wait'})
       if(ev.key==='r' || ev.key==='R') newSeed()
