@@ -198,6 +198,27 @@ Validation:
 - `npm test` ✅
 - `npm run build` ✅
 
+## Follow-up Pass — Visual Presets + Tileset Cohesion (2026-02-10)
+Implemented in this pass chain:
+- Replaced placeholder sprite/texture set with **Kenney Tiny Dungeon (CC0)** assets.
+- Switched map rendering from flat color rectangles to textured floor/wall tiles.
+- Added in-run **Visual preset cycle**:
+  - `Normal` (moodier, heavier fog)
+  - `Readable` (balanced)
+  - `Crisp` (highest tactical clarity)
+- Tuned fog strength + seen/visible tile tinting per preset.
+- Set **Readable as default** when no `vis` parameter is supplied.
+
+### Headed comparison read (same seed, first-contact state)
+- All three modes now render consistently in headed browser on deployed Pages.
+- `Normal`: strongest atmosphere, lowest immediate tile readability.
+- `Readable`: best all-around baseline; preserves mood while keeping board legible.
+- `Crisp`: best tactical visibility and edge contrast; slightly less moody.
+
+Recommendation:
+- Keep **Readable** as production default.
+- Keep **Crisp** as opt-in for players prioritizing tactical clarity.
+
 ## Suggested next changes
 1. Add an explicit **inventory/equipment panel** (currently auto-equip only).
 2. Add **item subclasses** per class fantasy (Knight heavy armor bias, Rogue light weapon bias).
