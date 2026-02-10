@@ -651,7 +651,8 @@ export default function App(){
     : snapshot?.floorModifier==='swarm'
     ? 'chest+bomb'
     : 'chest'
-  const inventoryCount = snapshot?.inventory?.length ?? 0
+  const _inventoryCountHidden = snapshot?.inventory?.length ?? 0
+  void _inventoryCountHidden
   const dailyPreset = getDailyPreset()
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
@@ -1143,7 +1144,7 @@ export default function App(){
 
           <div className='dq-combat-module'>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
-            <h3 style={{margin:0}}><I src={bootsIcon}/>Combat / Loadout</h3>
+            <h3 style={{margin:0}}><I src={bootsIcon}/>Skills</h3>
           </div>
           {/* intentionally no helper copy here to keep HUD minimal */}
           <div className='dq-skillrow dq-hotbar'>
@@ -1170,7 +1171,7 @@ export default function App(){
           </div>}
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout ({inventoryCount})</h3>
+            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory</h3>
             <div className='dq-loadout-actions' style={{display:'flex',gap:6}}>
               <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
               <button onClick={()=> (window as any).game?.unequipAll?.()} style={{fontSize:11}}>Unequip All</button>
