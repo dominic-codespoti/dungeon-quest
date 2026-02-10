@@ -524,18 +524,6 @@ export default function GameMount(){
             if(visionDebugText){ try{ visionDebugText.destroy() }catch{}; visionDebugText = undefined }
 
             const wallSet = new Set((payload.walls||[]).map((w:any)=>`${w.x},${w.y}`))
-            const hasWall = (x:number,y:number)=> wallSet.has(`${x},${y}`)
-            const wallRotation = (x:number,y:number)=>{
-              const up = hasWall(x, y-1)
-              const down = hasWall(x, y+1)
-              const left = hasWall(x-1, y)
-              const right = hasWall(x+1, y)
-              const vertical = up || down
-              const horizontal = left || right
-              if(vertical && !horizontal) return 0
-              if(horizontal && !vertical) return Math.PI / 2
-              return 0
-            }
             for(let y=0;y<eng.height;y++){
               for(let x=0;x<eng.width;x++){
                 const k = `${x},${y}`
@@ -543,8 +531,6 @@ export default function GameMount(){
                 if(wallSet.has(k)){
                   const wall = sc.add.image(p.x, p.y, TEX_KEYS.wall).setOrigin(0.5)
                   wall.setDisplaySize(tileSize, tileSize)
-                  wall.setRotation(wallRotation(x,y))
-                  wall.setFlipX(((x + y) % 2) === 0)
                   wall.setTint(visualPreset==='crisp' ? 0xf1f6ff : visualPreset==='readable' ? 0xe6eeff : 0xc8d3f0)
                   wall.setInteractive()
                   wall.on('pointerdown', ()=>{

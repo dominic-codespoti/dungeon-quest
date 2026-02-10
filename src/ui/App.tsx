@@ -1009,8 +1009,9 @@ export default function App(){
             {showAdvancedHud && <div className='dq-stat'>Clear Reward<b>{clearRewardPreview}</b></div>}
           </div>
 
+          <div className='dq-combat-module'>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
-            <h3 style={{margin:0}}><I src={bootsIcon}/>Hotbar</h3>
+            <h3 style={{margin:0}}><I src={bootsIcon}/>Combat / Loadout</h3>
           </div>
           <div style={{fontSize:11,opacity:0.72,margin:'-2px 0 6px'}}>Combat skills live here; inventory/loadout sits directly below for quick tactical swaps.</div>
           <div className='dq-skillrow dq-hotbar'>
@@ -1070,6 +1071,7 @@ export default function App(){
               })}
             </div>
           )}
+          </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}>Spirits</h3>
