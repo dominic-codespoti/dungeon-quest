@@ -218,6 +218,7 @@ export default function App(){
       if(e.type==='gear_equipped') setStatus(`Equipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='gear_replaced') setStatus(`Swapped out ${e.payload?.removed?.name || 'gear'}.`)
       if(e.type==='gear_autoequip') setStatus('Auto-equipped best weapon/armor.')
+      if(e.type==='gear_unequipped') setStatus(`Unequipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
       if(e.type==='floor_brief'){
         const mod = String(e.payload?.modifier || 'none')
@@ -918,6 +919,7 @@ export default function App(){
                   <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
                   {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
                   {!it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipInventoryIndex?.(idx)}>Equip</button>}
+                  {it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipInventoryIndex?.(idx)}>Unequip</button>}
                 </div>
               ))}
             </div>

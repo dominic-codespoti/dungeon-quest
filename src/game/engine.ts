@@ -606,6 +606,16 @@ export class Engine{
     return this.getState()
   }
 
+  unequipInventoryIndex(index:number){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+    const item = this.inventory[index]
+    if(!item || !item.equipped) return this.getState()
+    this.setEquipped(item, false, player)
+    this.emit({tick:this.tick,type:'gear_unequipped',payload:{name:item.name,itemClass:item.itemClass}})
+    return this.getState()
+  }
+
   autoEquipBest(){
     const player = this.entities.find(e=>e.id==='p')
     if(!player) return this.getState()

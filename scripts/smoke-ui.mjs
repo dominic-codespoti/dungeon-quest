@@ -73,6 +73,7 @@ const checks = [
   ["sidebar stat: next boss", "Next Boss"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["inventory quick auto-equip button", "Auto Equip"],
+  ["inventory per-item unequip button", "Unequip"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],
@@ -92,6 +93,7 @@ const mountChecks = [
   ["deterministic state bootstrap rebuild", "if(st) rebuildMapAndEntities(st)"],
   ["floor event triggers deterministic rebuild", "} else if(e.type==='floor'){"],
   ["mount exposes auto-equip api", "autoEquipBest: ()=> eng.autoEquipBest()"],
+  ["mount exposes unequip api", "unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index)"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -110,6 +112,7 @@ const engineChecks = [
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
   ["engine auto-equip helper", "autoEquipBest(){"],
+  ["engine unequip helper", "unequipInventoryIndex(index:number){"],
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 
