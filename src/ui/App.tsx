@@ -214,6 +214,8 @@ export default function App(){
     const g = (window as any).game
     const unsub = g?.subscribe?.((e:any)=>{
       if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`Equipped: ${e.payload?.gear?.name || 'gear'}`)
+      if(e.type==='gear_equipped') setStatus(`Equipped: ${e.payload?.name || 'item'}.`)
+      if(e.type==='gear_replaced') setStatus(`Swapped out ${e.payload?.removed?.name || 'gear'}.`)
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
       if(e.type==='floor_brief') setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${e.payload?.modifier ?? 'none'}).`)
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')
@@ -898,6 +900,7 @@ export default function App(){
                   <div className='meta'>{it.itemClass} · {it.rarity}</div>
                   <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
                   {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
+                  {!it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipInventoryIndex?.(idx)}>Equip</button>}
                 </div>
               ))}
             </div>

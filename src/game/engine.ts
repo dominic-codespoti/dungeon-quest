@@ -501,24 +501,53 @@ export class Engine{
 
   private emit(ev:GameEvent){ this.events.push(ev); eventBus.publish(ev) }
 
+  private setEquipped(item: GeneratedItem, equipped: boolean, player: Entity){
+    if(Boolean(item.equipped)===equipped) return
+    if(equipped){
+      this.attackBonus += item.atkBonus
+      this.defenseBonus += item.defBonus
+      player.hp = Math.min(this.maxHp + item.hpBonus, (player.hp||0) + item.hpBonus)
+      item.equipped = true
+      return
+    }
+    this.attackBonus = Math.max(0, this.attackBonus - item.atkBonus)
+    this.defenseBonus = Math.max(0, this.defenseBonus - item.defBonus)
+    player.hp = Math.max(1, (player.hp||1) - item.hpBonus)
+    item.equipped = false
+  }
+
+  equipInventoryIndex(index:number){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+    const item = this.inventory[index]
+    if(!item) return this.getState()
+
+    const currently = this.inventory.find(it=>it.itemClass===item.itemClass && it.equipped)
+    if(currently && currently!==item){
+      this.setEquipped(currently, false, player)
+      this.emit({tick:this.tick,type:'gear_replaced',payload:{removed:currently,reason:'manual_swap'}})
+    }
+    this.setEquipped(item, true, player)
+    this.emit({tick:this.tick,type:'gear_equipped',payload:{name:item.name,itemClass:item.itemClass}})
+    return this.getState()
+  }
+
   private equipGear(gear: GeneratedItem, player: Entity){
-    const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass)
+    const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass && it.equipped)
     if(replaced){
-      this.attackBonus = Math.max(0, this.attackBonus - replaced.atkBonus)
-      this.defenseBonus = Math.max(0, this.defenseBonus - replaced.defBonus)
-      replaced.equipped = false
-      this.inventory = this.inventory.filter(it=>it!==replaced)
+      this.setEquipped(replaced, false, player)
       this.emit({tick:this.tick,type:'gear_replaced',payload:{removed:replaced,reason:'slot_upgrade'}})
     }
 
-    const next = {...gear, equipped:true}
+    const next = {...gear, equipped:false}
     this.inventory.push(next)
-    this.attackBonus += next.atkBonus
-    this.defenseBonus += next.defBonus
-    player.hp = Math.min(this.maxHp + next.hpBonus, (player.hp||0) + next.hpBonus)
+    this.setEquipped(next, true, player)
 
     if(this.inventory.length > 8){
-      this.inventory = this.inventory.slice(-8)
+      // Prefer trimming oldest unequipped first.
+      const dropIdx = this.inventory.findIndex(it=>!it.equipped)
+      if(dropIdx>=0) this.inventory.splice(dropIdx,1)
+      else this.inventory = this.inventory.slice(-8)
     }
   }
 

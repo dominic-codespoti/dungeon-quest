@@ -68,7 +68,8 @@ export default function GameMount(){
         resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race),
         setClass: (next:PlayerClass)=> navigate(seed, next, race),
         setRace: (next:PlayerRace)=> navigate(seed, klass, next),
-        subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) }
+        subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) },
+        equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index)
       }
 
       const scene = g.scene.scenes[0]
