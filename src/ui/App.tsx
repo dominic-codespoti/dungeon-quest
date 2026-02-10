@@ -211,12 +211,26 @@ export default function App(){
     })
   }
 
+  const enemyNameFromId = (id:string)=>{
+    const st = (window as any).game?.getState?.()
+    const e = st?.entities?.find((x:any)=>x?.id===id)
+    return e?.kind || id || 'enemy'
+  }
+  const spotLineForKind = (kind:string)=>{
+    if(kind==='boss') return 'You sense a **boss** presence stalking the floor.'
+    if(kind==='spitter') return 'A **spitter** slinks into view, fangs wet with venom.'
+    if(kind==='sentinel') return 'A **sentinel** locks onto you with a cold glare.'
+    if(kind==='brute') return 'A **brute** stomps forward, hungry for a brawl.'
+    if(kind==='skitter') return 'A **skitter** darts through the dark edge of sight.'
+    return `You spot **${kind || 'enemy'}** in the dark.`
+  }
+
   const eventToLogLine = (e:any)=>{
     const t = String(e?.type || 'event')
     const p = e?.payload || {}
     if(t==='move' && p?.id==='p' && p?.to) return `You move to (${p.to.x}, ${p.to.y}).`
-    if(t==='combat' && p?.attacker==='p') return `You hit **${p?.target || 'foe'}** for ${p?.damage ?? '?'} damage.`
-    if(t==='combat' && p?.target==='p') return `**${p?.attacker || 'Enemy'}** hits you for ${p?.damage ?? '?'} damage.`
+    if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`
+    if(t==='combat' && p?.target==='p') return `**${enemyNameFromId(String(p?.attacker || 'enemy'))}** hits you for ${p?.damage ?? '?'} damage.`
     if(t==='pickup') return `You pick up *${p?.kind || 'item'}*.`
     if(t==='merchant_contact') return `The *Merchant* greets you with ${p?.shopOffers ?? 0} offers.`
     if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
@@ -515,7 +529,7 @@ export default function App(){
     for(const m of visibleMonsters){
       if(seenEnemyIds.current.has(m.id)) continue
       seenEnemyIds.current.add(m.id)
-      appendActionLog(`You spot **${m.kind || 'enemy'}** in the dark.`, snapshot.tick)
+      appendActionLog(spotLineForKind(String(m.kind || 'enemy')), snapshot.tick)
     }
 
     const p = snapshot.entities.find(e=>e.id==='p')?.pos
