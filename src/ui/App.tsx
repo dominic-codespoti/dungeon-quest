@@ -9,7 +9,7 @@ import shieldIcon from './assets/icons/shield.svg'
 import treasureIcon from './assets/icons/treasure.svg'
 import bootsIcon from './assets/icons/boots.svg'
 
-type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[]}
+type Gear = {name:string,itemClass:string,rarity:string,atkBonus:number,defBonus:number,hpBonus:number,enchantments:string[],equipped?:boolean}
 type Snapshot = {
   tick:number
   floor:number
@@ -388,7 +388,11 @@ export default function App(){
   },[snapshot])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
-  const monstersLeft = useMemo(()=> snapshot?.entities.filter(e=>e.type==='monster').length ?? '-', [snapshot])
+  const monstersLeft = useMemo(()=>{
+    if(!snapshot) return '-'
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    return snapshot.entities.filter(e=>e.type==='monster' && e.pos && vis.has(`${e.pos.x},${e.pos.y}`)).length
+  }, [snapshot])
   const danger = useMemo(()=>{
     if(!snapshot) return 0
     const p = snapshot.entities.find(e=>e.id==='p')?.pos
@@ -844,92 +848,24 @@ export default function App(){
         </div>
 
         <aside className='dq-side'>
-          <h1 className='dq-title'>Dungeon Quest</h1>
-          <p className='dq-sub'>{status}</p>
-          <div style={{fontSize:12,color:'#a9c8ff',marginBottom:6}}>Objective: {objectiveText}</div>
-
           <div className='dq-stats'>
-            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'} / 10</b></div>
+            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
-            <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
-            <button className='dq-stat' onClick={()=>setShowThreatIntel(v=>!v)} title='Toggle threat intel panel'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></button>
-            <button className='dq-stat' onClick={()=>setShowThreatIntel(v=>!v)} title='Toggle threat intel panel'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></button>
-
-            {showAdvancedHud && <div className='dq-stat'>Class<b>{klass}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Race<b>{race}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Best<b>{bestScore}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Best Floor<b>{bestFloor}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Bosses<b>{bossCount}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>}
-
-            <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Simple HUD' : 'Advanced HUD'}</button>
-            <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
-            <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
-
-            {nearby.items > 0 && <div style={{fontSize:12,color:'#9dffb8'}}>Tip: item in reach — press E to interact.</div>}
-            {nearby.monsters > 0 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: adjacent threat — consider Guard/Backstep before trading hits.</div>}
+            <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
+            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>
+            <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>
           </div>
 
-          <div style={{margin:'4px 0 6px'}}>
-            <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
-            <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
-              <div style={{height:'100%', width:`${Math.min(100, ((snapshot?.floor ?? 1)/10)*100)}%`, background:'#6ca2ff', borderRadius:999}} />
-            </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
+            <h3 style={{margin:0}}><I src={bootsIcon}/>Skills</h3>
           </div>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:4}}>
-            <div style={{fontSize:11,opacity:0.8}}>Threat Intel</div>
-            <button onClick={()=>setShowThreatIntel(v=>!v)} style={{fontSize:11}}>{showThreatIntel ? 'Hide' : 'Show'}</button>
-          </div>
-          {showThreatIntel && (
-            <>
-              <div style={{marginTop:4}}>
-                <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
-                  <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
-                </div>
-              </div>
-              {showAdvancedHud && <div style={{fontSize:12,color:'#9bb7e8'}}>
-                Visible threats: {visibleThreats.total} (Boss {visibleThreats.boss} · Spitter {visibleThreats.spitter} · Sentinel {visibleThreats.sentinel} · Other {visibleThreats.other})
-              </div>}
-              {showAdvancedHud && <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>}
-              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
-              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
-              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
-              {showAdvancedHud && <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>}
-              {showAdvancedHud && nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
-              {showAdvancedHud && isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
-              {showAdvancedHud && (snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
-              {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
-              {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
-            </>
-          )}
-          <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
-          <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
-          {klass==='rogue' ? (
-            <>
-              <button style={{fontSize:12,textAlign:'left'}} onClick={dash} title='Arm/cast Dash'>
-                <I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}
-              </button>
-              <button style={{fontSize:12,textAlign:'left'}} onClick={backstep} title='Arm/cast Backstep'>
-                <I src={bootsIcon}/>Backstep CD: {snapshot?.backstepCooldown ?? 0}
-              </button>
-            </>
-          ) : (
-            <button style={{fontSize:12,textAlign:'left', marginBottom:4}} onClick={guard} title='Cast Guard'>
-              <I src={shieldIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}
-            </button>
-          )}
-
-          <div className='dq-class'>
-            <button onClick={()=>setClass('knight')}>Knight</button>
-            <button onClick={()=>setClass('rogue')}>Rogue</button>
+          <div className='dq-skillrow'>
+            {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}</button>}
+            {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}</button>}
+            {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard ({snapshot?.guardCooldown ?? 0})</button>}
+            {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash'}</button>}
+            {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel</button>}
           </div>
 
           <div className='dq-controls'>
@@ -937,34 +873,26 @@ export default function App(){
             <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button>
             <button onClick={()=> targetSkill ? setTargetDir('up-right') : move('up-right')}>↗</button>
             <button onClick={()=> targetSkill ? setTargetDir('left') : move('left')}>←</button>
-            <button onClick={wait} title='Space'>Wait</button>
+            <button onClick={wait}>Wait</button>
             <button onClick={()=> targetSkill ? setTargetDir('right') : move('right')}>→</button>
             <button onClick={()=> targetSkill ? setTargetDir('down-left') : move('down-left')}>↙</button>
             <button onClick={()=> targetSkill ? setTargetDir('down') : move('down')}>↓</button>
             <button onClick={()=> targetSkill ? setTargetDir('down-right') : move('down-right')}>↘</button>
-            <button onClick={()=>(window as any).game?.step?.({type:'interact'})} title='E'>Interact (E)</button>
-            <button onClick={newSeed} title='R'>New Run</button>
-            <button onClick={openCreateForCurrent} title='P'>Pregame (P)</button>
-          </div>
-
-          <div className='dq-skillrow'>
-            {klass==='rogue' && <button onClick={dash} title='Shift + direction'><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : 'Dash'}</button>}
-            {klass==='rogue' && <button onClick={backstep} title='Q'><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : 'Backstep (Q)'}</button>}
-            {klass==='knight' && <button onClick={guard} title='G'><I src={shieldIcon}/>Guard</button>}
-            {klass==='knight' && <button onClick={bash} title='B'><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash (B)'}</button>}
-            {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel Targeting</button>}
+            <button onClick={()=>(window as any).game?.step?.({type:'interact'})}>Interact</button>
+            <button onClick={newSeed}>New Run</button>
+            <button onClick={openCreateForCurrent}>Pregame</button>
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}><I src={treasureIcon}/>Equipment</h3>
+            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory</h3>
             <button onClick={()=>setShowInventoryPanel(v=>!v)} style={{fontSize:11}}>{showInventoryPanel ? 'Hide' : 'Show'}</button>
           </div>
           {showInventoryPanel && (
             <div className='dq-equip-list'>
-              {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
+              {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear collected yet.</div>}
               {(snapshot?.inventory || []).map((it,idx)=>(
-                <div className='dq-item' key={idx}>
-                  <div className='name'>{it.name}</div>
+                <div className='dq-item' key={idx} style={{outline: it.equipped ? '1px solid #7cd2a6' : 'none', background: it.equipped ? 'rgba(124,210,166,0.08)' : undefined}}>
+                  <div className='name'>{it.name} {it.equipped ? '• Equipped' : ''}</div>
                   <div className='meta'>{it.itemClass} · {it.rarity}</div>
                   <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
                   {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
@@ -972,6 +900,12 @@ export default function App(){
               ))}
             </div>
           )}
+
+          <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
+            <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Simple HUD' : 'Advanced HUD'}</button>
+            <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
+            <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
+          </div>
         </aside>
       </div>
 

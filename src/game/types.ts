@@ -15,6 +15,7 @@ export type GeneratedItem = {
   hpBonus: number
   scoreValue: number
   enchantments: string[]
+  equipped?: boolean
 }
 
 export type Entity = {

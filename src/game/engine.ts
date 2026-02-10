@@ -63,6 +63,19 @@ export class Engine{
     }
   }
 
+  private buildStartingGear(): GeneratedItem[]{
+    if(this.playerClass==='rogue'){
+      return [
+        {itemClass:'weapon', baseType:'Dagger', rarity:'common', name:'Rogue Dagger', atkBonus:1, defBonus:0, hpBonus:0, scoreValue:30, enchantments:['Quickdraw'], equipped:true},
+        {itemClass:'armor', baseType:'Leather', rarity:'common', name:'Leather Jerkin', atkBonus:0, defBonus:1, hpBonus:0, scoreValue:30, enchantments:['Lightweight'], equipped:true},
+      ]
+    }
+    return [
+      {itemClass:'weapon', baseType:'Short Sword', rarity:'common', name:'Short Sword', atkBonus:1, defBonus:0, hpBonus:0, scoreValue:30, enchantments:['Tempered'], equipped:true},
+      {itemClass:'armor', baseType:'Leather Armor', rarity:'common', name:'Leather Armor', atkBonus:0, defBonus:1, hpBonus:0, scoreValue:30, enchantments:['Stitched'], equipped:true},
+    ]
+  }
+
   private setupFloor(initial=false){
     const currentHp = this.entities.find(e=>e.id==='p')?.hp ?? this.maxHp
     const preservedHp = initial ? this.maxHp : Math.min(this.maxHp, currentHp + 1)
@@ -76,6 +89,10 @@ export class Engine{
       this.inventory = []
       this.discovered.clear()
       this.applyRaceBonuses()
+      const player = this.entities.find(e=>e.id==='p')
+      if(player){
+        for(const gear of this.buildStartingGear()) this.equipGear(gear, player)
+      }
     }
     this.dashCooldown = 0
     this.backstepCooldown = 0
@@ -423,17 +440,23 @@ export class Engine{
   private emit(ev:GameEvent){ this.events.push(ev); eventBus.publish(ev) }
 
   private equipGear(gear: GeneratedItem, player: Entity){
-    this.inventory.push(gear)
-    this.attackBonus += gear.atkBonus
-    this.defenseBonus += gear.defBonus
-    player.hp = Math.min(this.maxHp + gear.hpBonus, (player.hp||0) + gear.hpBonus)
+    const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass)
+    if(replaced){
+      this.attackBonus = Math.max(0, this.attackBonus - replaced.atkBonus)
+      this.defenseBonus = Math.max(0, this.defenseBonus - replaced.defBonus)
+      replaced.equipped = false
+      this.inventory = this.inventory.filter(it=>it!==replaced)
+      this.emit({tick:this.tick,type:'gear_replaced',payload:{removed:replaced,reason:'slot_upgrade'}})
+    }
 
-    // Keep inventory readable: 6 active pieces max, oldest gets replaced.
-    if(this.inventory.length > 6){
-      const removed = this.inventory.shift()!
-      this.attackBonus = Math.max(0, this.attackBonus - removed.atkBonus)
-      this.defenseBonus = Math.max(0, this.defenseBonus - removed.defBonus)
-      this.emit({tick:this.tick,type:'gear_replaced',payload:{removed,reason:'inventory_cap'}})
+    const next = {...gear, equipped:true}
+    this.inventory.push(next)
+    this.attackBonus += next.atkBonus
+    this.defenseBonus += next.defBonus
+    player.hp = Math.min(this.maxHp + next.hpBonus, (player.hp||0) + next.hpBonus)
+
+    if(this.inventory.length > 8){
+      this.inventory = this.inventory.slice(-8)
     }
   }
 
