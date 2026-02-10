@@ -73,6 +73,7 @@ const checks = [
   ["sidebar stat: next boss", "Next Boss"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["inventory quick auto-equip button", "Auto Equip"],
+  ["inventory quick unequip-all button", "Unequip All"],
   ["inventory per-item unequip button", "Unequip"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
@@ -94,6 +95,7 @@ const mountChecks = [
   ["floor event triggers deterministic rebuild", "} else if(e.type==='floor'){"],
   ["mount exposes auto-equip api", "autoEquipBest: ()=> eng.autoEquipBest()"],
   ["mount exposes unequip api", "unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index)"],
+  ["mount exposes unequip-all api", "unequipAll: ()=> eng.unequipAll()"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -113,6 +115,7 @@ const engineChecks = [
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
   ["engine auto-equip helper", "autoEquipBest(){"],
   ["engine unequip helper", "unequipInventoryIndex(index:number){"],
+  ["engine unequip-all helper", "unequipAll(){"],
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 

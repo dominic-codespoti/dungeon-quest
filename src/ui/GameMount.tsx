@@ -71,7 +71,8 @@ export default function GameMount(){
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) },
         equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index),
         unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index),
-        autoEquipBest: ()=> eng.autoEquipBest()
+        autoEquipBest: ()=> eng.autoEquipBest(),
+        unequipAll: ()=> eng.unequipAll()
       }
 
       const scene = g.scene.scenes[0]

@@ -636,6 +636,19 @@ export class Engine{
     return this.getState()
   }
 
+  unequipAll(){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+    let count = 0
+    for(const it of this.inventory){
+      if(!it.equipped) continue
+      this.setEquipped(it, false, player)
+      count++
+    }
+    if(count>0) this.emit({tick:this.tick,type:'gear_unequipped_all',payload:{count}})
+    return this.getState()
+  }
+
   private equipGear(gear: GeneratedItem, player: Entity){
     const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass && it.equipped)
     if(replaced){
