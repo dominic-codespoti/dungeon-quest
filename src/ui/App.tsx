@@ -216,6 +216,14 @@ export default function App(){
     const e = st?.entities?.find((x:any)=>x?.id===id)
     return e?.kind || id || 'enemy'
   }
+  const itemLabel = (kind:string|undefined)=>{
+    const k = String(kind || 'item')
+    if(k==='spirit-implant') return 'spirit core'
+    if(k==='rift-orb') return 'rift orb'
+    if(k==='blink-shard') return 'blink shard'
+    if(k==='cursed-idol') return 'cursed idol'
+    return k
+  }
   const spotLineForKind = (kind:string)=>{
     if(kind==='boss') return 'You sense a **boss** presence stalking the floor.'
     if(kind==='spitter') return 'A **spitter** slinks into view, fangs wet with venom.'
@@ -231,7 +239,7 @@ export default function App(){
     if(t==='move' && p?.id==='p' && p?.to) return `You move to (${p.to.x}, ${p.to.y}).`
     if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`
     if(t==='combat' && p?.target==='p') return `**${enemyNameFromId(String(p?.attacker || 'enemy'))}** hits you for ${p?.damage ?? '?'} damage.`
-    if(t==='pickup') return `You pick up *${p?.kind || 'item'}*.`
+    if(t==='pickup') return `You pick up *${itemLabel(p?.kind)}*.`
     if(t==='merchant_contact') return `The *Merchant* greets you with ${p?.shopOffers ?? 0} offers.`
     if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
     if(t==='shop_purchase') return `You buy *${p?.name || 'an offer'}*.`
@@ -537,7 +545,7 @@ export default function App(){
     if(item){
       if(lastUnderfootItemId.current !== item.id){
         lastUnderfootItemId.current = item.id
-        appendActionLog(`You stand over *${item.kind || 'item'}*.`, snapshot.tick)
+        appendActionLog(`You stand over *${itemLabel(item.kind)}*.`, snapshot.tick)
       }
     } else {
       lastUnderfootItemId.current = ''
