@@ -427,6 +427,11 @@ export default function App(){
   },[snapshot])
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
+  const equippedByClass = useMemo(()=>{
+    const m: Record<string,Gear|undefined> = {}
+    for(const it of (snapshot?.inventory || [])) if(it.equipped) m[it.itemClass] = it
+    return m
+  }, [snapshot?.inventory])
   const dailyPreset = getDailyPreset()
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
@@ -918,16 +923,26 @@ export default function App(){
           {showInventoryPanel && (
             <div className='dq-equip-list'>
               {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear collected yet.</div>}
-              {(snapshot?.inventory || []).map((it,idx)=>(
+              {(snapshot?.inventory || []).map((it,idx)=>{
+                const eq = equippedByClass[it.itemClass]
+                const dAtk = (it.atkBonus||0) - (eq?.atkBonus||0)
+                const dDef = (it.defBonus||0) - (eq?.defBonus||0)
+                const dHp = (it.hpBonus||0) - (eq?.hpBonus||0)
+                const deltaLabel = it.equipped
+                  ? 'Δ vs equipped: current'
+                  : `Δ vs equipped: ATK ${dAtk>=0?'+':''}${dAtk} · DEF ${dDef>=0?'+':''}${dDef} · HP ${dHp>=0?'+':''}${dHp}`
+                return (
                 <div className='dq-item' key={idx} style={{outline: it.equipped ? '1px solid #7cd2a6' : 'none', background: it.equipped ? 'rgba(124,210,166,0.08)' : undefined}}>
                   <div className='name'>{it.name} {it.equipped ? '• Equipped' : ''}</div>
                   <div className='meta'>{it.itemClass} · {it.rarity}</div>
                   <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
+                  <div className='meta'>{deltaLabel}</div>
                   {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
                   {!it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipInventoryIndex?.(idx)}>Equip</button>}
                   {it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipInventoryIndex?.(idx)}>Unequip</button>}
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
 

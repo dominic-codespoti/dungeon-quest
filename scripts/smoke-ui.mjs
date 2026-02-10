@@ -78,6 +78,7 @@ const checks = [
   ["inventory quick unequip-all button", "Unequip All"],
   ["inventory quick sort button", "Sort"],
   ["inventory per-item unequip button", "Unequip"],
+  ["inventory delta compare label", "Δ vs equipped:"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],
