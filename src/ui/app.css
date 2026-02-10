@@ -183,6 +183,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .dq-icon-slot.rarity-epic { border-color: rgba(255,178,92,.86); }
 .dq-icon-slot.class-weapon { background: rgba(124,156,255,.08); }
 .dq-icon-slot.class-armor { background: rgba(124,210,166,.08); }
+.dq-icon-slot.spirit-major { border-color: rgba(185,150,255,.85); }
+.dq-icon-slot.spirit-minor { border-color: rgba(152,126,214,.65); }
 .dq-icon-slot.is-selected {
   outline: 1px solid #7c9cff;
 }

@@ -170,6 +170,7 @@ export default function App(){
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
   const [showInventoryPanel,setShowInventoryPanel] = useState(true)
   const [selectedInventoryIndex,setSelectedInventoryIndex] = useState<number | null>(null)
+  const [selectedSpiritIndex,setSelectedSpiritIndex] = useState<number | null>(null)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
 
@@ -1222,26 +1223,48 @@ export default function App(){
           </div>
           <div className='dq-equip-list dq-module-list'>
             {(snapshot?.spiritCores || []).length===0 && <div style={{opacity:0.7}}>No spirit cores collected yet.</div>}
-            {(snapshot?.spiritCores || []).map((s,idx)=>{
-              const majorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='major').length
-              const minorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='minor').length
-              const blockedReason = !s.equipped && s.tier==='major' && majorUsed >= (snapshot?.spiritMajorSlots ?? 1)
-                ? 'Major slots full'
-                : !s.equipped && s.tier==='minor' && minorUsed >= (snapshot?.spiritMinorSlots ?? 0)
-                ? 'Minor slots full'
-                : null
-              return (
-              <div className='dq-item' key={s.id} style={{outline: s.equipped ? '1px solid #b996ff' : 'none', background: s.equipped ? 'rgba(185,150,255,0.08)' : undefined}}>
-                <div className='name'>{s.spirit} {s.equipped ? '• Implanted' : ''}</div>
-                <div className='meta'>{s.tier} · {s.modifier} · from {s.source}</div>
-                <div>ATK+{s.bonuses?.atk||0} DEF+{s.bonuses?.def||0} HP+{s.bonuses?.hp||0} DEX+{s.bonuses?.dex||0}</div>
-                <div className='meta'>{s.note}</div>
-                {blockedReason && <div className='meta' style={{color:'#ffb1b1'}}>{blockedReason}</div>}
-                {!s.equipped && <button disabled={Boolean(blockedReason)} style={{marginTop:4,fontSize:11,opacity:blockedReason?0.6:1}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
-                {s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipSpiritCore?.(idx)}>Remove</button>}
+            {(snapshot?.spiritCores || []).length>0 && (
+              <>
+              <div className='dq-icon-grid'>
+                {(snapshot?.spiritCores || []).map((s,idx)=>{
+                  const selected = selectedSpiritIndex===idx
+                  return (
+                    <button
+                      key={s.id}
+                      className={`dq-icon-slot spirit-${s.tier} ${s.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
+                      title={`${s.spirit} · ${s.tier} · ${s.modifier}`}
+                      onClick={()=>setSelectedSpiritIndex(idx)}
+                    >
+                      <I src={treasureIcon}/>
+                    </button>
+                  )
+                })}
               </div>
-              )
-            })}
+              {(() => {
+                const idx = selectedSpiritIndex ?? 0
+                const s = (snapshot?.spiritCores || [])[idx]
+                if(!s) return null
+                const majorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='major').length
+                const minorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='minor').length
+                const blockedReason = !s.equipped && s.tier==='major' && majorUsed >= (snapshot?.spiritMajorSlots ?? 1)
+                  ? 'Major slots full'
+                  : !s.equipped && s.tier==='minor' && minorUsed >= (snapshot?.spiritMinorSlots ?? 0)
+                  ? 'Minor slots full'
+                  : null
+                return (
+                  <div className='dq-item dq-detail-panel'>
+                    <div className='name'>{s.spirit} {s.equipped ? '• Implanted' : ''}</div>
+                    <div className='meta'>{s.tier} · {s.modifier} · from {s.source}</div>
+                    <div>ATK+{s.bonuses?.atk||0} DEF+{s.bonuses?.def||0} HP+{s.bonuses?.hp||0} DEX+{s.bonuses?.dex||0}</div>
+                    <div className='meta'>{s.note}</div>
+                    {blockedReason && <div className='meta' style={{color:'#ffb1b1'}}>{blockedReason}</div>}
+                    {!s.equipped && <button disabled={Boolean(blockedReason)} style={{marginTop:4,fontSize:11,opacity:blockedReason?0.6:1}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
+                    {s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipSpiritCore?.(idx)}>Remove</button>}
+                  </div>
+                )
+              })()}
+              </>
+            )}
           </div>
 
           <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>

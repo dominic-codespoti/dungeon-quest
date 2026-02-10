@@ -106,6 +106,7 @@ const checks = [
   ["sidebar stat: essence", "Essence"],
   ["sidebar stat: spirits", "Spirits"],
   ["spirit panel header", "Spirits</h3>"],
+  ["spirit icon slot class", "className={`dq-icon-slot spirit-${s.tier} ${s.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}"],
   ["spirit panel implant action", "Implant"],
   ["spirit panel blocked reason inline", "Major slots full"],
   ["merchant shop header", "Merchant"],
