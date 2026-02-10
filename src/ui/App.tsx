@@ -836,7 +836,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
+          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · Skills from Skills panel · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'>
             {showRendererFallback && (
               <div style={{position:'absolute', left:16, top:40, zIndex:20, background:'rgba(8,12,20,0.88)', border:'1px solid rgba(124,156,255,0.5)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#dce8ff'}}>
@@ -916,8 +916,7 @@ export default function App(){
             <p>Goal: descend as deep as you can.</p>
             <p>Move: WASD/Arrows (+ diagonal via numpad 7/9/1/3 or on-screen ↖↗↙↘)</p>
             <p>Dash: Shift + direction</p>
-            <p>Rogue: Q backstep</p>
-            <p>Knight: B bash, G guard</p>
+            <p>Class skills: use the Skills panel</p>
             <p>Interact: E · Wait: Space · New run: R · Retry seed: T · Copy seed: C · Copy link: V · Pregame: P · Main menu: M</p>
             <p>Tips: Danger meter tracks nearby threat, boss charge warning means slam incoming, and you can click enemies to inspect role/HP details.</p>
             <p>Use chests/shrines/fountains/rift orbs to spike power and keep pushing deeper.</p>
