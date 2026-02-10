@@ -443,6 +443,15 @@ export default function App(){
 
   const dangerLabel = danger >= 9 ? 'CRITICAL' : danger >= 6 ? 'HIGH' : danger >= 3 ? 'MED' : 'LOW'
   const scoreMult = (snapshot?.floorModifier==='ambush' ? 1.2 : snapshot?.floorModifier==='brute-heavy' ? 1.1 : 1).toFixed(1)
+  const clearRewardPreview = snapshot?.floorModifier==='ambush'
+    ? 'chest+potion'
+    : snapshot?.floorModifier==='brute-heavy'
+    ? 'chest+gear'
+    : snapshot?.floorModifier==='scarce-potions'
+    ? 'chest+elixir'
+    : snapshot?.floorModifier==='swarm'
+    ? 'chest+bomb'
+    : 'chest'
   const equippedByClass = useMemo(()=>{
     const m: Record<string,Gear|undefined> = {}
     for(const it of (snapshot?.inventory || [])) if(it.equipped) m[it.itemClass] = it
@@ -902,6 +911,7 @@ export default function App(){
             <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>
             <div className='dq-stat'>Streak→Loot<b>{streakToReward}</b></div>
             <div className='dq-stat'>Score x<b>{scoreMult}</b></div>
+            <div className='dq-stat'>Clear Reward<b>{clearRewardPreview}</b></div>
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
