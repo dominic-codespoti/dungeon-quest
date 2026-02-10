@@ -126,6 +126,7 @@ const engineChecks = [
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
   ["stairs event includes next-floor preview", "this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})"],
   ["ambush clear reward includes potion", "if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')"],
+  ["brute-heavy clear reward includes gear", "if(this.floorModifier==='brute-heavy') this.spawnItem(`i${this.floor}-brute-reward-${this.tick}`,'gear')"],
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["ambush buffs spitter base damage", "const spitBase = this.floorModifier==='ambush' ? 2 : 1"],
   ["ambush buffs sentinel zap base damage", "const zapBase = this.floorModifier==='ambush' ? 2 : 1"],

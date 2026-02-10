@@ -234,7 +234,13 @@ export default function App(){
       }
       if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')
-      if(e.type==='clear_reward') setStatus(e.payload?.reward==='chest+potion' ? 'Floor cleared: reward chest + recovery potion spawned.' : 'Floor cleared: reward chest spawned.')
+      if(e.type==='clear_reward') setStatus(
+        e.payload?.reward==='chest+potion'
+          ? 'Floor cleared: reward chest + recovery potion spawned.'
+          : e.payload?.reward==='chest+gear'
+          ? 'Floor cleared: reward chest + bonus gear spawned.'
+          : 'Floor cleared: reward chest spawned.'
+      )
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
       if(e.type==='vault_spawned') setStatus('Vault chest detected on this boss floor.')
       if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
