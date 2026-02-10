@@ -73,6 +73,10 @@ export default function GameMount(){
           const wallDisplays: Record<string, any> = {}
           const floorDisplays: Record<string, any> = {}
           const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}
+          let selectedEnemyId: string | null = null
+          let enemyInfoWrap: any
+          let enemyInfoBg: any
+          let enemyInfoText: any
           let bossBarWrap: any
           let bossBarBg: any
           let bossBarFill: any
@@ -150,6 +154,54 @@ export default function GameMount(){
               strokeThickness:2
             }).setOrigin(0.5).setDepth(320)
             sc.tweens.add({targets:t, y:t.y - tileSize*0.7, alpha:0, duration:360, ease:'Cubic.Out', onComplete:()=>t.destroy()})
+          }
+
+          function enemyArchetypeLabel(kind:string){
+            if(kind==='boss') return 'Boss'
+            if(kind==='brute') return 'Brute'
+            if(kind==='spitter') return 'Spitter'
+            if(kind==='sentinel') return 'Sentinel'
+            if(kind==='skitter') return 'Skitter'
+            return 'Chaser'
+          }
+
+          function enemyRoleHint(kind:string){
+            if(kind==='spitter') return 'Ranged: spits at distance, kites when pressured'
+            if(kind==='sentinel') return 'Control: holds lanes, short-range zap'
+            if(kind==='brute') return 'Melee: heavy hits, can lunge in straight lanes'
+            if(kind==='skitter') return 'Flanker: erratic pathing and tempo'
+            if(kind==='boss') return 'Boss: phases + charge slam'
+            return 'Melee pressure unit'
+          }
+
+          function ensureEnemyInfo(){
+            if(enemyInfoWrap) return
+            const w = Math.min(360, sc.scale.width * 0.44)
+            const h = 58
+            const x = 12
+            const y = 12
+            enemyInfoWrap = sc.add.container(0,0).setDepth(910)
+            enemyInfoBg = sc.add.rectangle(x + w/2, y + h/2, w, h, 0x121826, 0.9)
+            enemyInfoBg.setStrokeStyle(1, 0x4e5f8f, 0.95)
+            enemyInfoText = sc.add.text(x+8, y+7, '', {
+              fontFamily:'monospace', fontSize:'11px', color:'#d7e2ff'
+            }).setOrigin(0,0)
+            enemyInfoWrap.add([enemyInfoBg, enemyInfoText])
+            enemyInfoWrap.setVisible(false)
+          }
+
+          function renderEnemyInfo(state:any){
+            ensureEnemyInfo()
+            if(!enemyInfoWrap || !enemyInfoText) return
+            if(!selectedEnemyId){ enemyInfoWrap.setVisible(false); return }
+            const ent = (state?.entities||[]).find((x:any)=>x.id===selectedEnemyId && x.type==='monster')
+            if(!ent){ selectedEnemyId = null; enemyInfoWrap.setVisible(false); return }
+            const name = enemyArchetypeLabel(String(ent.kind||'chaser'))
+            const hp = Number.isFinite(ent.hp) ? ent.hp : '?'
+            const maxHp = Number.isFinite(ent.maxHp) ? ent.maxHp : '?'
+            const level = Math.max(1, Math.floor((state?.floor || 1) + ((ent.kind==='boss' ? 3 : ent.kind==='brute' || ent.kind==='sentinel' ? 1 : 0))))
+            enemyInfoText.setText(`${name} · Lv ${level}\nHP ${hp}/${maxHp} · ${enemyRoleHint(String(ent.kind||'chaser'))}`)
+            enemyInfoWrap.setVisible(true)
           }
 
           function ensureBossBar(){
@@ -314,9 +366,11 @@ export default function GameMount(){
             }
 
             drawTargeting()
+            renderEnemyInfo(state)
           }
 
           function rebuildMapAndEntities(payload:any){
+            selectedEnemyId = null
             Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
             Object.keys(hpBars).forEach(id=>{ const bar = hpBars[id]; if(bar){ try{ bar.bg.destroy(); bar.fg.destroy() }catch{}; delete hpBars[id] } })
             clearBossBar()
@@ -353,6 +407,14 @@ export default function GameMount(){
               if(ent.kind==='shrine') s.setTint(0x9a77ff)
               if(ent.kind==='fountain') s.setTint(0x63d6ff)
               if(ent.kind==='rift-orb') s.setTint(0xc27dff)
+              if(ent.type==='monster'){
+                s.setInteractive({cursor:'pointer'})
+                s.on('pointerdown', ()=>{
+                  selectedEnemyId = selectedEnemyId===ent.id ? null : ent.id
+                  const st = (window as any).game?.getState?.()
+                  renderEnemyInfo(st)
+                })
+              }
               displays[ent.id] = s
               if(ent.id==='p') playerPos = ent.pos
             })
@@ -379,6 +441,7 @@ export default function GameMount(){
               applyVision()
             } else if(e.type==='die'){
               const id = e.payload.id
+              if(selectedEnemyId===id) selectedEnemyId = null
               const d = displays[id]
               if(d){
                 sc.tweens.add({targets:d, scale:0.1, alpha:0, duration:120, onComplete:()=>{ d.destroy(); delete displays[id] }})
@@ -397,6 +460,13 @@ export default function GameMount(){
                 const to = {x: Math.floor(target.x/tileSize), y: Math.floor(target.y/tileSize)}
                 if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')
               }
+              if(attacker && target){
+                const from = {x: Math.floor(attacker.x/tileSize), y: Math.floor(attacker.y/tileSize)}
+                const to = {x: Math.floor(target.x/tileSize), y: Math.floor(target.y/tileSize)}
+                if(e.payload?.via==='spit') fxLine(from, to, 0x7dff9a)
+                if(e.payload?.via==='zap') fxLine(from, to, 0x86b7ff)
+                if(e.payload?.via==='lunge') fxLine(from, to, 0xffb07a)
+              }
               if(e.payload.target==='p') flashDamage()
             } else if(e.type==='boss_charge'){
               const boss = displays[e.payload?.id]
@@ -408,12 +478,7 @@ export default function GameMount(){
               try{ sc.cameras.main.shake(140, 0.005) }catch{}
             } else if(e.type==='spit_used'){
               const attacker = displays[e.payload?.id]
-              const player = displays['p']
-              if(attacker && player){
-                const from = {x: Math.floor(attacker.x/tileSize), y: Math.floor(attacker.y/tileSize)}
-                const to = {x: Math.floor(player.x/tileSize), y: Math.floor(player.y/tileSize)}
-                fxLine(from, to, 0x7dff9a)
-              }
+              if(attacker) sc.tweens.add({targets:attacker, scale:1.12, duration:70, yoyo:true})
             } else if(e.type==='bomb_blast'){
               fxBurstAt(e.payload?.at || {x:0,y:0}, 0xffb84d)
               try{ sc.cameras.main.shake(120, 0.004) }catch{}
