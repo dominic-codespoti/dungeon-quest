@@ -99,6 +99,7 @@ const checks = [
   ["sidebar stat: mana", "Mana"],
   ["footer strip class", "className='dq-footer'"],
   ["footer includes seed", "Seed {seed ?? '-'}"],
+  ["footer includes inventory count", "Inv {inventoryCount}"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
   ["sidebar stat: enemies left", "Enemies Left"],
   ["sidebar stat: stairs visible", "Stairs"],

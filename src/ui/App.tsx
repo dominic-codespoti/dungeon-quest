@@ -651,8 +651,7 @@ export default function App(){
     : snapshot?.floorModifier==='swarm'
     ? 'chest+bomb'
     : 'chest'
-  const _inventoryCountHidden = snapshot?.inventory?.length ?? 0
-  void _inventoryCountHidden
+  const inventoryCount = snapshot?.inventory?.length ?? 0
   const dailyPreset = getDailyPreset()
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
@@ -1363,6 +1362,7 @@ export default function App(){
           <span>{displayName}</span>
           <span>Seed {seed ?? '-'}</span>
           <span>Floor {snapshot?.floor ?? '-'}</span>
+          <span>Inv {inventoryCount}</span>
           <span>Score {snapshot?.score ?? '-'}</span>
         </div>
       </div>
