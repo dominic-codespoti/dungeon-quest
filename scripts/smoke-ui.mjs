@@ -70,6 +70,7 @@ const checks = [
   ["sidebar stat: visible enemies", "Visible Enemies"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
+  ["help copy points to skills panel", "Class skills: use the Skills panel"],
 ]
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
