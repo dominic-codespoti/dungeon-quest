@@ -654,6 +654,8 @@ export default function App(){
 
 
   const visualModeStatus = (prefix:string)=> `${prefix} (Visual: ${visualPresetLabel}).`
+  const visualLinkHint = 'includes current Visual mode'
+  const visualLinkHintKeyed = (key:string)=> `${key} · ${visualLinkHint}`
   const buildShareLink = (seedValue:string|number, classValue:PlayerClass, raceValue:PlayerRace)=>{
     const u = new URL(window.location.href)
     u.searchParams.set('screen','game')
@@ -755,8 +757,8 @@ export default function App(){
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
             <button style={{fontSize:10}} title='V · copies seed + class/race' onClick={copyDailyPreset}>Copy Preset</button>
             <button style={{fontSize:10}} title='Z · open daily build in create' onClick={()=>openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Build</button>
-            <button style={{fontSize:10}} title='J · includes current Visual mode' onClick={copyDailyLink}>Copy Link</button>
-            <button style={{fontSize:10}} title='I · includes current Visual mode' onClick={copyBundleLinks}>Copy Bundle</button>
+            <button style={{fontSize:10}} title={visualLinkHintKeyed('J')} onClick={copyDailyLink}>Copy Link</button>
+            <button style={{fontSize:10}} title={visualLinkHintKeyed('I')} onClick={copyBundleLinks}>Copy Bundle</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
@@ -846,8 +848,8 @@ export default function App(){
                 <button title='structured JSON' onClick={async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify({bestScore,bestFloor,dailyPreset,lastRun}, null, 2)); setStatus('Profile JSON copied.') }catch{} }}>Copy Profile JSON</button>
                 <button title='daily seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button title='V · daily seed + class/race' onClick={copyDailyPreset}>Copy Daily Preset</button>
-                <button title='J · includes current Visual mode' onClick={copyDailyLink}>Copy Daily Link</button>
-                <button title='I · includes current Visual mode' onClick={copyBundleLinks}>Copy Link Bundle</button>
+                <button title={visualLinkHintKeyed('J')} onClick={copyDailyLink}>Copy Daily Link</button>
+                <button title={visualLinkHintKeyed('I')} onClick={copyBundleLinks}>Copy Link Bundle</button>
                 {lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
                 {lastRun && <button title='G · prefill create with last-run loadout' onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
@@ -1097,7 +1099,7 @@ export default function App(){
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
             <button onClick={cycleVisualPreset} style={{fontSize:11}}>Visual: {visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
-            <button onClick={copyRunLink} title='Includes current Visual mode' style={{fontSize:11}}>Copy Run Link</button>
+            <button onClick={copyRunLink} title={visualLinkHint} style={{fontSize:11}}>Copy Run Link</button>
           </div>
         </aside>
       </div>
