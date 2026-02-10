@@ -93,17 +93,26 @@ const engineChecks = [
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 
+const absentChecks = [
+  ["legacy threat intel label removed", "Threat Intel"],
+  ["legacy run progress label removed", "Run Progress"],
+  ["legacy nearby stat removed", "Nearby<b>"],
+  ["legacy equipment header renamed", "/>Equipment</h3>"],
+]
+const absentFailures = absentChecks.filter(([, needle]) => src.includes(needle))
+
 const legacySeedExpr = "Math.floor(Math.random()*1_000_000)+1"
 const seedExprCount = src.split(legacySeedExpr).length - 1
 const seedExprGuardFailed = seedExprCount !== 1
 
-if (failures.length || mountFailures.length || engineFailures.length || seedExprGuardFailed) {
+if (failures.length || mountFailures.length || engineFailures.length || absentFailures.length || seedExprGuardFailed) {
   console.error('UI smoke checks failed:')
   for (const [name] of failures) console.error(`- missing: ${name}`)
   for (const [name] of mountFailures) console.error(`- mount missing: ${name}`)
   for (const [name] of engineFailures) console.error(`- engine missing: ${name}`)
+  for (const [name] of absentFailures) console.error(`- should be removed: ${name}`)
   if (seedExprGuardFailed) console.error(`- guard: expected exactly 1 random-seed expression (in helper), found ${seedExprCount}`)
   process.exit(1)
 }
 
-console.log(`UI smoke checks passed (${checks.length + mountChecks.length + engineChecks.length} checks, 1 guard).`)
+console.log(`UI smoke checks passed (${checks.length + mountChecks.length + engineChecks.length + absentChecks.length} checks, 1 guard).`)
