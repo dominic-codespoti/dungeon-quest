@@ -11,7 +11,7 @@ const key = (p:Coord)=> `${p.x},${p.y}`
 export class Engine{
   tick = 0
   floor = 1
-  floorModifier: 'none'|'brute-heavy'|'swarm'|'scarce-potions' = 'none'
+  floorModifier: 'none'|'brute-heavy'|'swarm'|'scarce-potions'|'ambush' = 'none'
   playerClass: PlayerClass
   playerRace: PlayerRace
   width:number
@@ -193,8 +193,9 @@ export class Engine{
     })
   }
 
-  private getModifierForFloor(floor:number): 'none'|'brute-heavy'|'swarm'|'scarce-potions' {
+  private getModifierForFloor(floor:number): 'none'|'brute-heavy'|'swarm'|'scarce-potions'|'ambush' {
     if(floor < 2) return 'none'
+    if(floor % 5 === 0) return 'ambush'
     if(floor % 4 === 0) return 'brute-heavy'
     if(floor % 3 === 0) return 'scarce-potions'
     if(floor % 2 === 0) return 'swarm'
@@ -205,6 +206,7 @@ export class Engine{
     const pick = this.rand()
     if(this.floor >= 6 && pick > 0.92) return 'sentinel'
     if(this.floor >= 4 && pick > 0.82) return 'spitter'
+    if(this.floorModifier==='ambush') return pick < 0.2 ? 'brute' : pick < 0.42 ? 'chaser' : pick < 0.74 ? 'skitter' : pick < 0.9 ? 'spitter' : 'sentinel'
     if(this.floorModifier==='brute-heavy') return pick < 0.45 ? 'brute' : pick < 0.75 ? 'chaser' : 'skitter'
     if(this.floorModifier==='swarm') return pick < 0.2 ? 'brute' : pick < 0.5 ? 'chaser' : 'skitter'
     return pick < 0.5 ? 'chaser' : pick < 0.8 ? 'skitter' : 'brute'
@@ -409,6 +411,18 @@ export class Engine{
         {x:anchor.x,y:anchor.y-1}, {x:anchor.x+1,y:anchor.y+1}
       ]
       monsters.slice(0, Math.min(pattern.length, monsters.length)).forEach((m,i)=> this.tryRepositionMonster(m, pattern[i]!, 4))
+      return
+    }
+
+    if(this.floorModifier==='ambush'){
+      const bait = byKind('chaser')[0] || byKind('brute')[0] || monsters[0]
+      const left = byKind('skitter')[0] || monsters.find(m=>m.id!==bait?.id)
+      const right = byKind('skitter').find(m=>m.id!==left?.id) || monsters.find(m=>m.id!==bait?.id && m.id!==left?.id)
+      const ranged = byKind('spitter')[0] || byKind('sentinel')[0] || monsters.find(m=>m.id!==bait?.id && m.id!==left?.id && m.id!==right?.id)
+      if(bait) this.tryRepositionMonster(bait, {x:anchor.x,y:anchor.y}, 4)
+      if(left) this.tryRepositionMonster(left, {x:anchor.x-2,y:anchor.y+1}, 5)
+      if(right) this.tryRepositionMonster(right, {x:anchor.x+2,y:anchor.y+1}, 5)
+      if(ranged) this.tryRepositionMonster(ranged, {x:anchor.x,y:anchor.y-2}, 6)
       return
     }
 

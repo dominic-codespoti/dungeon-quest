@@ -95,6 +95,8 @@ const engineChecks = [
   ["rogue starts with dagger", "name:'Rogue Dagger'"],
   ["starting gear applied on initial floor", "for(const gear of this.buildStartingGear()) this.equipGear(gear, player)"],
   ["base vision radius", "const radius = 8"],
+  ["ambush modifier exists", "if(floor % 5 === 0) return 'ambush'"],
+  ["ambush template branch", "if(this.floorModifier==='ambush'){"],
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
 ]
