@@ -656,6 +656,9 @@ export default function App(){
   const pace = snapshot ? ((snapshot.floor || 1) / Math.max(1, snapshot.tick || 1)) * 100 : 0
   const paceLabel = pace >= 3 ? 'FAST' : pace >= 1.8 ? 'STEADY' : 'SLOW'
   const paceColor = paceLabel==='FAST' ? '#9dffb8' : paceLabel==='STEADY' ? '#ffd27a' : '#ff9c7a'
+  const displayName = `${klass[0]?.toUpperCase() || ''}${klass.slice(1)} ${race[0]?.toUpperCase() || ''}${race.slice(1)}`
+  const manaNow = klass==='rogue' ? 2 : 1
+  const manaMax = klass==='rogue' ? 2 : 1
   const isBossFloor = ((snapshot?.floor ?? 1) >= 3) && ((snapshot?.floor ?? 1) % 3 === 0)
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
@@ -1105,10 +1108,12 @@ export default function App(){
 
         <aside className='dq-side'>
           <div className='dq-stats'>
-            <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
-            <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
-            <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
-            <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
+            <div className='dq-stat'>Name<b>{displayName}</b></div>
+            <div className='dq-stat'>Level<b>{snapshot?.floor ?? '-'}</b></div>
+            <div className='dq-stat'>Health<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
+            <div className='dq-stat'>Mana<b>{manaNow} / {manaMax}</b></div>
+            {showAdvancedHud && <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>}
