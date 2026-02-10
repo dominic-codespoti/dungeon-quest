@@ -31,6 +31,9 @@ function getFloatNumbersFromUrl(){
 function getHighContrastFromUrl(){
   return new URLSearchParams(window.location.search).get('contrast') === '1'
 }
+function getVisionDebugFromUrl(){
+  return new URLSearchParams(window.location.search).get('debugvis') === '1'
+}
 
 function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
   const u = new URL(window.location.href)
@@ -53,6 +56,7 @@ export default function GameMount(){
       const race = getRaceFromUrl()
       const showDamageNumbers = getFloatNumbersFromUrl()
       const highContrast = getHighContrastFromUrl()
+      const visionDebug = getVisionDebugFromUrl()
       const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
@@ -93,6 +97,7 @@ export default function GameMount(){
           let flashOverlay: any
           let targetingGraphics: any
           let playerHalo: any
+          let visionDebugText: any
           let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -448,6 +453,12 @@ export default function GameMount(){
               clearBossBar()
             }
 
+            if(visionDebug){
+              if(!visionDebugText){
+                visionDebugText = sc.add.text(10, sc.scale.height-16, '', {fontFamily:'monospace', fontSize:'10px', color:'#9fb2e8'}).setDepth(980)
+              }
+              visionDebugText.setText(`vis:${vis.size} seen:${seen.size} tick:${state.tick ?? 0}`)
+            }
             drawTargeting()
             renderEnemyInfo(state)
           }
@@ -463,6 +474,7 @@ export default function GameMount(){
             Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].destroy() }catch{}; delete floorDisplays[k] })
             if(fogGraphics){ try{ fogGraphics.destroy() }catch{}; fogGraphics = undefined }
             if(targetingGraphics){ try{ targetingGraphics.destroy() }catch{}; targetingGraphics = undefined }
+            if(visionDebugText){ try{ visionDebugText.destroy() }catch{}; visionDebugText = undefined }
 
             const wallSet = new Set((payload.walls||[]).map((w:any)=>`${w.x},${w.y}`))
             for(let y=0;y<eng.height;y++){
