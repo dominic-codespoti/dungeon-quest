@@ -708,7 +708,10 @@ export class Engine{
         this.spawnItem(`i${this.floor}-clear-reward-${this.tick}`,'chest')
         this.emit({tick:this.tick,type:'clear_reward',payload:{floor:this.floor,reward:'chest'}})
       }
-      this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor}})
+      const nextFloor = this.floor + 1
+      const nextModifier = this.getModifierForFloor(nextFloor)
+      const nextBoss = nextFloor >= 3 && nextFloor % 3 === 0
+      this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})
     }
   }
 

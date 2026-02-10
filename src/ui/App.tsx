@@ -221,7 +221,12 @@ export default function App(){
       if(e.type==='gear_unequipped') setStatus(`Unequipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='gear_unequipped_all') setStatus(`Unequipped all gear (${e.payload?.count || 0}).`)
       if(e.type==='inventory_sorted') setStatus('Inventory sorted: equipped → slot → rarity.')
-      if(e.type==='stairs_spawned') setStatus('Stairs found.')
+      if(e.type==='stairs_spawned'){
+        const nextFloor = e.payload?.nextFloor
+        const nextMod = e.payload?.nextModifier || 'none'
+        const nextBoss = e.payload?.nextBoss ? 'boss' : 'no boss'
+        setStatus(`Stairs found. Next: floor ${nextFloor ?? '?'}, ${nextMod}, ${nextBoss}.`)
+      }
       if(e.type==='floor_brief'){
         const mod = String(e.payload?.modifier || 'none')
         const modLabel = mod==='ambush' ? 'ambush' : mod==='brute-heavy' ? 'brute-heavy' : mod==='scarce-potions' ? 'scarce-potions' : mod==='swarm' ? 'swarm' : 'none'

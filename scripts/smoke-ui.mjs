@@ -82,6 +82,7 @@ const checks = [
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],
+  ["stairs status previews next floor", "setStatus(`Stairs found. Next: floor ${nextFloor ?? '?'}, ${nextMod}, ${nextBoss}.`)"],
 ]
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
@@ -118,6 +119,7 @@ const engineChecks = [
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
+  ["stairs event includes next-floor preview", "this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})"],
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["ambush enforces ranged threat", "private enforceAmbushRangedThreat(){"],
   ["ambush ranged threat called before template", "this.enforceAmbushRangedThreat()"],
