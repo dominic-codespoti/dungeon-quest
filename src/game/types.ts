@@ -55,12 +55,14 @@ export type GameSnapshot = {
   outcome?: 'victory'|'defeat'
 }
 
+export type Dir = 'up'|'down'|'left'|'right'|'up-left'|'up-right'|'down-left'|'down-right'
+
 export type PlayerAction =
-  | {type:'move',dir: 'up'|'down'|'left'|'right'}
-  | {type:'dash',dir: 'up'|'down'|'left'|'right'}
+  | {type:'move',dir: Dir}
+  | {type:'dash',dir: Dir}
   | {type:'guard'}
-  | {type:'bash',dir:'up'|'down'|'left'|'right'}
-  | {type:'backstep',dir:'up'|'down'|'left'|'right'}
+  | {type:'bash',dir:Dir}
+  | {type:'backstep',dir:Dir}
   | {type:'interact'}
   | {type:'wait'}
 

@@ -1,4 +1,4 @@
-import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, PlayerClass, PlayerRace, GeneratedItem, Rarity} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, Dir, PlayerClass, PlayerRace, GeneratedItem, Rarity} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){
@@ -469,8 +469,20 @@ export class Engine{
     const player = this.entities.find(e=>e.type==='player')
     if(!player) throw new Error('no player')
 
-    const d:Record<'up'|'down'|'left'|'right',Coord>={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
+    const d:Record<Dir,Coord>={
+      up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0},
+      'up-left':{x:-1,y:-1},'up-right':{x:1,y:-1},'down-left':{x:-1,y:1},'down-right':{x:1,y:1}
+    }
     let playerScoredKill = false
+
+    const canTraverseDiagonal = (from:Coord, to:Coord)=>{
+      const dx = to.x - from.x
+      const dy = to.y - from.y
+      if(Math.abs(dx)!==1 || Math.abs(dy)!==1) return true
+      const h = {x:from.x+dx,y:from.y}
+      const v = {x:from.x,y:from.y+dy}
+      return !this.isWall(h) && !this.isWall(v)
+    }
 
     const adjacentMonsterCount = (pos:Coord, exceptId?:string)=> this.entities.filter(e=>{
       if(e.type!=='monster') return false
@@ -497,6 +509,7 @@ export class Engine{
 
     const stepInto = (nd:Coord, moveType:'move'|'dash'):{changedFloor:boolean, stopped:boolean} => {
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return {changedFloor:false,stopped:true}
+      if(!canTraverseDiagonal(player.pos, nd)){ this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'corner'}}); return {changedFloor:false,stopped:true} }
       if(this.isWall(nd)){ this.emit({tick:this.tick,type:'bump',payload:{id:'p',to:nd,reason:'wall'}}); return {changedFloor:false,stopped:true} }
 
       const occ = this.entities.find(e=>e.pos.x===nd.x && e.pos.y===nd.y && e.id!=='p')
@@ -786,6 +799,7 @@ export class Engine{
 
     const tryMoveMonster = (m:any, nd:Coord, via='path')=>{
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return false
+      if(!canTraverseDiagonal(m.pos, nd)) return false
       if(this.isWall(nd)) return false
       const occ = this.entities.find(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)
       if(occ) return false
@@ -810,10 +824,7 @@ export class Engine{
           const step = dirs[Math.floor(this.rand()*dirs.length)]
           if(step){
             const nd = {x:m.pos.x+step.x,y:m.pos.y+step.y}
-            if(!this.isWall(nd) && !this.entities.some(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)){
-              m.pos = nd
-              this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd,via:'wander'}})
-            }
+            tryMoveMonster(m, nd, 'wander')
           }
         }
         return

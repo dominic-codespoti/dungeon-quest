@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import AdminPage from './admin/AdminPage'
 import GameMount from './GameMount'
-import type {PlayerClass, PlayerRace} from '../game/types'
+import type {Dir, PlayerClass, PlayerRace} from '../game/types'
 import './app.css'
 
 import swordIcon from './assets/icons/sword.svg'
@@ -36,7 +36,7 @@ type Snapshot = {
 
 type Screen = 'menu'|'create'|'game'
 type Race = PlayerRace
-type Dir = 'up'|'down'|'left'|'right'
+// Dir imported from game/types
 type TargetSkill = 'dash'|'backstep'|'bash'
 
 const I = ({src}:{src:string}) => <img className='dq-icon' src={src} alt='' />
@@ -246,6 +246,10 @@ export default function App(){
         if(key==='ArrowDown' || key==='s' || key==='S') return 'down'
         if(key==='ArrowLeft' || key==='a' || key==='A') return 'left'
         if(key==='ArrowRight' || key==='d' || key==='D') return 'right'
+        if(key==='Home' || key==='7') return 'up-left'
+        if(key==='PageUp' || key==='9') return 'up-right'
+        if(key==='End' || key==='1') return 'down-left'
+        if(key==='PageDown' || key==='3') return 'down-right'
         return null
       }
 
@@ -434,7 +438,10 @@ export default function App(){
   const computeTargetTiles = (skill:TargetSkill, selectedDir:Dir)=>{
     const p = snapshot?.entities.find(e=>e.id==='p')?.pos
     if(!snapshot || !p) return [] as Array<{x:number,y:number,kind:string,selected?:boolean}>
-    const dirs: Record<Dir,{x:number,y:number}> = {up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}
+    const dirs: Record<Dir,{x:number,y:number}> = {
+      up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0},
+      'up-left':{x:-1,y:-1},'up-right':{x:1,y:-1},'down-left':{x:-1,y:1},'down-right':{x:1,y:1}
+    }
     const walls = new Set((snapshot.walls||[]).map(w=>`${w.x},${w.y}`))
     const occupied = new Set((snapshot.entities||[]).filter(e=>e.id!=='p').map(e=>`${e.pos?.x},${e.pos?.y}`))
     const monsterAt = new Set((snapshot.entities||[]).filter(e=>e.type==='monster').map(e=>`${e.pos?.x},${e.pos?.y}`))
@@ -813,7 +820,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
+          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'><GameMount /></div>
         </div>
 
@@ -888,9 +895,18 @@ export default function App(){
           </div>
 
           <div className='dq-controls'>
-            <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button><button onClick={()=> targetSkill ? setTargetDir('left') : move('left')}>←</button>
-            <button onClick={()=> targetSkill ? setTargetDir('down') : move('down')}>↓</button><button onClick={()=> targetSkill ? setTargetDir('right') : move('right')}>→</button>
-            <button onClick={wait} title='Space'>Wait</button><button onClick={()=>(window as any).game?.step?.({type:'interact'})} title='E'>Interact (E)</button><button onClick={newSeed} title='R'>New Run</button><button onClick={openCreateForCurrent} title='P'>Pregame (P)</button>
+            <button onClick={()=> targetSkill ? setTargetDir('up-left') : move('up-left')}>↖</button>
+            <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button>
+            <button onClick={()=> targetSkill ? setTargetDir('up-right') : move('up-right')}>↗</button>
+            <button onClick={()=> targetSkill ? setTargetDir('left') : move('left')}>←</button>
+            <button onClick={wait} title='Space'>Wait</button>
+            <button onClick={()=> targetSkill ? setTargetDir('right') : move('right')}>→</button>
+            <button onClick={()=> targetSkill ? setTargetDir('down-left') : move('down-left')}>↙</button>
+            <button onClick={()=> targetSkill ? setTargetDir('down') : move('down')}>↓</button>
+            <button onClick={()=> targetSkill ? setTargetDir('down-right') : move('down-right')}>↘</button>
+            <button onClick={()=>(window as any).game?.step?.({type:'interact'})} title='E'>Interact (E)</button>
+            <button onClick={newSeed} title='R'>New Run</button>
+            <button onClick={openCreateForCurrent} title='P'>Pregame (P)</button>
           </div>
 
           <div className='dq-skillrow'>
@@ -926,7 +942,7 @@ export default function App(){
           <div className='box'>
             <h2 style={{marginTop:0}}>Controls & Goal</h2>
             <p>Goal: clear floor 10.</p>
-            <p>Move: WASD/Arrows</p>
+            <p>Move: WASD/Arrows (+ diagonal via numpad 7/9/1/3 or on-screen ↖↗↙↘)</p>
             <p>Dash: Shift + direction</p>
             <p>Rogue: Q backstep</p>
             <p>Knight: B bash, G guard</p>
