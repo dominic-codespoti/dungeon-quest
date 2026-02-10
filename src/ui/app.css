@@ -86,6 +86,9 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
   background: rgba(14,22,42,.35);
   padding: 6px 8px 8px;
 }
+.dq-module-list {
+  max-height: 180px;
+}
 .dq-hotbar button {
   min-width: 108px;
   justify-content: flex-start;

@@ -1080,7 +1080,7 @@ export default function App(){
             <h3 style={{margin:0}}>Spirits</h3>
             <div style={{fontSize:11,opacity:0.8}}>Slots: {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='major').length ?? 0}/{snapshot?.spiritMajorSlots ?? 1}M · {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='minor').length ?? 0}/{snapshot?.spiritMinorSlots ?? 0}m</div>
           </div>
-          <div className='dq-equip-list'>
+          <div className='dq-equip-list dq-module-list'>
             {(snapshot?.spiritCores || []).length===0 && <div style={{opacity:0.7}}>No spirit cores collected yet.</div>}
             {(snapshot?.spiritCores || []).map((s,idx)=>{
               const majorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='major').length
@@ -1118,7 +1118,7 @@ export default function App(){
           <div style={{display:'flex',justifyContent:'flex-end',margin:'2px 0 4px'}}>
             <button style={{fontSize:11}} onClick={()=> (window as any).game?.rerollShopOffers?.()}>Reroll ({snapshot?.shopRerollCost ?? 20})</button>
           </div>
-          <div className='dq-equip-list'>
+          <div className='dq-equip-list dq-module-list'>
             {(snapshot?.shopOffers || []).length===0 && <div style={{opacity:0.7}}>No offers. Try rerolling.</div>}
             {(snapshot?.shopOffers || []).map((o,idx)=>{
               const afford = (snapshot?.essence ?? 0) >= (o.cost || 0)
