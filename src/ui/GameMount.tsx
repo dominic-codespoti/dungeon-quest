@@ -41,6 +41,7 @@ export default function GameMount(){
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(()=>{
     let unsub:()=>void = ()=>{}
+    let cancelled = false
     if(ref.current){
       const g = createGame(ref.current)
 
@@ -663,17 +664,22 @@ export default function GameMount(){
         }catch(err){ console.error('renderer setup failed',err) }
       }
 
+      let sceneReady = false
       const waitForScene = (tries=0)=>{
+        if(cancelled || sceneReady) return
         const s = g.scene.scenes[0]
         if(s && s.add && s.sys){
+          sceneReady = true
           setupScene(s)
           return
         }
-        if(tries < 40) setTimeout(()=>waitForScene(tries+1), 100)
+        if(tries===40) console.warn('[GameMount] scene bootstrap still pending after 4s; continuing retries')
+        if(tries===100) console.warn('[GameMount] scene bootstrap still pending after 10s; continuing retries')
+        setTimeout(()=>waitForScene(tries+1), 100)
       }
       waitForScene()
 
-      return ()=>{ try{ unsub() }catch{}; g.destroy(true) }
+      return ()=>{ cancelled = true; try{ unsub() }catch{}; g.destroy(true) }
     }
   },[])
   return <div ref={ref} id="phaser-root"></div>
