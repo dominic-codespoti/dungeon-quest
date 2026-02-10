@@ -86,6 +86,7 @@ const checks = [
   ["sidebar stat: streak to loot", "Streak→Loot"],
   ["sidebar stat: score multiplier", "Score x"],
   ["sidebar stat: clear reward preview", "Clear Reward"],
+  ["hud secondary stats toggle label", "More Stats"],
   ["danger model includes ranged in-range weighting", "const rangedInRange = (kind==='spitter' && d>1 && d<=5) || (kind==='sentinel' && d>1 && d<=2)"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["inventory quick auto-equip button", "Auto Equip"],

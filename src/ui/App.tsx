@@ -944,18 +944,18 @@ export default function App(){
             <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>
             <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
-            <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>
-            <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>
-            <div className='dq-stat'>Mod<b>{snapshot?.floorModifier ?? 'none'}</b></div>
-            <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'Yes' : 'No'}</b></div>
-            <div className='dq-stat'>Boss Alive<b>{bossAlive ? 'Yes' : 'No'}</b></div>
-            <div className='dq-stat'>Next Mod<b>{snapshot?.nextFloorModifier ?? 'none'}</b></div>
-            <div className='dq-stat'>Next Boss<b>{nextIsBossFloor ? 'Yes' : 'No'}</b></div>
-            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{dangerLabel}</b></div>
-            <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>
-            <div className='dq-stat'>Streak→Loot<b>{streakToReward}</b></div>
-            <div className='dq-stat'>Score x<b>{scoreMult}</b></div>
-            <div className='dq-stat'>Clear Reward<b>{clearRewardPreview}</b></div>
+            {showAdvancedHud && <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Mod<b>{snapshot?.floorModifier ?? 'none'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'Yes' : 'No'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss Alive<b>{bossAlive ? 'Yes' : 'No'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Next Mod<b>{snapshot?.nextFloorModifier ?? 'none'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Next Boss<b>{nextIsBossFloor ? 'Yes' : 'No'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{dangerLabel}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Streak→Loot<b>{streakToReward}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Score x<b>{scoreMult}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Clear Reward<b>{clearRewardPreview}</b></div>}
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
@@ -1020,7 +1020,7 @@ export default function App(){
           )}
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
-            <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Simple HUD' : 'Advanced HUD'}</button>
+            <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
             <button onClick={toggleHighContrast} style={{fontSize:11}}>Contrast: {highContrast ? 'High' : 'Normal'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
