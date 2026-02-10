@@ -424,10 +424,22 @@ export default function GameMount(){
                 if(wallSet.has(k)){
                   const wall = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x3a3f52).setOrigin(0.5)
                   wall.setStrokeStyle(1, 0x6f7aa1, 0.65)
+                  wall.setInteractive()
+                  wall.on('pointerdown', ()=>{
+                    selectedEnemyId = null
+                    const st = (window as any).game?.getState?.()
+                    renderEnemyInfo(st)
+                  })
                   wallDisplays[k] = wall
                 } else {
                   const floor = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1b2340).setOrigin(0.5)
                   floor.setStrokeStyle(1, 0x2f3d66, 0.28)
+                  floor.setInteractive()
+                  floor.on('pointerdown', ()=>{
+                    selectedEnemyId = null
+                    const st = (window as any).game?.getState?.()
+                    renderEnemyInfo(st)
+                  })
                   floorDisplays[k] = floor
                 }
               }
