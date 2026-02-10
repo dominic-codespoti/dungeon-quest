@@ -424,7 +424,7 @@ export default function App(){
       ? 'Use stairs to complete the run.'
       : (isBossFloor && bossAlive
         ? 'Defeat the boss to unseal stairs.'
-        : 'Clear threats, collect power, and push to floor 10.'))
+        : 'Clear threats, collect power, and keep descending.'))
     : 'Initialize run...'
 
   const visibleThreats = useMemo(()=>{
@@ -639,7 +639,7 @@ export default function App(){
         <div className='dq-menu-card'>
           <h1>Dungeon Quest</h1>
           <p>A tactical dungeon crawler roguelike.</p>
-          <p style={{fontSize:12,opacity:0.8}}>Run goal: clear floor 10 to win.</p>
+          <p style={{fontSize:12,opacity:0.8}}>Run goal: descend as deep as possible.</p>
           <div style={{fontSize:11,opacity:0.75, margin:'6px 0 10px'}}>
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
@@ -682,7 +682,7 @@ export default function App(){
                 <li>Bosses with charge/slam telegraphs + rewards</li>
                 <li>New enemies: Spitter, Sentinel</li>
                 <li>New items: Bomb, Blink Shard, Chest, Shrine, Fountain, Rift Orb</li>
-                <li>Run goal: clear floor 10 to win</li>
+                <li>Run goal: descend deeper and survive escalating threats</li>
               </ul>
               <button onClick={()=>setShowPatchNotes(false)}>Close</button>
             </div>
@@ -698,7 +698,7 @@ export default function App(){
                 <li>Boss floors (every 3): stairs sealed until boss dies.</li>
                 <li>Use danger/threat HUD before committing to melee.</li>
                 <li>Save mobility items (Blink/Rift) for spike turns.</li>
-                <li>Target floor 10 clear, not endless score greed.</li>
+                <li>Depth and survival over mindless score greed.</li>
                 <li>Daily preset today: <b>{dailyPreset.seed}</b> · <b>{dailyPreset.klass}/{dailyPreset.race}</b>.</li>
               </ul>
               <button onClick={()=>setShowRunPrimer(false)}>Close</button>
@@ -765,7 +765,7 @@ export default function App(){
         <div className='dq-menu-card'>
           <h2>Character Creation</h2>
           <p>Pick class and race.</p>
-          <p style={{fontSize:12,opacity:0.8}}>Objective: survive and clear floor 10.</p>
+          <p style={{fontSize:12,opacity:0.8}}>Objective: survive and keep descending.</p>
           <p style={{fontSize:11,opacity:0.7}}>Hotkeys: 1 Knight · 2 Rogue · Q/W/E race · S surprise · R reroll build+seed · Z daily preset · Y last-run preset · L start last-run · D start daily · X random seed · C clear seed · A quickstart · J copy launch link · Enter start · B/Esc back</p>
 
           <div style={{marginBottom:8,fontWeight:700}}>Class</div>

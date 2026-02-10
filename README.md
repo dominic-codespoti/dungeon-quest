@@ -26,7 +26,7 @@ If `git push` intermittently fails/hangs (observed as transient GitHub 500s or s
 
 - **Main Menu** → open create, quick start, daily challenge, records/help overlays
 - **Character Creation** → choose class/race/seed or launch daily/last-run presets
-- **Run** → clear floors, survive boss milestones, reach floor 10 for victory
+- **Run** → clear floors, survive boss milestones, and descend deeper each run
 
 ## Main Menu Hotkeys
 
