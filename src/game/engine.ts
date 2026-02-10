@@ -895,6 +895,19 @@ export class Engine{
         return
       }
 
+      if(kind==='skitter' && distance<=3){
+        // Flank behavior: prefer orbit/sidestep over direct trades.
+        const sideA = {x:m.pos.x + Math.sign(dy), y:m.pos.y - Math.sign(dx)}
+        const sideB = {x:m.pos.x - Math.sign(dy), y:m.pos.y + Math.sign(dx)}
+        if(this.rand()<0.7){
+          if(tryMoveMonster(m, sideA, 'flank')) return
+          if(tryMoveMonster(m, sideB, 'flank')) return
+        } else {
+          if(tryMoveMonster(m, sideB, 'flank')) return
+          if(tryMoveMonster(m, sideA, 'flank')) return
+        }
+      }
+
       const pathStep = this.nextStepToward(m.pos, playerPos, m.id)
       if(pathStep && tryMoveMonster(m, pathStep, 'path')) return
 
