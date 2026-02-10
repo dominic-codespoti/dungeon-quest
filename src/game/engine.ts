@@ -194,7 +194,7 @@ export class Engine{
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
       this.emit({tick:this.tick,type:'floor_brief',payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow}})
       const modHint = this.floorModifier==='ambush'
-        ? 'Ambush floor: expect pincer packs and rear pressure.'
+        ? 'Ambush floor: expect pincer packs, rear pressure, and heavier ranged hits.'
         : this.floorModifier==='brute-heavy'
         ? 'Brute-heavy floor: stronger frontline enemies.'
         : this.floorModifier==='scarce-potions'
@@ -1124,7 +1124,8 @@ export class Engine{
       if(kind==='spitter'){
         const canSpit = distance<=5 && distance>1 && this.hasLineOfSight(m.pos, playerPos)
         if(canSpit){
-          let spit = Math.max(0, 1 - this.defenseBonus)
+          const spitBase = this.floorModifier==='ambush' ? 2 : 1
+          let spit = Math.max(0, spitBase - this.defenseBonus)
           if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - spit
           this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:spit,kind,via:'spit'}})
@@ -1141,7 +1142,8 @@ export class Engine{
       if(kind==='sentinel' && distance>1){
         // Sentinel anchors lanes and zaps nearby intruders, otherwise holds space.
         if(distance<=2 && this.hasLineOfSight(m.pos, playerPos)){
-          let zap = Math.max(0, 1 - this.defenseBonus)
+          const zapBase = this.floorModifier==='ambush' ? 2 : 1
+          let zap = Math.max(0, zapBase - this.defenseBonus)
           if(this.guardActive){ zap = Math.max(0, zap-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - zap
           this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:zap,kind,via:'zap'}})

@@ -127,6 +127,8 @@ const engineChecks = [
   ["stairs event includes next-floor preview", "this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})"],
   ["ambush clear reward includes potion", "if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')"],
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
+  ["ambush buffs spitter base damage", "const spitBase = this.floorModifier==='ambush' ? 2 : 1"],
+  ["ambush buffs sentinel zap base damage", "const zapBase = this.floorModifier==='ambush' ? 2 : 1"],
   ["ambush enforces ranged threat", "private enforceAmbushRangedThreat(){"],
   ["ambush ranged threat called before template", "this.enforceAmbushRangedThreat()"],
   ["engine auto-equip helper", "autoEquipBest(){"],
