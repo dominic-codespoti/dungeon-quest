@@ -71,6 +71,12 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
   align-items: center;
   gap: 4px;
 }
+.dq-loadout-actions button {
+  min-width: 86px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 button {
   background: #22345f;
   color: #eef2ff;

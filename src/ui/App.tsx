@@ -1038,7 +1038,7 @@ export default function App(){
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout</h3>
-            <div style={{display:'flex',gap:6}}>
+            <div className='dq-loadout-actions' style={{display:'flex',gap:6}}>
               <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
               <button onClick={()=> (window as any).game?.unequipAll?.()} style={{fontSize:11}}>Unequip All</button>
               <button onClick={()=> (window as any).game?.sortInventory?.()} style={{fontSize:11}}>Sort</button>
