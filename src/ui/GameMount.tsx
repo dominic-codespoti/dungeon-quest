@@ -702,6 +702,10 @@ export default function GameMount(){
                 const d = displays[s.id]
                 if(d){ sc.tweens.add({targets:d,alpha:0.35,duration:240,yoyo:true,repeat:3}) }
               }
+            } else if(e.type==='floor'){
+              // Keep floor transitions deterministic: rebuild once from fresh state.
+              const st = (window as any).game?.getState?.()
+              if(st) rebuildMapAndEntities(st)
             }
           }
 

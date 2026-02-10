@@ -85,6 +85,7 @@ const mountChecks = [
   ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],
   ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
   ["deterministic state bootstrap rebuild", "if(st) rebuildMapAndEntities(st)"],
+  ["floor event triggers deterministic rebuild", "} else if(e.type==='floor'){"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
