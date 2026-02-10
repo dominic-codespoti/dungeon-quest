@@ -894,9 +894,20 @@ export default function App(){
           )}
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
-          <div style={{fontSize:12}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
-          <div style={{fontSize:12}}><I src={bootsIcon}/>Backstep CD: {snapshot?.backstepCooldown ?? 0}</div>
-          <div style={{fontSize:12, marginBottom:4}}><I src={shieldIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}</div>
+          {klass==='rogue' ? (
+            <>
+              <button style={{fontSize:12,textAlign:'left'}} onClick={dash} title='Arm/cast Dash'>
+                <I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}
+              </button>
+              <button style={{fontSize:12,textAlign:'left'}} onClick={backstep} title='Arm/cast Backstep'>
+                <I src={bootsIcon}/>Backstep CD: {snapshot?.backstepCooldown ?? 0}
+              </button>
+            </>
+          ) : (
+            <button style={{fontSize:12,textAlign:'left', marginBottom:4}} onClick={guard} title='Cast Guard'>
+              <I src={shieldIcon}/>Guard CD: {snapshot?.guardCooldown ?? 0}
+            </button>
+          )}
 
           <div className='dq-class'>
             <button onClick={()=>setClass('knight')}>Knight</button>
