@@ -137,7 +137,7 @@ export class Engine{
     const scaledCount = baseCount + Math.floor((this.floor - 1) * 1.5)
     const monsterCount = Math.min(12, scaledCount + (this.floorModifier==='swarm' ? 2 : 0))
 
-    const threatCap = 8 + this.floor * 1.8
+    const threatCap = 8 + this.floor * 1.8 + (this.floorModifier==='ambush' ? 1.2 : 0)
     let threat = 0
 
     for(let i=0;i<monsterCount;i++){
@@ -145,7 +145,13 @@ export class Engine{
       const hp = kind==='brute' ? 7 + Math.floor((this.floor-1)/2) : kind==='chaser' ? 4 + Math.floor((this.floor-1)/3) : kind==='spitter' ? 4 + Math.floor((this.floor-1)/4) : kind==='sentinel' ? 8 + Math.floor((this.floor-1)/3) : 3 + Math.floor((this.floor-1)/3)
       const cost = kind==='brute' ? 2.4 : kind==='chaser' ? 1.5 : kind==='spitter' ? 1.8 : kind==='sentinel' ? 2.6 : 1.2
       if(i>1 && threat + cost > threatCap) continue
-      const minDist = this.floor===1 ? (i===0 ? 2 : 3) : this.floor===2 ? 4 : 5
+      const minDist = this.floorModifier==='ambush'
+        ? (i===0 ? 3 : 4)
+        : this.floor===1
+        ? (i===0 ? 2 : 3)
+        : this.floor===2
+        ? 4
+        : 5
       this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp,minDist)
       threat += cost
     }

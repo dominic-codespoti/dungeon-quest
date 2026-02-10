@@ -97,6 +97,8 @@ const engineChecks = [
   ["starting gear applied on initial floor", "for(const gear of this.buildStartingGear()) this.equipGear(gear, player)"],
   ["base vision radius", "const radius = 8"],
   ["ambush modifier exists", "if(floor % 5 === 0) return 'ambush'"],
+  ["ambush threat cap bonus", "const threatCap = 8 + this.floor * 1.8 + (this.floorModifier==='ambush' ? 1.2 : 0)"],
+  ["ambush closer spawn distance", "const minDist = this.floorModifier==='ambush'"],
   ["scarce-potions compensation chest", "if(this.floorModifier==='scarce-potions') this.spawnItem(`i${this.floor}-cache1`,'chest')"],
   ["ambush template branch", "if(this.floorModifier==='ambush'){"],
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
