@@ -454,11 +454,27 @@ export default function GameMount(){
                 } else {
                   const floor = sc.add.rectangle(p.x,p.y,tileSize-1,tileSize-1,0x1b2340).setOrigin(0.5)
                   floor.setStrokeStyle(1, 0x2f3d66, 0.28)
-                  floor.setInteractive()
+                  floor.setInteractive({cursor:'pointer'})
                   floor.on('pointerdown', ()=>{
                     selectedEnemyId = null
                     const st = (window as any).game?.getState?.()
                     renderEnemyInfo(st)
+                    const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
+                    if(!p) return
+                    const dx = x - p.x
+                    const dy = y - p.y
+                    const sx = Math.sign(dx)
+                    const sy = Math.sign(dy)
+                    let dir:any = null
+                    if(sx===0 && sy===-1) dir='up'
+                    else if(sx===0 && sy===1) dir='down'
+                    else if(sx===-1 && sy===0) dir='left'
+                    else if(sx===1 && sy===0) dir='right'
+                    else if(sx===-1 && sy===-1) dir='up-left'
+                    else if(sx===1 && sy===-1) dir='up-right'
+                    else if(sx===-1 && sy===1) dir='down-left'
+                    else if(sx===1 && sy===1) dir='down-right'
+                    if(dir) (window as any).game?.step?.({type:'move', dir})
                   })
                   floorDisplays[k] = floor
                 }
