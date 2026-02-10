@@ -673,13 +673,13 @@ export default function App(){
     try{ await navigator.clipboard.writeText(buildShareLink(resolveChosenSeed(customSeed), klass, race)); setStatus(visualModeStatus('Create launch link copied')) }catch{}
   }
   const openCreateForCurrent = ()=>{
-    navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
+    navigate({screen:'create', class:klass, race, seed:seed ?? undefined, vis: visualPreset, contrast: visualPreset==='normal' ? 0 : 1})
   }
   const openCreatePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{
-    navigate({screen:'create', class:preset.klass, race:preset.race, seed:preset.seed})
+    navigate({screen:'create', class:preset.klass, race:preset.race, seed:preset.seed, vis: visualPreset, contrast: visualPreset==='normal' ? 0 : 1})
   }
   const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{
-    navigate({screen:'game', class:preset.klass, race:preset.race, seed:preset.seed})
+    navigate({screen:'game', class:preset.klass, race:preset.race, seed:preset.seed, vis: visualPreset, contrast: visualPreset==='normal' ? 0 : 1})
   }
   const copyLastRunLink = async ()=>{
     if(!lastRun) return

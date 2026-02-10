@@ -18,6 +18,7 @@ const checks = [
   ["shared helper: apply random class/race in create", "const applyRandomClassRaceToCreate = (withSeed=false)=>{"],
   ["shared helper: open create preset", "const openCreatePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{"],
   ["shared helper: launch preset game", "const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{"],
+  ["launch/create helpers preserve visual preset", "vis: visualPreset, contrast: visualPreset==='normal' ? 0 : 1"],
   ["shared helper: copy create launch link", "const copyCreateLaunchLink = async ()=>{"],
   ["create launch link helper: uses resolved seed", "buildShareLink(resolveChosenSeed(customSeed), klass, race)"],
   ["menu hotkey: Z daily build", "if(ev.key==='z' || ev.key==='Z') openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})"],
