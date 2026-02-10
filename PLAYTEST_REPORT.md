@@ -203,3 +203,32 @@ Validation:
 2. Add **item subclasses** per class fantasy (Knight heavy armor bias, Rogue light weapon bias).
 3. Add true enchantment effects (not just flavor text) via affix hooks.
 4. Re-enable full automated playtest with tuned turn budget after combat-cost optimization.
+
+## Headed Stability Check — Blank Game Screen Investigation (2026-02-10)
+
+User-reported issue:
+- Intermittent blank game screen on open/start.
+
+### Repro protocol run
+- Performed repeated headed open -> game loads on deployed URL with varying class/race/seed combinations.
+- Observed intermittent startup states where HUD showed placeholder values (`Objective: Initialize run...`, floor/HP `-`) before scene/event hookup completed.
+- Did not observe persistent hard-crash console errors during sampled runs; behavior aligned with renderer/bootstrap race/timing.
+
+### Fixes shipped
+1. **GameMount bootstrap hardening**
+   - Added cancellation-safe scene retry loop.
+   - Removed brittle fixed-stop behavior.
+   - Retry continues until scene is ready (with warning logs at 4s/10s).
+2. **User-facing fallback/recovery**
+   - Added in-canvas fallback banner when snapshot isn’t ready.
+   - Added one-click Retry action (reload).
+   - Tuned fallback to appear after delay (~1.6s) to avoid normal-load flicker.
+3. **Regression coverage**
+   - Extended `scripts/smoke-ui.mjs` with checks for fallback state, delayed trigger, and retry UI wiring.
+
+### Validation
+- `npm run test:all` ✅ (`UI smoke checks passed (64 checks, 1 guard)`)
+- `npm run build` ✅
+
+### Current status
+- Startup path is more resilient and now has an explicit player-visible recovery mechanism for rare initialization stalls.
