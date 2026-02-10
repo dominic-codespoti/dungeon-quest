@@ -77,6 +77,7 @@ const checks = [
   ["sidebar stat: danger label", "Danger"],
   ["sidebar stat: pace label", "Pace"],
   ["sidebar stat: streak to loot", "Streak→Loot"],
+  ["sidebar stat: score multiplier", "Score x"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["inventory quick auto-equip button", "Auto Equip"],
   ["inventory quick unequip-all button", "Unequip All"],
