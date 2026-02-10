@@ -208,6 +208,7 @@ export class Engine{
     const potionCount = this.floorModifier==='scarce-potions' ? 0 : this.floor>=4 ? 2 : 1
     for(let i=0;i<potionCount;i++) this.spawnItem(`i${this.floor}-p${i+1}`,'potion')
     this.spawnItem(`i${this.floor}-r1`,'relic')
+    this.spawnItem(`i${this.floor}-merchant`,'merchant')
     if(this.floorModifier==='scarce-potions') this.spawnItem(`i${this.floor}-cache1`,'chest')
 
     // Item variety pass: utility + risk/reward pickups.
@@ -312,9 +313,19 @@ export class Engine{
     this.emit({tick:this.tick,type:'shop_refreshed',payload:{offers:this.shopOffers,rerollCost:this.currentShopRerollCost(),spiritDryFloors:this.spiritDryFloors,pityReady}})
   }
 
+  private isMerchantNearby(range=1){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return false
+    return this.entities.some(e=> e.type==='item' && e.kind==='merchant' && (Math.abs(e.pos.x-player.pos.x)+Math.abs(e.pos.y-player.pos.y))<=range)
+  }
+
   buyShopOffer(index:number){
     const offer = this.shopOffers[index]
     if(!offer) return this.getState()
+    if(!this.isMerchantNearby(1)){
+      this.emit({tick:this.tick,type:'shop_buy_blocked',payload:{reason:'merchant_far'}})
+      return this.getState()
+    }
     if(this.essence < offer.cost){
       this.emit({tick:this.tick,type:'shop_buy_blocked',payload:{reason:'essence_low',cost:offer.cost,essence:this.essence}})
       return this.getState()
@@ -335,6 +346,10 @@ export class Engine{
 
   rerollShopOffers(){
     const cost = this.currentShopRerollCost()
+    if(!this.isMerchantNearby(1)){
+      this.emit({tick:this.tick,type:'shop_reroll_blocked',payload:{reason:'merchant_far'}})
+      return this.getState()
+    }
     if(this.essence < cost){
       this.emit({tick:this.tick,type:'shop_reroll_blocked',payload:{reason:'essence_low',cost,essence:this.essence}})
       return this.getState()
@@ -662,9 +677,10 @@ export class Engine{
     monsters.slice(0,3).forEach((m,i)=> this.tryRepositionMonster(m, tri[i]!, 4))
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'|'essence'|'spirit-implant'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'|'essence'|'spirit-implant'|'merchant'){
     const loot = kind==='gear' ? this.generateGear() : undefined
-    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
+    const minPlayerDistance = kind==='stairs' ? 6 : kind==='merchant' ? 8 : 3
+    this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(minPlayerDistance), ...(loot ? {loot} : {})})
   }
 
   private hasLineOfSight(from:Coord, to:Coord){
@@ -1222,6 +1238,8 @@ export class Engine{
           this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
         }
         this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='merchant'){
+        this.emit({tick:this.tick,type:'merchant_contact',payload:{floor:this.floor,shopOffers:this.shopOffers.length,rerollCost:this.currentShopRerollCost()}})
       } else if(item.kind==='stairs'){
         const bossAlive = this.entities.some(e=>e.type==='monster' && e.kind==='boss')
         if(bossAlive){

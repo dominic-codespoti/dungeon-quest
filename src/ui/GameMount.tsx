@@ -137,6 +137,7 @@ export default function GameMount(){
             if(ent.kind==='rift-orb') return TEX_KEYS.relic
             if(ent.kind==='essence') return TEX_KEYS.potion
             if(ent.kind==='spirit-implant') return TEX_KEYS.idol
+            if(ent.kind==='merchant') return TEX_KEYS.relic
             if(ent.kind==='cursed-idol') return TEX_KEYS.idol
             if(ent.kind==='gear') return TEX_KEYS.gear
             return TEX_KEYS.relic
@@ -387,6 +388,7 @@ export default function GameMount(){
               if(ent.kind==='rift-orb') d.setTint(0xc27dff)
               if(ent.kind==='essence') d.setTint(0x9de6ff)
               if(ent.kind==='spirit-implant') d.setTint(0xd5a3ff)
+              if(ent.kind==='merchant') d.setTint(0xffd36b)
 
               const isEnemy = ent.type==='monster'
               const hasHp = Number.isFinite(ent.hp) && Number.isFinite(ent.maxHp) && ent.maxHp>0
@@ -581,6 +583,7 @@ export default function GameMount(){
               if(ent.kind==='rift-orb') s.setTint(0xc27dff)
               if(ent.kind==='essence') s.setTint(0x9de6ff)
               if(ent.kind==='spirit-implant') s.setTint(0xd5a3ff)
+              if(ent.kind==='merchant') s.setTint(0xffd36b)
               if(ent.type==='monster'){
                 s.setInteractive({cursor:'pointer'})
                 s.on('pointerover', ()=>{

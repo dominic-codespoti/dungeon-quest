@@ -275,9 +275,10 @@ export default function App(){
       if(e.type==='spirit_core_unequipped') setStatus(`Spirit unequipped: ${e.payload?.spirit || 'core'}.`)
       if(e.type==='spirit_equip_blocked') setStatus(e.payload?.reason==='major_slots_full' ? 'Major spirit slots full.' : 'Minor spirit slots full.')
       if(e.type==='shop_purchase') setStatus(`Shop: bought ${e.payload?.name || 'offer'} (cost ${e.payload?.cost || 0}).`)
-      if(e.type==='shop_buy_blocked') setStatus(`Shop: need ${e.payload?.cost || 0} essence (have ${e.payload?.essence || 0}).`)
+      if(e.type==='shop_buy_blocked') setStatus(e.payload?.reason==='merchant_far' ? 'Move next to the Merchant to buy.' : `Shop: need ${e.payload?.cost || 0} essence (have ${e.payload?.essence || 0}).`)
       if(e.type==='shop_rerolled') setStatus(`Shop rerolled (cost ${e.payload?.cost || 0}, rerolls ${e.payload?.rerolls || 0}).`)
-      if(e.type==='shop_reroll_blocked') setStatus(`Shop reroll needs ${e.payload?.cost || 0} essence.`)
+      if(e.type==='shop_reroll_blocked') setStatus(e.payload?.reason==='merchant_far' ? 'Move next to the Merchant to reroll offers.' : `Shop reroll needs ${e.payload?.cost || 0} essence.`)
+      if(e.type==='merchant_contact') setStatus(`Merchant: ${e.payload?.shopOffers ?? 0} offers available. Reroll cost ${e.payload?.rerollCost ?? '?'}.`)
       if(e.type==='spirit_pity_offer') setStatus(`Spirit pity offer available: ${e.payload?.core || 'core'} at ${e.payload?.cost || '?'} essence.`)
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
@@ -461,6 +462,12 @@ export default function App(){
   const stairsVisible = useMemo(()=>{
     if(!snapshot) return '-'
     return snapshot.entities.some(e=>e.type==='item' && e.kind==='stairs') ? 'Yes' : 'No'
+  }, [snapshot])
+  const merchantNearby = useMemo(()=>{
+    if(!snapshot) return false
+    const p = snapshot.entities.find(e=>e.id==='p')?.pos
+    if(!p) return false
+    return snapshot.entities.some(e=> e.type==='item' && e.kind==='merchant' && e.pos && (Math.abs(e.pos.x-p.x)+Math.abs(e.pos.y-p.y))<=1)
   }, [snapshot])
   const rangedVisible = useMemo(()=>{
     if(!snapshot) return '-'
@@ -971,6 +978,7 @@ export default function App(){
             <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
             <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
+            <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>
             <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>
             <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>
             <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
@@ -1084,22 +1092,24 @@ export default function App(){
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}>Essence Shop {((snapshot?.spiritDryFloors ?? 0)>=2) ? '• Pity Ready' : ''}</h3>
-            <button style={{fontSize:11}} onClick={()=> (window as any).game?.rerollShopOffers?.()}>Reroll ({snapshot?.shopRerollCost ?? 20})</button>
+            <h3 style={{margin:0}}>Merchant {((snapshot?.spiritDryFloors ?? 0)>=2) ? '• Pity Ready' : ''}</h3>
+            <button disabled={!merchantNearby} style={{fontSize:11,opacity:merchantNearby?1:0.65}} onClick={()=> (window as any).game?.rerollShopOffers?.()}>Reroll ({snapshot?.shopRerollCost ?? 20})</button>
           </div>
+          {!merchantNearby && <div style={{fontSize:11,opacity:0.75,margin:'4px 0'}}>Find and stand next to the Merchant to access essence offers.</div>}
           <div className='dq-equip-list'>
             {(snapshot?.shopOffers || []).length===0 && <div style={{opacity:0.7}}>No offers. Try rerolling.</div>}
             {(snapshot?.shopOffers || []).map((o,idx)=>{
               const afford = (snapshot?.essence ?? 0) >= (o.cost || 0)
+              const canBuy = merchantNearby && afford
               return (
-                <div className='dq-item' key={o.id} style={{opacity: afford ? 1 : 0.72}}>
+                <div className='dq-item' key={o.id} style={{opacity: canBuy ? 1 : 0.72}}>
                   <div className='name'>{o.name}</div>
                   <div className='meta'>{o.kind} · cost {o.cost}</div>
                   {o.kind==='essence-pack' && <div>Gain +{o.essenceAmount || 0} essence</div>}
                   {o.kind==='spirit-core' && <div>Core: {o.core?.spirit || 'Unknown'} · {o.core?.tier || 'minor'} · {o.core?.modifier || 'pure'}</div>}
                   {o.kind==='spirit-core' && <div className='meta'>ATK+{o.core?.bonuses?.atk||0} DEF+{o.core?.bonuses?.def||0} HP+{o.core?.bonuses?.hp||0} DEX+{o.core?.bonuses?.dex||0}</div>}
                   {o.kind==='spirit-core' && <div className='meta'>{o.core?.note || ''}</div>}
-                  <button disabled={!afford} style={{marginTop:4,fontSize:11,opacity:afford?1:0.6}} onClick={()=> (window as any).game?.buyShopOffer?.(idx)}>{afford ? 'Buy' : 'Need Essence'}</button>
+                  <button disabled={!canBuy} style={{marginTop:4,fontSize:11,opacity:canBuy?1:0.6}} onClick={()=> (window as any).game?.buyShopOffer?.(idx)}>{!merchantNearby ? 'Need Merchant' : afford ? 'Buy' : 'Need Essence'}</button>
                 </div>
               )
             })}
