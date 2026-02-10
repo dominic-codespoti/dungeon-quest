@@ -99,6 +99,7 @@ export default function GameMount(){
           let playerHalo: any
           let visionDebugText: any
           let forcedVisionRecoveries = 0
+          let forcedSceneRebuilds = 0
           let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -343,10 +344,16 @@ export default function GameMount(){
               for(const k of floorKeys){ if((floorDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
               for(const k of wallKeys){ if((wallDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
               const dimRatio = dim / totalTiles
-              if(dimRatio > 0.92 && forcedVisionRecoveries < 3){
+              if(dimRatio > 0.92 && forcedSceneRebuilds < 2){
+                forcedSceneRebuilds++
+                console.warn('[GameMount] forced scene rebuild', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedSceneRebuilds})
+                rebuildMapAndEntities(state)
+                return
+              }
+              if(dimRatio > 0.92 && forcedVisionRecoveries < 4){
                 forcedVisionRecoveries++
-                for(const k of floorKeys){ floorDisplays[k].setAlpha(Math.max(0.24, floorDisplays[k]?.alpha ?? 0)) }
-                for(const k of wallKeys){ wallDisplays[k].setAlpha(Math.max(0.2, wallDisplays[k]?.alpha ?? 0)) }
+                for(const k of floorKeys){ floorDisplays[k].setAlpha(Math.max(0.28, floorDisplays[k]?.alpha ?? 0)) }
+                for(const k of wallKeys){ wallDisplays[k].setAlpha(Math.max(0.24, wallDisplays[k]?.alpha ?? 0)) }
                 console.warn('[GameMount] forced vision recovery', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedVisionRecoveries})
               }
             }
