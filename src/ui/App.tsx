@@ -148,6 +148,7 @@ export default function App(){
   const [showMeta,setShowMeta] = useState(false)
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
   const [showInventoryPanel,setShowInventoryPanel] = useState(false)
+  const [showThreatIntel,setShowThreatIntel] = useState(false)
 
   const closeMenuModals = ()=>{
     setShowPatchNotes(false)
@@ -859,30 +860,38 @@ export default function App(){
             {nearby.monsters > 0 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: adjacent threat — consider Guard/Backstep before trading hits.</div>}
           </div>
 
-          {showAdvancedHud && <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>}
-          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
-          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
-          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
-          {showAdvancedHud && <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>}
-          {showAdvancedHud && nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
-          {showAdvancedHud && isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
-          {showAdvancedHud && (snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
           <div style={{margin:'4px 0 6px'}}>
             <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
               <div style={{height:'100%', width:`${Math.min(100, ((snapshot?.floor ?? 1)/10)*100)}%`, background:'#6ca2ff', borderRadius:999}} />
             </div>
           </div>
-          <div style={{marginTop:4}}>
-            <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
-              <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
-            </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:4}}>
+            <div style={{fontSize:11,opacity:0.8}}>Threat Intel</div>
+            <button onClick={()=>setShowThreatIntel(v=>!v)} style={{fontSize:11}}>{showThreatIntel ? 'Hide' : 'Show'}</button>
           </div>
-          {showAdvancedHud && <div style={{fontSize:12,color:'#9bb7e8'}}>
-            Visible threats: {visibleThreats.total} (Boss {visibleThreats.boss} · Spitter {visibleThreats.spitter} · Sentinel {visibleThreats.sentinel} · Other {visibleThreats.other})
-          </div>}
-          {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
-          {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
+          {showThreatIntel && (
+            <>
+              <div style={{marginTop:4}}>
+                <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
+                  <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
+                </div>
+              </div>
+              {showAdvancedHud && <div style={{fontSize:12,color:'#9bb7e8'}}>
+                Visible threats: {visibleThreats.total} (Boss {visibleThreats.boss} · Spitter {visibleThreats.spitter} · Sentinel {visibleThreats.sentinel} · Other {visibleThreats.other})
+              </div>}
+              {showAdvancedHud && <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>}
+              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
+              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
+              {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
+              {showAdvancedHud && <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>}
+              {showAdvancedHud && nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
+              {showAdvancedHud && isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
+              {showAdvancedHud && (snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
+              {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
+              {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
+            </>
+          )}
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={shieldIcon}/>DEF+ {snapshot?.defenseBonus ?? 0}</div>
           <div style={{fontSize:12}}><I src={bootsIcon}/>Dash CD: {snapshot?.dashCooldown ?? 0}</div>
