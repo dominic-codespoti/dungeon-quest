@@ -138,6 +138,7 @@ const checks = [
   ["inventory per-item unequip button", "Unequip"],
   ["inventory delta compare label", "Δ vs equipped:"],
   ["skills section header", "<I src={bootsIcon}/>Hotbar"],
+  ["hotbar row uses cohesive class", "className='dq-skillrow dq-hotbar'"],
   ["hotbar explanatory hint", "Combat skills live here; inventory/loadout sits directly below for quick tactical swaps."],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],

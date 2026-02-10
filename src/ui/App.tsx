@@ -1013,7 +1013,7 @@ export default function App(){
             <h3 style={{margin:0}}><I src={bootsIcon}/>Hotbar</h3>
           </div>
           <div style={{fontSize:11,opacity:0.72,margin:'-2px 0 6px'}}>Combat skills live here; inventory/loadout sits directly below for quick tactical swaps.</div>
-          <div className='dq-skillrow'>
+          <div className='dq-skillrow dq-hotbar'>
             {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}</button>}
             {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}</button>}
             {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard ({snapshot?.guardCooldown ?? 0})</button>}

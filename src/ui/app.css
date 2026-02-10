@@ -63,6 +63,14 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
 .dq-stat b { display:block; font-size: 15px; margin-top: 2px; }
 
 .dq-class, .dq-controls, .dq-skillrow { display:flex; flex-wrap:wrap; gap:6px; }
+.dq-hotbar { margin-bottom: 2px; }
+.dq-hotbar button {
+  min-width: 108px;
+  justify-content: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 button {
   background: #22345f;
   color: #eef2ff;
