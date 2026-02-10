@@ -34,7 +34,11 @@ export class Engine{
   shopRerolls = 0
   shopOpen = false
   spiritDryFloors = 0
+  spiritPityThreshold = 3
+  shopSpiritPityThreshold = 2
   spiritCoreAcquiredThisFloor = false
+  lastSpiritDropFloor = 0
+  lastSpiritDropSpirit: string | null = null
   lastSpiritEquipBlockedReason: string | null = null
   visible = new Set<string>()
   discovered = new Set<string>()
@@ -126,6 +130,8 @@ export class Engine{
       this.shopRerolls = 0
       this.spiritDryFloors = 0
       this.spiritCoreAcquiredThisFloor = false
+      this.lastSpiritDropFloor = 0
+      this.lastSpiritDropSpirit = null
       this.lastSpiritEquipBlockedReason = null
       this.discovered.clear()
       this.applyRaceBonuses()
@@ -230,6 +236,18 @@ export class Engine{
     if(!initial){
       this.spiritDryFloors = this.spiritCoreAcquiredThisFloor ? 0 : (this.spiritDryFloors + 1)
       this.spiritCoreAcquiredThisFloor = false
+
+      // Pity safety net: after several dry floors, guarantee a floor-drop spirit core.
+      if(this.spiritDryFloors >= this.spiritPityThreshold){
+        const pityCore = this.spiritCoreFromEnemy('chaser')
+        pityCore.modifier = 'pure'
+        const pityId = `i${this.floor}-pity-spirit-${this.tick}`
+        const pityPos = this.spawnNearPlayerPos(2, 6)
+        this.entities.push({id:pityId,type:'item',kind:'spirit-implant',pos:pityPos,spiritLoot:pityCore})
+        this.emit({tick:this.tick,type:'spirit_pity_spawned',payload:{dryFloors:this.spiritDryFloors,core:pityCore.spirit,modifier:pityCore.modifier,pos:pityPos}})
+        // Avoid repeated guaranteed drops every floor after trigger; rebuild drought counter from here.
+        this.spiritDryFloors = 0
+      }
     }
     this.shopRerolls = 0
     this.refreshShopOffers()
@@ -299,7 +317,7 @@ export class Engine{
     offers.push({id:`offer-ess-s-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Essence Cache (+${essenceLow})`, kind:'essence-pack', cost:16 + this.floor*2, essenceAmount:essenceLow})
     offers.push({id:`offer-ess-l-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Greater Essence (+${essenceHigh})`, kind:'essence-pack', cost:28 + this.floor*3, essenceAmount:essenceHigh})
 
-    const pityReady = this.spiritDryFloors >= 2
+    const pityReady = this.spiritDryFloors >= this.shopSpiritPityThreshold
     const coreChance = pityReady ? 1 : 0.45
     if(this.rand() < coreChance){
       const shopKind = this.rand() < 0.5 ? 'chaser' : this.rand() < 0.7 ? 'brute' : this.rand() < 0.85 ? 'spitter' : this.rand() < 0.95 ? 'sentinel' : 'boss'
@@ -430,7 +448,27 @@ export class Engine{
     const boss = dead.kind==='boss'
     const spiritChance = boss ? 1 : 0.18
     if(this.rand() < spiritChance){
-      this.entities.push({id:`i${this.floor}-spirit-${this.tick}-${dead.id}`,type:'item',kind:'spirit-implant',pos,spiritLoot:this.spiritCoreFromEnemy(dead.kind)})
+      let core = this.spiritCoreFromEnemy(dead.kind)
+      const repeatedAcrossFloors = this.lastSpiritDropFloor===this.floor-1 && this.lastSpiritDropSpirit===core.spirit
+      if(repeatedAcrossFloors){
+        const previousSpirit = this.lastSpiritDropSpirit
+        const rerollKinds: Array<'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss'> = ['chaser','brute','skitter','spitter','sentinel']
+        if(boss) rerollKinds.push('boss')
+        for(let i=0;i<4;i++){
+          const k = rerollKinds[Math.floor(this.rand()*rerollKinds.length)] || 'chaser'
+          const candidate = this.spiritCoreFromEnemy(k)
+          if(candidate.spirit!==this.lastSpiritDropSpirit){
+            core = candidate
+            break
+          }
+        }
+        if(core.spirit!==previousSpirit){
+          this.emit({tick:this.tick,type:'spirit_drop_rerolled',payload:{from:previousSpirit,to:core.spirit,floor:this.floor}})
+        }
+      }
+      this.entities.push({id:`i${this.floor}-spirit-${this.tick}-${dead.id}`,type:'item',kind:'spirit-implant',pos,spiritLoot:core})
+      this.lastSpiritDropFloor = this.floor
+      this.lastSpiritDropSpirit = core.spirit
     }
     const essenceDrop = boss ? 18 : dead.kind==='sentinel' ? 8 : dead.kind==='brute' ? 6 : 4
     this.entities.push({id:`i${this.floor}-ess-${this.tick}-${dead.id}`,type:'item',kind:'essence',pos,essenceAmount:essenceDrop})
@@ -580,6 +618,27 @@ export class Engine{
       if(!occupied && !nearPlayer && !this.isWall(pos) && reachable) return pos
     }
     return {x:Math.floor(this.width/2)+1,y:Math.floor(this.height/2)}
+  }
+
+  private spawnNearPlayerPos(minDist=2,maxDist=6){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.spawnFreePos(2)
+
+    let tries = 0
+    while(tries < 400){
+      tries++
+      const dx = Math.floor(this.rand()*(maxDist*2+1)) - maxDist
+      const dy = Math.floor(this.rand()*(maxDist*2+1)) - maxDist
+      const dist = Math.abs(dx) + Math.abs(dy)
+      if(dist < minDist || dist > maxDist) continue
+      const pos = {x:player.pos.x + dx, y:player.pos.y + dy}
+      if(pos.x<=0 || pos.y<=0 || pos.x>=this.width-1 || pos.y>=this.height-1) continue
+      if(this.isWall(pos) || this.isOccupiedByEntity(pos)) continue
+      if(!this.hasPath(player.pos, pos)) continue
+      return pos
+    }
+
+    return this.spawnFreePos(2)
   }
 
   private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss',hp:number,minPlayerDistance=5){
@@ -785,6 +844,8 @@ export class Engine{
       shopRerollCost:this.currentShopRerollCost(),
       shopOpen:this.shopOpen,
       spiritDryFloors:this.spiritDryFloors,
+      spiritPityThreshold:this.spiritPityThreshold,
+      shopSpiritPityThreshold:this.shopSpiritPityThreshold,
       lastSpiritEquipBlockedReason:this.lastSpiritEquipBlockedReason,
       dashCooldown:this.dashCooldown,
       backstepCooldown:this.backstepCooldown,
@@ -965,7 +1026,8 @@ export class Engine{
     const monstersLeft = this.entities.filter(e=>e.type==='monster').length
     const hasStairs = this.entities.some(e=>e.type==='item' && e.kind==='stairs')
     if(monstersLeft===0 && !hasStairs){
-      this.spawnItem(`i${this.floor}-stairs`,'stairs')
+      const stairPos = this.spawnNearPlayerPos(2, 6)
+      this.entities.push({id:`i${this.floor}-stairs`,type:'item',kind:'stairs',pos:stairPos})
       if(this.floor >= 2){
         this.spawnItem(`i${this.floor}-clear-reward-${this.tick}`,'chest')
         if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')
@@ -1412,7 +1474,7 @@ export class Engine{
           return
         }
         if(distance===1 && this.bossCharged.has(m.id)){
-          let slam = Math.max(0, 5 - this.defenseBonus)
+          let slam = Math.max(1, 5 - this.defenseBonus)
           if(this.guardActive){ slam = Math.max(0, slam-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - slam
           this.bossCharged.delete(m.id)
@@ -1438,7 +1500,7 @@ export class Engine{
             return
           }
           const spitBase = this.floorModifier==='ambush' ? 2 : 1
-          let spit = Math.max(0, spitBase - this.defenseBonus)
+          let spit = Math.max(1, spitBase - this.defenseBonus)
           if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - spit
           ambushRangedHitsThisTurn++
@@ -1460,7 +1522,7 @@ export class Engine{
             return
           }
           const zapBase = this.floorModifier==='ambush' ? 2 : 1
-          let zap = Math.max(0, zapBase - this.defenseBonus)
+          let zap = Math.max(1, zapBase - this.defenseBonus)
           if(this.guardActive){ zap = Math.max(0, zap-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - zap
           ambushRangedHitsThisTurn++
@@ -1472,7 +1534,7 @@ export class Engine{
       if(kind==='brute' && distance===2 && (dx===0 || dy===0)){
         const step = {x:m.pos.x + Math.sign(dx), y:m.pos.y + Math.sign(dy)}
         if(tryMoveMonster(m, step, 'lunge')){
-          let crash = Math.max(0, 2 - this.defenseBonus)
+          let crash = Math.max(1, 2 - this.defenseBonus)
           if(this.guardActive){ crash = Math.max(0, crash-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - crash
           this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:crash,kind,via:'lunge'}})
@@ -1482,7 +1544,7 @@ export class Engine{
 
       if(distance===1){
         let dmg = kind==='boss' ? 3 : kind==='sentinel' ? 2 : kind==='brute' ? 2 : 1
-        dmg = Math.max(0, dmg - this.defenseBonus)
+        dmg = Math.max(1, dmg - this.defenseBonus)
         if(this.guardActive){ dmg = Math.max(0, dmg-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
         player.hp = (player.hp||0) - dmg
         this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:dmg,kind}})

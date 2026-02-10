@@ -79,6 +79,8 @@ export type GameSnapshot = {
   shopRerollCost: number
   shopOpen: boolean
   spiritDryFloors: number
+  spiritPityThreshold: number
+  shopSpiritPityThreshold: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown: number
   backstepCooldown: number

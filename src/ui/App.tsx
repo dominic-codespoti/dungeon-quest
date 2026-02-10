@@ -32,6 +32,8 @@ type Snapshot = {
   shopRerollCost?: number
   shopOpen?: boolean
   spiritDryFloors?: number
+  spiritPityThreshold?: number
+  shopSpiritPityThreshold?: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown:number
   backstepCooldown:number
@@ -207,14 +209,15 @@ export default function App(){
   const seenEnemyIds = useRef<Set<string>>(new Set())
   const knownEnemyKinds = useRef<Record<string,string>>({})
   const lastUnderfootItemId = useRef<string>('')
+  const hadVisibleStairs = useRef<boolean>(false)
 
   const appendActionLog = (msg:string, tick?:number)=>{
     const text = String(msg || '').trim()
     if(!text) return
-    const stamped = Number(tick||0) > 0 ? `[t${tick}] ${text}` : text
+    void tick
     setActionLog(prev=>{
-      if(prev[0]===stamped) return prev
-      return [stamped, ...prev].slice(0, 14)
+      if(prev[0]===text) return prev
+      return [text, ...prev].slice(0, 14)
     })
   }
 
@@ -246,7 +249,7 @@ export default function App(){
     if(t==='move') return ''
     if(t==='init' || t==='status' || t==='floor_brief' || t==='shop_refreshed') return ''
     if(t==='bump') return p?.reason==='wall' ? 'You bump into a wall.' : 'You cannot squeeze through that corner.'
-    if(t==='item_here') return `There is *${itemLabel(p?.kind)}* here.`
+    if(t==='item_here') return p?.kind==='stairs' ? 'You stand at the **stairs** — press **E** to descend.' : `There is *${itemLabel(p?.kind)}* here.`
     if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`
     if(t==='combat' && p?.target==='p') return `**${enemyNameFromId(String(p?.attacker || 'enemy'))}** hits you for ${p?.damage ?? '?'} damage.`
     if(t==='pickup') return `You pick up *${itemLabel(p?.kind)}*.`
@@ -254,6 +257,11 @@ export default function App(){
     if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
     if(t==='shop_purchase') return `You buy *${p?.name || 'an offer'}*.`
     if(t==='shop_rerolled') return 'The Merchant reshuffles their stock.'
+    if(t==='spirit_pity_spawned'){
+      const at = p?.pos ? ` (${p.pos.x},${p.pos.y})` : ''
+      return `A stabilizing whisper answers your drought: a **pure spirit core** manifests nearby${at}.`
+    }
+    if(t==='spirit_drop_rerolled') return `The weave resists repetition: spirit drop rerolled from *${p?.from || 'prior'}* to *${p?.to || 'new'}*.`
     if(t==='dash_used') return 'You burst forward in a quick dash.'
     if(t==='backstep_used') return 'You slip back to safer footing.'
     if(t==='guard_used') return 'You brace behind your guard.'
@@ -367,6 +375,8 @@ export default function App(){
       if(e.type==='shop_reroll_blocked') setStatus(e.payload?.reason==='merchant_far' ? 'Move next to the Merchant to reroll offers.' : `Shop reroll needs ${e.payload?.cost || 0} essence.`)
       if(e.type==='merchant_contact') setStatus(`Merchant: ${e.payload?.shopOffers ?? 0} offers available. Reroll cost ${e.payload?.rerollCost ?? '?'}.`)
       if(e.type==='spirit_pity_offer') setStatus(`Spirit pity offer available: ${e.payload?.core || 'core'} at ${e.payload?.cost || '?'} essence.`)
+      if(e.type==='spirit_pity_spawned') setStatus(`Spirit pity triggered: ${e.payload?.core || 'core'} (${e.payload?.modifier || 'pure'}) spawned${e.payload?.pos ? ` at (${e.payload.pos.x},${e.payload.pos.y})` : ' nearby'}.`)
+      if(e.type==='spirit_drop_rerolled') setStatus(`Spirit drop rerolled to avoid repeat: ${e.payload?.from || 'prior'} → ${e.payload?.to || 'new'}.`)
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
@@ -545,6 +555,13 @@ export default function App(){
   },[snapshot])
 
   const playerHp = useMemo(()=> snapshot?.entities.find(e=>e.id==='p')?.hp ?? '-', [snapshot])
+  const hpNow = typeof playerHp==='number' ? playerHp : Number(playerHp)
+  const hpMax = Number(snapshot?.maxHp ?? 0)
+  const lowHpWarning = hpMax>0 && Number.isFinite(hpNow)
+    ? (hpNow <= Math.max(2, Math.floor(hpMax*0.25)) ? 'CRITICAL HP — heal or disengage.'
+      : hpNow <= Math.max(4, Math.floor(hpMax*0.4)) ? 'Low HP — play safe.'
+      : '')
+    : ''
   const monstersLeft = useMemo(()=>{
     if(!snapshot) return '-'
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
@@ -558,6 +575,21 @@ export default function App(){
     if(!snapshot) return '-'
     return snapshot.entities.some(e=>e.type==='item' && e.kind==='stairs') ? 'Yes' : 'No'
   }, [snapshot])
+  const stairsTracker = useMemo(()=>{
+    if(!snapshot) return '-'
+    const player = snapshot.entities.find(e=>e.id==='p' && e.pos)?.pos
+    const stairs = snapshot.entities.find(e=>e.type==='item' && e.kind==='stairs' && e.pos)?.pos
+    if(!player || !stairs) return '—'
+
+    const dx = stairs.x - player.x
+    const dy = stairs.y - player.y
+    const dist = Math.abs(dx) + Math.abs(dy)
+
+    const h = dx===0 ? '' : (dx>0 ? 'E' : 'W')
+    const v = dy===0 ? '' : (dy>0 ? 'S' : 'N')
+    const dir = `${v}${h}` || 'HERE'
+    return `${dist} (${dir})`
+  }, [snapshot])
   const merchantNearby = useMemo(()=>{
     if(!snapshot) return false
     const p = snapshot.entities.find(e=>e.id==='p')?.pos
@@ -565,6 +597,20 @@ export default function App(){
     return snapshot.entities.some(e=> e.type==='item' && e.kind==='merchant' && e.pos && (Math.abs(e.pos.x-p.x)+Math.abs(e.pos.y-p.y))<=1)
   }, [snapshot])
   const shopOpen = Boolean(snapshot?.shopOpen)
+  const spiritDryFloors = snapshot?.spiritDryFloors ?? 0
+  const shopSpiritPityThreshold = snapshot?.shopSpiritPityThreshold ?? 2
+  const floorSpiritPityThreshold = snapshot?.spiritPityThreshold ?? 3
+  const shopPityReady = spiritDryFloors >= shopSpiritPityThreshold
+  const floorDropPityReady = spiritDryFloors >= floorSpiritPityThreshold
+
+  useEffect(()=>{
+    if(!snapshot) return
+    const visibleNow = stairsVisible==='Yes'
+    if(visibleNow && !hadVisibleStairs.current){
+      setStatus(`Stairs located: ${stairsTracker}. Descend when ready.`)
+    }
+    hadVisibleStairs.current = visibleNow
+  }, [snapshot, stairsVisible, stairsTracker])
 
   useEffect(()=>{
     if(!snapshot) return
@@ -672,11 +718,19 @@ export default function App(){
     const turns = mod===0 ? 3 : (3 - mod)
     return String(turns)
   }, [snapshot, bossAlive])
+  const playerPos = snapshot?.entities.find(e=>e.id==='p' && e.pos)?.pos
+  const stairsPos = snapshot?.entities.find(e=>e.type==='item' && e.kind==='stairs' && e.pos)?.pos
+  const standingOnStairs = Boolean(playerPos && stairsPos && playerPos.x===stairsPos.x && playerPos.y===stairsPos.y)
+
   const objectiveText = snapshot
-    ? (isBossFloor && bossAlive
-      ? 'Defeat the boss to unseal stairs.'
-      : 'Clear threats, collect power, and keep descending.')
-    : 'Initialize run...'
+    ? (standingOnStairs
+      ? 'Objective: press E to descend stairs.'
+      : stairsVisible==='Yes'
+      ? `Objective: reach stairs (${stairsTracker}).`
+      : isBossFloor && bossAlive
+      ? `Objective: defeat the boss to unseal stairs (${enemiesRemaining} enemies left).`
+      : `Objective: clear threats (${enemiesRemaining} enemies left).`)
+    : 'Objective: initialize run...'
 
   const visibleThreats = useMemo(()=>{
     if(!snapshot) return {total:0,boss:0,spitter:0,sentinel:0,other:0}
@@ -1110,12 +1164,15 @@ export default function App(){
 
         <aside className='dq-side'>
           <div className='dq-stats'>
+            <div className='dq-stat' style={{gridColumn:'1 / -1'}}><span style={{opacity:0.8}}>Run</span><b style={{textAlign:'right'}}>{objectiveText}</b></div>
+            {lowHpWarning && <div className='dq-stat' style={{gridColumn:'1 / -1'}}><span style={{opacity:0.8}}>Warning</span><b style={{textAlign:'right', color:'#ff7a7a'}}>{lowHpWarning}</b></div>}
             <div className='dq-stat'>Name<b>{displayName}</b></div>
             <div className='dq-stat'>Level<b>{snapshot?.floor ?? '-'}</b></div>
             <div className='dq-stat'>Health<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Mana<b>{manaNow} / {manaMax}</b></div>
-            {showAdvancedHud && <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>}
-            {showAdvancedHud && <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>}
+            <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
+            <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
+            {stairsVisible==='Yes' && <div className='dq-stat'>Stairs Dir<b>{stairsTracker}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>}
@@ -1302,11 +1359,14 @@ export default function App(){
           </div>
 
           <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}>Merchant {((snapshot?.spiritDryFloors ?? 0)>=2) ? '• Pity Ready' : ''}</h3>
+            <h3 style={{margin:0}}>Merchant {shopPityReady ? '• Shop Pity Ready' : ''}</h3>
             <div style={{display:'flex',gap:6}}>
               <button disabled={!merchantNearby} style={{fontSize:11,opacity:merchantNearby?1:0.65}} onClick={()=>(window as any).game?.step?.({type:'interact'})}>Talk (E)</button>
               {shopOpen && <button style={{fontSize:11}} onClick={()=> (window as any).game?.closeShop?.()}>Close</button>}
             </div>
+          </div>
+          <div style={{fontSize:11,opacity:0.75,margin:'4px 0'}}>
+            Spirit drought: {spiritDryFloors} floor(s) · shop pity [{shopSpiritPityThreshold}] {shopPityReady ? 'ready now' : `in ${Math.max(0, shopSpiritPityThreshold - spiritDryFloors)}`} · floor-drop pity [{floorSpiritPityThreshold}] {floorDropPityReady ? 'ready now' : `in ${Math.max(0, floorSpiritPityThreshold - spiritDryFloors)}`}
           </div>
           {!merchantNearby && <div style={{fontSize:11,opacity:0.75,margin:'4px 0'}}>Find and stand next to the Merchant to access essence offers.</div>}
           {merchantNearby && !shopOpen && <div style={{fontSize:11,opacity:0.75,margin:'4px 0'}}>Stand beside Merchant and press E (or Talk) to open offers.</div>}
@@ -1356,15 +1416,14 @@ export default function App(){
               <div><b>Hotbar pips:</b> number shows cooldown/ready hint</div>
             </div>
           )}
+          <div className='dq-footer'>
+            <span>{displayName}</span>
+            <span>Seed {seed ?? '-'}</span>
+            <span>Floor {snapshot?.floor ?? '-'}</span>
+            <span>Inv {inventoryCount}</span>
+            <span>Score {snapshot?.score ?? '-'}</span>
+          </div>
         </aside>
-
-        <div className='dq-footer'>
-          <span>{displayName}</span>
-          <span>Seed {seed ?? '-'}</span>
-          <span>Floor {snapshot?.floor ?? '-'}</span>
-          <span>Inv {inventoryCount}</span>
-          <span>Score {snapshot?.score ?? '-'}</span>
-        </div>
       </div>
 
       {showHelp && (

@@ -145,6 +145,22 @@ export default function GameMount(){
             return TEX_KEYS.relic
           }
 
+          const entityDepth = (ent:any)=>{
+            const row = Number(ent?.pos?.y || 0)
+            if(ent?.type==='item') return 300 + row
+            if(ent?.type==='monster') return 330 + row
+            return 360 + row
+          }
+
+          const pruneMissingEntityDisplays = (state:any)=>{
+            const alive = new Set((state?.entities || []).map((x:any)=>String(x.id)))
+            Object.keys(displays).forEach(id=>{
+              if(alive.has(String(id))) return
+              try{ displays[id].destroy() }catch{}
+              delete displays[id]
+            })
+          }
+
           function ensureFlashOverlay(){
             if(flashOverlay) return
             flashOverlay = sc.add.rectangle(sc.scale.width/2, sc.scale.height/2, sc.scale.width, sc.scale.height, 0xff3355, 0).setDepth(999)
@@ -576,6 +592,7 @@ export default function GameMount(){
               const p = toScreen(ent.pos)
               const s = sc.add.image(p.x,p.y,textureForEntity(ent)).setOrigin(0.5)
               s.setDisplaySize(tileSize-2, tileSize-2)
+              s.setDepth(entityDepth(ent))
               if(ent.kind==='boss') s.setTint(0xff8a66)
               if(ent.kind==='spitter') s.setTint(0x7dff9a)
               if(ent.kind==='sentinel') s.setTint(0xffdf7d)
@@ -672,7 +689,10 @@ export default function GameMount(){
               const d = displays[id]
               if(d){
                 const p = toScreen(to)
-                sc.tweens.add({targets:d,x:p.x,y:p.y,duration:100,ease:'Quad.Out'})
+                const st = (window as any).game?.getState?.()
+                const ent = st?.entities?.find((x:any)=>x.id===id)
+                const nextDepth = ent ? entityDepth(ent) : d.depth
+                sc.tweens.add({targets:d,x:p.x,y:p.y,depth:nextDepth,duration:100,ease:'Quad.Out'})
               }
               if(id==='p'){ playerPos = to; paintFog() }
               applyVision()
@@ -748,7 +768,11 @@ export default function GameMount(){
             } else if(e.type==='pickup'){
               const st = (window as any).game?.getState?.()
               const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
+              if(st) pruneMissingEntityDisplays(st)
               if(p) fxBurstAt(p, 0x88ffcc)
+            } else if(e.type==='essence_pickup' || e.type==='spirit_core_pickup' || e.type==='shop_purchase'){
+              const st = (window as any).game?.getState?.()
+              if(st) pruneMissingEntityDisplays(st)
             } else if(e.type==='stairs_spawned'){
               const st = (window as any).game?.getState?.()
               const s = st?.entities?.find((x:any)=>x.type==='item' && x.kind==='stairs')

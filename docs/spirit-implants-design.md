@@ -82,6 +82,14 @@ Hybrid of **A + C**.
 
 Why: this gives reliable build planning while preserving run-to-run weirdness.
 
+### Current Implemented (as of 2026-02-11)
+- Spirit cores drop from monsters (`spirit-implant`) with boss-guaranteed spirit drop.
+- Merchant supports spirit-core offers plus a **shop pity** signal after dry floors (`shopSpiritPityThreshold`, currently 2).
+- Floor-drop **pity safety net** now triggers after prolonged drought (`spiritPityThreshold`, currently 3), spawning a guaranteed `pure` spirit core near the player.
+- UI now surfaces pity state/progression and logs when a pity spawn occurs.
+- Pity thresholds are now exposed in snapshot/UI to keep balance tuning centralized and visible during playtests.
+- Anti-repeat spirit drop guard now emits a telemetry/log event (`spirit_drop_rerolled`) when it swaps a consecutive-floor duplicate spirit family.
+
 ---
 
 ## Suggested v1 Content Slice
@@ -117,3 +125,8 @@ Why: this gives reliable build planning while preserving run-to-run weirdness.
 2. Should contracts be removable mid-floor or only at shrines?
 3. How much RNG should affect spirit quality vs spirit identity?
 4. Is there a hard cap on simultaneous curses?
+
+## Next Balance Slice (queued)
+- Run 20-seed simulation to compare spirit acquisition cadence before/after pity thresholds.
+- Tune `shopSpiritPityThreshold` vs `spiritPityThreshold` against average essence economy per floor.
+- Add one anti-snowball guard: reduce repeated same-family core frequency across consecutive floors.
