@@ -79,6 +79,9 @@ function getRaceFromUrl(): Race {
 function getFloatNumbersFromUrl(){
   return getParams().get('float') !== '0'
 }
+function getHighContrastFromUrl(){
+  return getParams().get('contrast') === '1'
+}
 function navigate(patch: Record<string,string|number|undefined>){
   const u = new URL(window.location.href)
   Object.entries(patch).forEach(([k,v])=>{ if(v===undefined) u.searchParams.delete(k); else u.searchParams.set(k, String(v)) })
@@ -174,6 +177,7 @@ export default function App(){
   const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace,efficiency?:number}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
   const floatingNumbers = getFloatNumbersFromUrl()
+  const highContrast = getHighContrastFromUrl()
 
   useEffect(()=>{
     try{
@@ -504,6 +508,7 @@ export default function App(){
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
   const toggleFloatingNumbers = ()=> navigate({float: floatingNumbers ? 0 : 1})
+  const toggleHighContrast = ()=> navigate({contrast: highContrast ? 0 : 1})
   const retryRenderer = ()=> window.location.reload()
   const resetRecords = ()=>{
     setBestScore(0)
@@ -900,6 +905,7 @@ export default function App(){
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Simple HUD' : 'Advanced HUD'}</button>
+            <button onClick={toggleHighContrast} style={{fontSize:11}}>Contrast: {highContrast ? 'High' : 'Normal'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
           </div>

@@ -28,6 +28,9 @@ function getRaceFromUrl(): PlayerRace {
 function getFloatNumbersFromUrl(){
   return new URLSearchParams(window.location.search).get('float') !== '0'
 }
+function getHighContrastFromUrl(){
+  return new URLSearchParams(window.location.search).get('contrast') === '1'
+}
 
 function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
   const u = new URL(window.location.href)
@@ -49,6 +52,7 @@ export default function GameMount(){
       const klass = getClassFromUrl()
       const race = getRaceFromUrl()
       const showDamageNumbers = getFloatNumbersFromUrl()
+      const highContrast = getHighContrastFromUrl()
       const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
@@ -288,16 +292,21 @@ export default function GameMount(){
             const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
             const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
+            const floorSeenAlpha = highContrast ? 0.5 : 0.3
+            const floorHiddenAlpha = highContrast ? 0.16 : 0.08
+            const wallSeenAlpha = highContrast ? 0.56 : 0.38
+            const wallHiddenAlpha = highContrast ? 0.14 : 0.06
+
             Object.keys(floorDisplays).forEach(k=>{
               if(vis.has(k)) floorDisplays[k].setAlpha(0.95)
-              else if(seen.has(k)) floorDisplays[k].setAlpha(0.3)
-              else floorDisplays[k].setAlpha(0.08)
+              else if(seen.has(k)) floorDisplays[k].setAlpha(floorSeenAlpha)
+              else floorDisplays[k].setAlpha(floorHiddenAlpha)
             })
 
             Object.keys(wallDisplays).forEach(k=>{
               if(vis.has(k)) wallDisplays[k].setAlpha(1)
-              else if(seen.has(k)) wallDisplays[k].setAlpha(0.38)
-              else wallDisplays[k].setAlpha(0.06)
+              else if(seen.has(k)) wallDisplays[k].setAlpha(wallSeenAlpha)
+              else wallDisplays[k].setAlpha(wallHiddenAlpha)
             })
 
             let activeBoss:any = null
