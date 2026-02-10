@@ -182,7 +182,7 @@ const checks = [
   ["action log interact none flavor", "There is nothing here to interact with."],
   ["action log bash miss flavor", "Your bash hits only empty air."],
   ["hotbar row uses cohesive class", "className='dq-skillrow dq-hotbar'"],
-  ["hotbar explanatory hint", "Combat skills live here; inventory/loadout sits directly below for quick tactical swaps."],
+  ["hotbar hint hidden for lean HUD", "<div style={{display:'none'}} />"],
   ["help copy points to hotbar", "Class skills: use the Hotbar"],
   ["run header class present", "className='dq-center-head'"],
   ["app handles modifier hints", "if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))"],
