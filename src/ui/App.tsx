@@ -172,6 +172,7 @@ export default function App(){
   const [selectedInventoryIndex,setSelectedInventoryIndex] = useState<number | null>(null)
   const [selectedSpiritIndex,setSelectedSpiritIndex] = useState<number | null>(null)
   const [showBuildPanel,setShowBuildPanel] = useState(false)
+  const [showControlPad,setShowControlPad] = useState(false)
   const [showIconLegend,setShowIconLegend] = useState(false)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
@@ -1152,7 +1153,7 @@ export default function App(){
             {targetSkill && <button onClick={()=>setTargetSkill(null)} title='Cancel targeting'>✕</button>}
           </div>
 
-          <div className='dq-controls'>
+          {showControlPad && <div className='dq-controls'>
             <button onClick={()=> targetSkill ? setTargetDir('up-left') : move('up-left')}>↖</button>
             <button onClick={()=> targetSkill ? setTargetDir('up') : move('up')}>↑</button>
             <button onClick={()=> targetSkill ? setTargetDir('up-right') : move('up-right')}>↗</button>
@@ -1165,7 +1166,7 @@ export default function App(){
             <button onClick={()=>(window as any).game?.step?.({type:'interact'})}>Interact</button>
             <button onClick={newSeed}>New Run</button>
             <button onClick={openCreateForCurrent}>Pregame</button>
-          </div>
+          </div>}
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout ({inventoryCount})</h3>
@@ -1337,6 +1338,7 @@ export default function App(){
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
+            <button onClick={()=>setShowControlPad(v=>!v)} style={{fontSize:11}}>{showControlPad ? 'Hide Pad' : 'Controls'}</button>
             <button onClick={()=>setShowIconLegend(v=>!v)} style={{fontSize:11}}>{showIconLegend ? 'Hide Icons' : 'Icon Legend'}</button>
             <button onClick={cycleVisualPreset} style={{fontSize:11}}>Visual: {visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
