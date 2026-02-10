@@ -641,8 +641,10 @@ export default function GameMount(){
             drawTargeting()
           }
 
+          let sawInitEvent = false
           const handler = (e:any)=>{
             if(e.type==='init'){
+              sawInitEvent = true
               rebuildMapAndEntities(e.payload || {})
             } else if(e.type==='move'){
               const id = e.payload.id
@@ -730,9 +732,22 @@ export default function GameMount(){
 
           unsub = eventBus.subscribe(handler)
           eventBus.getLines().forEach(l=>{ try{ handler(JSON.parse(l)) }catch(_){ } })
+
+          const initWatchdog = setTimeout(()=>{
+            if(sawInitEvent) return
+            console.warn('[GameMount] init watchdog triggered; forcing rebuild from snapshot')
+            try{
+              const st = (window as any).game?.getState?.()
+              if(st) rebuildMapAndEntities(st)
+              sawInitEvent = true
+            }catch(err){
+              console.error('[GameMount] init watchdog rebuild failed', err)
+            }
+          }, 1800)
+
           const visionPoll = setInterval(applyVision, 140)
           const oldUnsub = unsub
-          unsub = ()=>{ clearInterval(visionPoll); oldUnsub() }
+          unsub = ()=>{ clearTimeout(initWatchdog); clearInterval(visionPoll); oldUnsub() }
         }catch(err){ console.error('renderer setup failed',err) }
       }
 
