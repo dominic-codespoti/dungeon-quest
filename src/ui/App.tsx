@@ -493,6 +493,7 @@ export default function App(){
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
   const toggleFloatingNumbers = ()=> navigate({float: floatingNumbers ? 0 : 1})
+  const retryRenderer = ()=> window.location.reload()
   const resetRecords = ()=>{
     setBestScore(0)
     setBestFloor(0)
@@ -822,7 +823,14 @@ export default function App(){
       <div className='dq-arena'>
         <div className='dq-center'>
           <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · G guard · Q backstep · B bash · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
-          <div className='dq-canvas-wrap'><GameMount /></div>
+          <div className='dq-canvas-wrap'>
+            {!snapshot && (
+              <div style={{position:'absolute', left:16, top:40, zIndex:20, background:'rgba(8,12,20,0.88)', border:'1px solid rgba(124,156,255,0.5)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#dce8ff'}}>
+                Renderer still initializing… <button onClick={retryRenderer} style={{marginLeft:8}}>Retry</button>
+              </div>
+            )}
+            <GameMount />
+          </div>
         </div>
 
         <aside className='dq-side'>
