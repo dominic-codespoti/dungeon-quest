@@ -155,6 +155,7 @@ export default function App(){
   const adminView = getParams().get('view')==='admin'
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Explore, loot, survive.')
+  const [actionLog,setActionLog] = useState<string[]>(['Explore, loot, survive.'])
   const [seed,setSeed] = useState<number | null>(null)
   const [klass,setKlass] = useState<PlayerClass>(getClassFromUrl())
   const [race,setRace] = useState<Race>(getRaceFromUrl())
@@ -440,6 +441,15 @@ export default function App(){
     if(snapshot?.gameOver) return
     if(newRecord) setNewRecord(null)
   },[snapshot?.gameOver, newRecord])
+
+  useEffect(()=>{
+    const msg = String(status || '').trim()
+    if(!msg) return
+    setActionLog(prev=>{
+      if(prev[0]===msg) return prev
+      return [msg, ...prev].slice(0, 9)
+    })
+  }, [status])
 
   useEffect(()=>{
     if(snapshot){
@@ -971,24 +981,30 @@ export default function App(){
             )}
             <GameMount />
           </div>
+          <div className='dq-action-log'>
+            <div className='dq-action-log-title'>Action Log</div>
+            {actionLog.slice(0,7).map((line, idx)=>(
+              <div key={`${idx}-${line}`} className='dq-action-log-line'>{line}</div>
+            ))}
+          </div>
         </div>
 
         <aside className='dq-side'>
           <div className='dq-stats'>
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'}</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
-            <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
             <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
-            <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>
-            <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>
-            <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>
-            <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
-            <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>
-            <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>
-            <div className='dq-stat'>Boss CD<b>{bossChargeCountdown}</b></div>
-            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>
+            <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>
+            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            {showAdvancedHud && <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss CD<b>{bossChargeCountdown}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Spirits<b>{snapshot?.spiritCores?.length ?? 0} / {snapshot?.spiritMajorSlots ?? 1}M</b></div>}
             {showAdvancedHud && <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>}

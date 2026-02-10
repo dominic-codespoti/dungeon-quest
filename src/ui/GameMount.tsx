@@ -91,7 +91,8 @@ export default function GameMount(){
         try{
           const tileW = Math.floor(sc.scale.width / eng.width)
           const tileH = Math.floor(sc.scale.height / eng.height)
-          const tileSize = Math.max(8, Math.min(tileW, tileH))
+          const rawTile = Math.max(8, Math.min(tileW, tileH))
+          const tileSize = rawTile % 2 === 0 ? rawTile : Math.max(8, rawTile - 1)
 
           const displays: Record<string, any> = {}
           const wallDisplays: Record<string, any> = {}
