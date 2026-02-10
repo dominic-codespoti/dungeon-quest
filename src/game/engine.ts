@@ -606,6 +606,26 @@ export class Engine{
     return this.getState()
   }
 
+  autoEquipBest(){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return this.getState()
+
+    const score = (it:GeneratedItem)=> (it.atkBonus*2) + (it.defBonus*2) + it.hpBonus + (it.rarity==='epic' ? 3 : it.rarity==='rare' ? 2 : it.rarity==='magic' ? 1 : 0)
+    const classes: GeneratedItem['itemClass'][] = ['weapon','armor']
+
+    for(const cls of classes){
+      const candidates = this.inventory.filter(it=>it.itemClass===cls)
+      if(candidates.length===0) continue
+      const best = candidates.slice().sort((a,b)=> score(b)-score(a))[0]
+      if(!best) continue
+      const idx = this.inventory.indexOf(best)
+      if(idx>=0) this.equipInventoryIndex(idx)
+    }
+
+    this.emit({tick:this.tick,type:'gear_autoequip',payload:{mode:'best'}})
+    return this.getState()
+  }
+
   private equipGear(gear: GeneratedItem, player: Entity){
     const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass && it.equipped)
     if(replaced){

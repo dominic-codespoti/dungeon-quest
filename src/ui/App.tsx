@@ -217,6 +217,7 @@ export default function App(){
       if(e.type==='pickup' && e.payload?.kind==='gear') setStatus(`Equipped: ${e.payload?.gear?.name || 'gear'}`)
       if(e.type==='gear_equipped') setStatus(`Equipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='gear_replaced') setStatus(`Swapped out ${e.payload?.removed?.name || 'gear'}.`)
+      if(e.type==='gear_autoequip') setStatus('Auto-equipped best weapon/armor.')
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
       if(e.type==='floor_brief'){
         const mod = String(e.payload?.modifier || 'none')
@@ -901,7 +902,10 @@ export default function App(){
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory</h3>
-            <button onClick={()=>setShowInventoryPanel(v=>!v)} style={{fontSize:11}}>{showInventoryPanel ? 'Hide' : 'Show'}</button>
+            <div style={{display:'flex',gap:6}}>
+              <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
+              <button onClick={()=>setShowInventoryPanel(v=>!v)} style={{fontSize:11}}>{showInventoryPanel ? 'Hide' : 'Show'}</button>
+            </div>
           </div>
           {showInventoryPanel && (
             <div className='dq-equip-list'>

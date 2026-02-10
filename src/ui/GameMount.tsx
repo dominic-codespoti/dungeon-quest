@@ -69,7 +69,8 @@ export default function GameMount(){
         setClass: (next:PlayerClass)=> navigate(seed, next, race),
         setRace: (next:PlayerRace)=> navigate(seed, klass, next),
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) },
-        equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index)
+        equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index),
+        autoEquipBest: ()=> eng.autoEquipBest()
       }
 
       const scene = g.scene.scenes[0]
