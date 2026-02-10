@@ -177,6 +177,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-color: #7cd2a6;
   background: rgba(124,210,166,0.12);
 }
+.dq-icon-slot.rarity-common { border-color: rgba(120,136,180,.55); }
+.dq-icon-slot.rarity-magic { border-color: rgba(106,156,255,.72); }
+.dq-icon-slot.rarity-rare { border-color: rgba(186,120,255,.78); }
+.dq-icon-slot.rarity-epic { border-color: rgba(255,178,92,.86); }
+.dq-icon-slot.class-weapon { background: rgba(124,156,255,.08); }
+.dq-icon-slot.class-armor { background: rgba(124,210,166,.08); }
 .dq-icon-slot.is-selected {
   outline: 1px solid #7c9cff;
 }

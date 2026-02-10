@@ -139,7 +139,7 @@ const checks = [
   ["inventory quick unequip-all button", "Unequip All"],
   ["inventory quick sort button", "Sort"],
   ["inventory icon grid", "className='dq-icon-grid'"],
-  ["inventory icon slot class", "className={`dq-icon-slot ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}"],
+  ["inventory icon slot class", "className={`dq-icon-slot rarity-${it.rarity} class-${it.itemClass} ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}"],
   ["inventory detail panel", "className='dq-item dq-detail-panel'"],
   ["combat/loadout section header", "<I src={bootsIcon}/>Combat / Loadout"],
   ["combat module wrapper class", "className='dq-combat-module'"],

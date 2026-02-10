@@ -1179,7 +1179,7 @@ export default function App(){
                     return (
                       <button
                         key={idx}
-                        className={`dq-icon-slot ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
+                        className={`dq-icon-slot rarity-${it.rarity} class-${it.itemClass} ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
                         title={`${it.name} · ${it.itemClass} · ${it.rarity}`}
                         onClick={()=>setSelectedInventoryIndex(idx)}
                       >
