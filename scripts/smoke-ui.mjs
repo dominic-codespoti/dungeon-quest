@@ -42,6 +42,7 @@ const checks = [
   ["copy run link preserves contrast flag", "u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')"],
   ["link bundle uses share helper", "links.push(`daily=${buildShareLink(dailyPreset.seed, dailyPreset.klass, dailyPreset.race)}`)"],
   ["copy run link ui hint includes visual mode", "title='Includes current Visual mode'"],
+  ["copy bundle ui hint includes visual mode", "title='I · includes current Visual mode'"],
   ["copy status helper exists", "const visualModeStatus = (prefix:string)=> `${prefix} (Visual: ${visualPresetLabel}).`"],
   ["copy run link status uses helper", "setStatus(visualModeStatus('Run link copied'))"],
   ["copy create launch status uses helper", "setStatus(visualModeStatus('Create launch link copied'))"],

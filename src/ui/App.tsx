@@ -756,7 +756,7 @@ export default function App(){
             <button style={{fontSize:10}} title='V · copies seed + class/race' onClick={copyDailyPreset}>Copy Preset</button>
             <button style={{fontSize:10}} title='Z · open daily build in create' onClick={()=>openCreatePreset({klass:dailyPreset.klass, race:dailyPreset.race, seed:dailyPreset.seed})}>Open Build</button>
             <button style={{fontSize:10}} title='J · includes current Visual mode' onClick={copyDailyLink}>Copy Link</button>
-            <button style={{fontSize:10}} title='I' onClick={copyBundleLinks}>Copy Bundle</button>
+            <button style={{fontSize:10}} title='I · includes current Visual mode' onClick={copyBundleLinks}>Copy Bundle</button>
           </div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>navigate({screen:'create'})} title='Enter'>Play</button>
@@ -847,7 +847,7 @@ export default function App(){
                 <button title='daily seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Daily Seed</button>
                 <button title='V · daily seed + class/race' onClick={copyDailyPreset}>Copy Daily Preset</button>
                 <button title='J · includes current Visual mode' onClick={copyDailyLink}>Copy Daily Link</button>
-                <button title='I' onClick={copyBundleLinks}>Copy Link Bundle</button>
+                <button title='I · includes current Visual mode' onClick={copyBundleLinks}>Copy Link Bundle</button>
                 {lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}
                 {lastRun && <button title='G · prefill create with last-run loadout' onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}
                 {lastRun && <button title='U' onClick={copyLastRunSeed}>Copy Last Run Seed</button>}
