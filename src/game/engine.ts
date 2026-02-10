@@ -1143,8 +1143,15 @@ export class Engine{
         const canSpit = distance<=5 && distance>1 && this.hasLineOfSight(m.pos, playerPos)
         if(canSpit){
           if(ambushOpening && ambushRangedHitsThisTurn>=1){
-            const strafe = {x:m.pos.x + (this.rand()<0.5 ? 1 : -1), y:m.pos.y}
-            tryMoveMonster(m, strafe, 'hold-fire')
+            const lateralA = {x:m.pos.x + 1, y:m.pos.y}
+            const lateralB = {x:m.pos.x - 1, y:m.pos.y}
+            const retreat = {x:m.pos.x - Math.sign(dx), y:m.pos.y - Math.sign(dy)}
+            const moved = (this.rand()<0.5 ? (tryMoveMonster(m, lateralA, 'hold-fire') || tryMoveMonster(m, lateralB, 'hold-fire')) : (tryMoveMonster(m, lateralB, 'hold-fire') || tryMoveMonster(m, lateralA, 'hold-fire')))
+              || tryMoveMonster(m, retreat, 'hold-fire')
+            if(!moved){
+              const toward = this.nextStepToward(m.pos, playerPos, m.id)
+              if(toward) tryMoveMonster(m, toward, 'hold-fire')
+            }
             return
           }
           const spitBase = this.floorModifier==='ambush' ? 2 : 1

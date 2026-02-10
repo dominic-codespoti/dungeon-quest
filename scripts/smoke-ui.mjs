@@ -144,6 +144,7 @@ const engineChecks = [
   ["ambush buffs sentinel zap base damage", "const zapBase = this.floorModifier==='ambush' ? 2 : 1"],
   ["ambush opening fairness window", "const ambushOpening = this.floorModifier==='ambush' && (this.tick - this.floorStartTick) <= 2"],
   ["ambush ranged hit cap", "if(ambushOpening && ambushRangedHitsThisTurn>=1){"],
+  ["ambush hold-fire lateral movement", "const lateralA = {x:m.pos.x + 1, y:m.pos.y}"],
   ["ambush enforces ranged threat", "private enforceAmbushRangedThreat(){"],
   ["ambush ranged threat called before template", "this.enforceAmbushRangedThreat()"],
   ["engine auto-equip helper", "autoEquipBest(){"],
