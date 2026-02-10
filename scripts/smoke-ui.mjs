@@ -71,6 +71,7 @@ const checks = [
   ["game hotkey sort inventory", "if(ev.key==='z' || ev.key==='Z') (window as any).game?.sortInventory?.()"],
   ["game hotkey unequip all", "if(ev.key==='u' || ev.key==='U') (window as any).game?.unequipAll?.()"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
+  ["sidebar stat: visible ranged", "Visible Ranged"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
