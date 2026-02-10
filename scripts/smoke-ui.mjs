@@ -68,6 +68,8 @@ const checks = [
   ["renderer fallback delayed", "const t = window.setTimeout(()=>setShowRendererFallback(true), 1600)"],
   ["renderer fallback retry button", "Renderer still initializing… <button onClick={retryRenderer}"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
+  ["sidebar stat: next modifier", "Next Mod"],
+  ["sidebar stat: next boss", "Next Boss"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],

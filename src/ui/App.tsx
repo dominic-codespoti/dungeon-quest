@@ -869,6 +869,8 @@ export default function App(){
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>
             <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>
+            <div className='dq-stat'>Next Mod<b>{snapshot?.nextFloorModifier ?? 'none'}</b></div>
+            <div className='dq-stat'>Next Boss<b>{nextIsBossFloor ? 'Yes' : 'No'}</b></div>
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
