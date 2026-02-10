@@ -36,6 +36,7 @@ const checks = [
   ["hotkey: A quick start uses launcher", "if(ev.key==='a' || ev.key==='A'){\n        const rr = randomClassRace()\n        launchGamePreset({klass:rr.klass, race:rr.race, seed:randomSeed()})\n      }"],
   ["menu tooltip: daily challenge intent", "title='D · launch daily challenge now'"],
   ["menu action: damage numbers toggle button", "<button onClick={toggleFloatingNumbers} title='F'>Damage Numbers:"],
+  ["menu hotkeys mention visual-preserving links", "I Copy Links (preserve Visual)"],
   ["share link helper exists", "const buildShareLink = (seedValue:string|number, classValue:PlayerClass, raceValue:PlayerRace)=>{"],
   ["copy run link preserves visual preset", "u.searchParams.set('vis', visualPreset)"],
   ["copy run link preserves contrast flag", "u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')"],
