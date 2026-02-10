@@ -132,6 +132,8 @@ const engineChecks = [
   ["engine unequip helper", "unequipInventoryIndex(index:number){"],
   ["engine unequip-all helper", "unequipAll(){"],
   ["engine sort helper", "sortInventory(){"],
+  ["engine score helper", "private scoreForKill(kind:string|undefined){"],
+  ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 

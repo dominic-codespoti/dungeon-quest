@@ -716,6 +716,12 @@ export class Engine{
     }
   }
 
+  private scoreForKill(kind:string|undefined){
+    const base = kind==='boss' ? 500 : kind==='sentinel' ? 210 : kind==='brute' ? 180 : kind==='spitter' ? 140 : kind==='skitter' ? 120 : 100
+    const mult = this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1
+    return Math.round(base * mult)
+  }
+
   private maybeBossLoot(dead:any){
     if(dead?.kind!=='boss') return
     const dropRoll = this.rand()
@@ -789,7 +795,7 @@ export class Engine{
           this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.maybeBossLoot(occ)
-          this.score += occ.kind==='boss' ? 500 : occ.kind==='sentinel' ? 210 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+          this.score += this.scoreForKill(occ.kind)
           playerScoredKill = true
           if(this.playerClass==='rogue' && moveType==='dash'){
             this.dashCooldown = Math.max(0, this.dashCooldown - 1)
@@ -883,7 +889,7 @@ export class Engine{
             this.bossCharged.delete(m.id)
             this.entities = this.entities.filter(e=>e.id!==m.id)
             this.maybeBossLoot(m)
-            this.score += m.kind==='boss' ? 500 : m.kind==='sentinel' ? 210 : m.kind==='brute' ? 180 : m.kind==='spitter' ? 140 : m.kind==='skitter' ? 120 : 100
+            this.score += this.scoreForKill(m.kind)
             playerScoredKill = true
           }
         }
@@ -1032,7 +1038,7 @@ export class Engine{
             this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.maybeBossLoot(occ)
-            this.score += occ.kind==='boss' ? 500 : occ.kind==='sentinel' ? 210 : occ.kind==='brute' ? 180 : occ.kind==='spitter' ? 140 : occ.kind==='skitter' ? 120 : 100
+            this.score += this.scoreForKill(occ.kind)
             playerScoredKill = true
           }
         }
