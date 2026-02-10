@@ -121,6 +121,8 @@ export class Engine{
       threat += cost
     }
 
+    this.applyEncounterTemplate()
+
     // Mini-boss prototype: every 3rd floor gets one heavy elite.
     if(this.floor >= 3 && this.floor % 3 === 0){
       const bossHp = 14 + this.floor
@@ -335,6 +337,66 @@ export class Engine{
 
   private spawnMonster(id:string,kind:'chaser'|'brute'|'skitter'|'spitter'|'sentinel'|'boss',hp:number,minPlayerDistance=5){
     this.entities.push({id,type:'monster',kind,pos:this.spawnFreePos(minPlayerDistance),hp})
+  }
+
+  private tryRepositionMonster(monster: Entity, desired: Coord, minPlayerDistance=3){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return false
+    const trySpot = (spot:Coord)=>{
+      if(spot.x<0 || spot.x>=this.width || spot.y<0 || spot.y>=this.height) return false
+      if(this.isWall(spot)) return false
+      const d = Math.abs(spot.x-player.pos.x) + Math.abs(spot.y-player.pos.y)
+      if(d < minPlayerDistance) return false
+      const occ = this.entities.find(e=>e.id!==monster.id && e.pos.x===spot.x && e.pos.y===spot.y)
+      if(occ) return false
+      monster.pos = spot
+      return true
+    }
+
+    if(trySpot(desired)) return true
+    for(let r=1;r<=4;r++){
+      for(let oy=-r; oy<=r; oy++){
+        for(let ox=-r; ox<=r; ox++){
+          if(Math.abs(ox)+Math.abs(oy)!==r) continue
+          if(trySpot({x:desired.x+ox,y:desired.y+oy})) return true
+        }
+      }
+    }
+    return false
+  }
+
+  private applyEncounterTemplate(){
+    const player = this.entities.find(e=>e.id==='p')
+    if(!player) return
+    const monsters = this.entities.filter(e=>e.type==='monster' && e.kind!=='boss')
+    if(monsters.length < 3) return
+
+    const anchor = this.spawnFreePos(6)
+    const byKind = (k:string)=> monsters.filter(m=>m.kind===k)
+
+    if(this.floorModifier==='swarm'){
+      const pattern: Coord[] = [
+        {x:anchor.x,y:anchor.y}, {x:anchor.x+1,y:anchor.y}, {x:anchor.x-1,y:anchor.y}, {x:anchor.x,y:anchor.y+1}
+      ]
+      monsters.slice(0, Math.min(pattern.length, monsters.length)).forEach((m,i)=> this.tryRepositionMonster(m, pattern[i]!, 4))
+      return
+    }
+
+    if(this.floorModifier==='brute-heavy'){
+      const brute = byKind('brute')[0] || monsters[0]
+      if(brute) this.tryRepositionMonster(brute, {x:anchor.x,y:anchor.y}, 4)
+      const ranged = byKind('spitter')[0] || byKind('sentinel')[0] || monsters.find(m=>m.id!==brute?.id)
+      if(ranged) this.tryRepositionMonster(ranged, {x:anchor.x+2,y:anchor.y}, 5)
+      const flank = monsters.find(m=>m.id!==brute?.id && m.id!==ranged?.id)
+      if(flank) this.tryRepositionMonster(flank, {x:anchor.x+1,y:anchor.y+1}, 4)
+      return
+    }
+
+    // Default mixed template: triangle pressure pack.
+    const tri: Coord[] = [
+      {x:anchor.x,y:anchor.y}, {x:anchor.x+1,y:anchor.y+1}, {x:anchor.x-1,y:anchor.y+1}
+    ]
+    monsters.slice(0,3).forEach((m,i)=> this.tryRepositionMonster(m, tri[i]!, 4))
   }
 
   private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'){
