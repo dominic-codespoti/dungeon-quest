@@ -295,8 +295,9 @@ export default function GameMount(){
           function applyVision(){
             const state = (window as any).game?.getState?.()
             if(!state) return
-            const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
-            const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
+            try{
+              const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
+              const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
             // Defensive render fallback: if visibility payload collapses OR does not map to known tiles,
             // reveal a local radius so board contrast never hard-drops to black.
@@ -484,6 +485,12 @@ export default function GameMount(){
             }
             drawTargeting()
             renderEnemyInfo(state)
+            }catch(err){
+              console.error('[GameMount] applyVision failed; forcing safe reveal', err)
+              Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].setAlpha(0.3) }catch{} })
+              Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].setAlpha(0.25) }catch{} })
+              try{ drawTargeting(); renderEnemyInfo(state) }catch{}
+            }
           }
 
           function rebuildMapAndEntities(payload:any){
