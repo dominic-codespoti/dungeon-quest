@@ -889,6 +889,9 @@ export default function App(){
             <div className='dq-stat'>Mod<b>{snapshot?.floorModifier ?? 'none'}</b></div>
             <div className='dq-stat'>Next Mod<b>{snapshot?.nextFloorModifier ?? 'none'}</b></div>
             <div className='dq-stat'>Next Boss<b>{nextIsBossFloor ? 'Yes' : 'No'}</b></div>
+            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{dangerLabel}</b></div>
+            <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>
+            <div className='dq-stat'>Streak→Loot<b>{streakToReward}</b></div>
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
