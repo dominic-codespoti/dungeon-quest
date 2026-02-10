@@ -242,6 +242,7 @@ export default function App(){
     const t = String(e?.type || 'event')
     const p = e?.payload || {}
     if(t==='move') return ''
+    if(t==='init' || t==='status' || t==='floor_brief' || t==='shop_refreshed') return ''
     if(t==='bump') return p?.reason==='wall' ? 'You bump into a wall.' : 'You cannot squeeze through that corner.'
     if(t==='item_here') return `There is *${itemLabel(p?.kind)}* here.`
     if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`

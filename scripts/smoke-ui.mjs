@@ -168,6 +168,7 @@ const checks = [
   ["underfoot item log line", "You stand over *${itemLabel(item.kind)}*."],
   ["action log blocked shop flavor", "You are too far from the Merchant to trade."],
   ["action log suppresses raw move events", "if(t==='move') return ''"],
+  ["action log suppresses noisy system events", "if(t==='init' || t==='status' || t==='floor_brief' || t==='shop_refreshed') return ''"],
   ["action log suppresses raw die events", "if(t==='die') return ''"],
   ["action log bump wall flavor", "You bump into a wall."],
   ["action log item-underfoot hint", "There is *${itemLabel(p?.kind)}* here."],
