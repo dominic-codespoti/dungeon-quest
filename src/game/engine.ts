@@ -63,6 +63,25 @@ export class Engine{
     }
   }
 
+  private classScalingBonusForFloor(floor:number){
+    const tier = Math.max(0, Math.floor((floor-1)/2))
+    if(this.playerClass==='rogue'){
+      return {
+        attack: tier>=2 ? 1 : 0,
+        defense: tier>=4 ? 1 : 0,
+        dashCooldownBonus: tier>=1 ? 1 : 0,
+        backstepCooldownBonus: tier>=3 ? 1 : 0,
+      }
+    }
+    // Knight scaling: steadier defensive growth with modest offense.
+    return {
+      attack: tier>=3 ? 1 : 0,
+      defense: Math.min(2, Math.floor(tier/2)),
+      dashCooldownBonus: 0,
+      backstepCooldownBonus: 0,
+    }
+  }
+
   private buildStartingGear(): GeneratedItem[]{
     if(this.playerClass==='rogue'){
       return [
@@ -92,6 +111,15 @@ export class Engine{
       const player = this.entities.find(e=>e.id==='p')
       if(player){
         for(const gear of this.buildStartingGear()) this.equipGear(gear, player)
+      }
+    } else {
+      const player = this.entities.find(e=>e.id==='p')
+      const s = this.classScalingBonusForFloor(this.floor)
+      this.attackBonus += s.attack
+      this.defenseBonus += s.defense
+      this.emit({tick:this.tick,type:'class_scaling',payload:{floor:this.floor,playerClass:this.playerClass,attack:s.attack,defense:s.defense,dash:s.dashCooldownBonus,backstep:s.backstepCooldownBonus}})
+      if(player && (s.attack || s.defense)){
+        this.emit({tick:this.tick,type:'status',payload:{text:`${this.playerClass} scaling applied (+${s.attack} atk, +${s.defense} def)`}})
       }
     }
     this.dashCooldown = 0
@@ -831,7 +859,8 @@ export class Engine{
       else if(this.dashCooldown>0) this.emit({tick:this.tick,type:'dash_blocked',payload:{cooldown:this.dashCooldown}})
       else {
         const delta = d[action.dir]
-        this.dashCooldown = this.playerRace==='elf' ? 2 : 3
+        const cdBonus = this.classScalingBonusForFloor(this.floor).dashCooldownBonus
+        this.dashCooldown = Math.max(1, (this.playerRace==='elf' ? 2 : 3) - cdBonus)
         this.emit({tick:this.tick,type:'dash_used',payload:{dir:action.dir,cooldown:this.dashCooldown}})
         for(let i=0;i<2;i++){
           const res = stepInto({x:player.pos.x + delta.x, y: player.pos.y + delta.y},'dash')
@@ -847,7 +876,8 @@ export class Engine{
         const nd = {x:player.pos.x - delta.x, y: player.pos.y - delta.y}
         if(nd.x>=0 && nd.x<this.width && nd.y>=0 && nd.y<this.height && !this.isWall(nd) && !this.entities.some(e=>e.id!=='p' && e.pos.x===nd.x && e.pos.y===nd.y)){
           player.pos = nd
-          this.backstepCooldown = 3
+          const bsBonus = this.classScalingBonusForFloor(this.floor).backstepCooldownBonus
+          this.backstepCooldown = Math.max(1, 3 - bsBonus)
           this.emit({tick:this.tick,type:'backstep_used',payload:{to:nd,cooldown:this.backstepCooldown}})
           this.emit({tick:this.tick,type:'move',payload:{id:'p',to:nd,via:'backstep'}})
         } else {

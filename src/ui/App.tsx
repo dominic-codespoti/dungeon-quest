@@ -239,6 +239,7 @@ export default function App(){
       if(e.type==='blink_used') setStatus('Blink shard warps you to safer ground.')
       if(e.type==='victory') setStatus('Victory! You conquered the dungeon run.')
       if(e.type==='defeat') setStatus('Defeat.')
+      if(e.type==='class_scaling' && (e.payload?.attack || e.payload?.defense || e.payload?.dash || e.payload?.backstep)) setStatus(`${e.payload?.playerClass} scaling: +${e.payload?.attack||0} ATK, +${e.payload?.defense||0} DEF`)
     })
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
   },[])
