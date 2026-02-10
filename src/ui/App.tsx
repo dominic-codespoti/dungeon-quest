@@ -431,6 +431,11 @@ export default function App(){
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
     return snapshot.entities.filter(e=>e.type==='monster' && (e.kind==='spitter' || e.kind==='sentinel') && e.pos && vis.has(`${e.pos.x},${e.pos.y}`)).length
   }, [snapshot])
+  const elitesVisible = useMemo(()=>{
+    if(!snapshot) return '-'
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    return snapshot.entities.filter(e=>e.type==='monster' && (e.kind==='brute' || e.kind==='sentinel' || e.kind==='boss') && e.pos && vis.has(`${e.pos.x},${e.pos.y}`)).length
+  }, [snapshot])
   const danger = useMemo(()=>{
     if(!snapshot) return 0
     const p = snapshot.entities.find(e=>e.id==='p')?.pos
@@ -907,6 +912,7 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>
+            <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>
             <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>
