@@ -261,6 +261,13 @@ export default function App(){
     if(t==='spirit_core_pickup') return `You recover a *${p?.core?.spirit || 'spirit'}* core.`
     if(t==='spirit_core_equipped') return `You implant *${p?.spirit || 'a spirit'}*.`
     if(t==='spirit_core_unequipped') return `You remove *${p?.spirit || 'a spirit'}*.`
+    if(t==='gear_equipped') return `You ready *${p?.name || 'gear'}*.`
+    if(t==='gear_unequipped') return `You stow *${p?.name || 'gear'}*.`
+    if(t==='inventory_sorted') return 'You reorder your pack for fast hands.'
+    if(t==='chest_opened') return `A chest cracks open: *${itemLabel(p?.drop)}*.`
+    if(t==='shrine_boon') return 'The shrine answers with a strange blessing.'
+    if(t==='fountain_used') return 'Cool water mends your wounds and focus.'
+    if(t==='rift_used') return `The rift howls, dragging ${p?.pulled ?? 0} foes inward.`
     if(t==='stairs_used') return `You descend to floor ${p?.toFloor ?? '?'}.`
     if(t==='floor') return `A new floor unfolds: *${p?.modifier || 'none'}*.`
     if(t==='die' && p?.kind) return `**${p.kind}** falls.`
