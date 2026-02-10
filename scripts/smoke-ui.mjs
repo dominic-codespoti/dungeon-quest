@@ -149,6 +149,8 @@ const checks = [
   ["build/economy uses shared module lists", "className='dq-equip-list dq-module-list'"],
   ["action log panel rendered", "className='dq-action-log'"],
   ["action log title", "Action Log"],
+  ["action log stamped by tick", "const stamped = tick>0 ? `[t${tick}] ${msg}` : msg"],
+  ["action log tone helper", "const actionLogTone = (line:string)=>{"],
   ["hotbar row uses cohesive class", "className='dq-skillrow dq-hotbar'"],
   ["hotbar explanatory hint", "Combat skills live here; inventory/loadout sits directly below for quick tactical swaps."],
   ["help copy points to hotbar", "Class skills: use the Hotbar"],

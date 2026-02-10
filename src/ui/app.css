@@ -62,6 +62,9 @@ body { background: var(--bg); color: var(--text); font-family: Inter, system-ui,
   line-height: 1.25;
   margin-bottom: 2px;
 }
+.dq-action-log-danger { color: #ffb0b0; }
+.dq-action-log-reward { color: #b9ffcc; }
+.dq-action-log-neutral { color: #d9e5ff; }
 
 .dq-side {
   position: absolute;

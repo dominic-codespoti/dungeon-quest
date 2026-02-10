@@ -445,9 +445,11 @@ export default function App(){
   useEffect(()=>{
     const msg = String(status || '').trim()
     if(!msg) return
+    const tick = Number((window as any).game?.getState?.()?.tick ?? 0)
+    const stamped = tick>0 ? `[t${tick}] ${msg}` : msg
     setActionLog(prev=>{
-      if(prev[0]===msg) return prev
-      return [msg, ...prev].slice(0, 9)
+      if(prev[0]===stamped) return prev
+      return [stamped, ...prev].slice(0, 9)
     })
   }, [status])
 
@@ -968,6 +970,13 @@ export default function App(){
     )
   }
 
+  const actionLogTone = (line:string)=>{
+    const s = line.toLowerCase()
+    if(s.includes('hits for') || s.includes('slam') || s.includes('defeat')) return 'danger'
+    if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('copied')) return 'reward'
+    return 'neutral'
+  }
+
   return (
     <div className='dq-shell'>
       <div className='dq-arena'>
@@ -984,7 +993,7 @@ export default function App(){
           <div className='dq-action-log'>
             <div className='dq-action-log-title'>Action Log</div>
             {actionLog.slice(0,7).map((line, idx)=>(
-              <div key={`${idx}-${line}`} className='dq-action-log-line'>{line}</div>
+              <div key={`${idx}-${line}`} className={`dq-action-log-line dq-action-log-${actionLogTone(line)}`}>{line}</div>
             ))}
           </div>
         </div>
