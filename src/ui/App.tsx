@@ -285,6 +285,7 @@ export default function App(){
       if(ev.key==='t' || ev.key==='T') sameSeed()
       if(ev.key==='c' || ev.key==='C') copySeed()
       if(ev.key==='v' || ev.key==='V') copyRunLink()
+      if(ev.key==='x' || ev.key==='X') (window as any).game?.autoEquipBest?.()
       if(ev.key==='p' || ev.key==='P') openCreateForCurrent()
       if(ev.key==='m' || ev.key==='M') backToMenu()
       if(ev.key==='Escape'){
@@ -851,7 +852,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · Skills from Skills panel · E interact · Space wait · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
+          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · Skills from Skills panel · E interact · Space wait · X auto-equip · R new run · T retry seed · C copy seed · V copy link · P pregame · M menu · ?/H help</div>
           <div className='dq-canvas-wrap'>
             {showRendererFallback && (
               <div style={{position:'absolute', left:16, top:40, zIndex:20, background:'rgba(8,12,20,0.88)', border:'1px solid rgba(124,156,255,0.5)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#dce8ff'}}>
