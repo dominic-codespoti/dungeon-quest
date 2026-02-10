@@ -96,7 +96,6 @@ export default function GameMount(){
           let fogGraphics: any
           let flashOverlay: any
           let targetingGraphics: any
-          let playerHalo: any
           let visionDebugText: any
           let forcedVisionRecoveries = 0
           let forcedSceneRebuilds = 0
@@ -318,9 +317,9 @@ export default function GameMount(){
             }
 
             const floorSeenAlpha = highContrast ? 0.62 : 0.42
-            const floorHiddenAlpha = highContrast ? 0.28 : 0.18
+            const floorHiddenAlpha = 0
             const wallSeenAlpha = highContrast ? 0.68 : 0.5
-            const wallHiddenAlpha = highContrast ? 0.24 : 0.14
+            const wallHiddenAlpha = 0
 
             Object.keys(floorDisplays).forEach(k=>{
               if(vis.has(k)) floorDisplays[k].setAlpha(0.95)
@@ -360,10 +359,6 @@ export default function GameMount(){
 
             let activeBoss:any = null
             const p = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
-            if(playerHalo){
-              const pp = toScreen(p)
-              playerHalo.setPosition(pp.x, pp.y)
-            }
             ;(state.entities||[]).forEach((ent:any)=>{
               const d = displays[ent.id]
               if(!d) return
@@ -640,8 +635,7 @@ export default function GameMount(){
 
             fogGraphics = sc.add.graphics().setDepth(500)
             targetingGraphics = sc.add.graphics().setDepth(700)
-            if(playerHalo){ try{ playerHalo.destroy() }catch{} }
-            playerHalo = sc.add.circle(0,0, Math.max(4, tileSize*0.33), 0x87b3ff, 0.2).setDepth(340)
+            // player halo removed per UX request
             paintFog()
             applyVision()
             drawTargeting()
