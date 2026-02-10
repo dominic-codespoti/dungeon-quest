@@ -120,6 +120,7 @@ const engineChecks = [
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
   ["stairs event includes next-floor preview", "this.emit({tick:this.tick,type:'stairs_spawned',payload:{floor:this.floor,nextFloor,nextModifier,nextBoss}})"],
+  ["ambush clear reward includes potion", "if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')"],
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["ambush enforces ranged threat", "private enforceAmbushRangedThreat(){"],
   ["ambush ranged threat called before template", "this.enforceAmbushRangedThreat()"],

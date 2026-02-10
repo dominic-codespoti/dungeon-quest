@@ -706,7 +706,8 @@ export class Engine{
       this.spawnItem(`i${this.floor}-stairs`,'stairs')
       if(this.floor >= 2){
         this.spawnItem(`i${this.floor}-clear-reward-${this.tick}`,'chest')
-        this.emit({tick:this.tick,type:'clear_reward',payload:{floor:this.floor,reward:'chest'}})
+        if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')
+        this.emit({tick:this.tick,type:'clear_reward',payload:{floor:this.floor,reward:this.floorModifier==='ambush' ? 'chest+potion' : 'chest'}})
       }
       const nextFloor = this.floor + 1
       const nextModifier = this.getModifierForFloor(nextFloor)
