@@ -146,6 +146,7 @@ export default function App(){
   const [showRunPrimer,setShowRunPrimer] = useState(false)
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
+  const [showAdvancedHud,setShowAdvancedHud] = useState(false)
 
   const closeMenuModals = ()=>{
     setShowPatchNotes(false)
@@ -821,39 +822,43 @@ export default function App(){
           <div style={{fontSize:12,color:'#a9c8ff',marginBottom:6}}>Objective: {objectiveText}</div>
 
           <div className='dq-stats'>
-            <div className='dq-stat'>Class<b>{klass}</b></div>
-            <div className='dq-stat'>Race<b>{race}</b></div>
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'} / 10</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
-            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
-            <div className='dq-stat'>Best<b>{bestScore}</b></div>
-            <div className='dq-stat'>Best Floor<b>{bestFloor}</b></div>
-            <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>
-            <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>
-            <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>
-            <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>
-            <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>
+            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
+            <div className='dq-stat'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></div>
+
+            {showAdvancedHud && <div className='dq-stat'>Class<b>{klass}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Race<b>{race}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Best<b>{bestScore}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Best Floor<b>{bestFloor}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Turns<b>{snapshot?.tick ?? '-'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Pace<b style={{color:paceColor}}>{paceLabel}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Streak<b>{snapshot?.killStreak ?? 0}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Streak Reward<b style={{color: streakToReward===0 ? '#9dffb8' : '#c6d3ff'}}>{streakToReward===0 ? 'READY' : `${streakToReward} to go`}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Seed<b>{seed ?? '-'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Bosses<b>{bossCount}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>}
+
+            <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Simple HUD' : 'Advanced HUD'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
-            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
-            <div className='dq-stat'>Boss Charge<b>{snapshot?.bossCharging ?? 0}</b></div>
-            <div className='dq-stat'>Boss Floor<b>{isBossFloor ? 'YES' : 'NO'}</b></div>
-            <div className='dq-stat'>Bosses<b>{bossCount}</b></div>
-            <div className='dq-stat'>Stairs<b>{isBossFloor ? (bossAlive ? 'SEALED' : 'UNSEALED') : 'OPEN'}</b></div>
-            <div className='dq-stat'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></div>
+
             {nearby.items > 0 && <div style={{fontSize:12,color:'#9dffb8'}}>Tip: item in reach — press E to interact.</div>}
             {nearby.monsters > 0 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: adjacent threat — consider Guard/Backstep before trading hits.</div>}
           </div>
 
-          <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>
-          {(snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
-          {(snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
-          {(snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
-          <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>
-          {nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
-          {isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
-          {(snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
+          {showAdvancedHud && <div style={{fontSize:12,color:'#9aa9d4'}}>Mod: {snapshot?.floorModifier ?? 'none'}</div>}
+          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='brute-heavy' && <div style={{fontSize:12,color:'#ffb08b'}}>Elite warning: brute-heavy floor.</div>}
+          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='scarce-potions' && <div style={{fontSize:12,color:'#ffd27a'}}>Resource warning: scarce potions.</div>}
+          {showAdvancedHud && (snapshot?.floorModifier ?? 'none')==='swarm' && <div style={{fontSize:12,color:'#ffcf8b'}}>Swarm warning: high enemy count.</div>}
+          {showAdvancedHud && <div style={{fontSize:12,color:'#8bc1ff'}}>Next floor: {snapshot?.nextFloorModifier ?? 'unknown'}</div>}
+          {showAdvancedHud && nextIsBossFloor && <div style={{fontSize:12,color:'#ffb36b'}}>Next floor is a BOSS floor.</div>}
+          {showAdvancedHud && isBossFloor && <div style={{fontSize:12,color:'#ff9d6b'}}>Boss floor active: secure vault loot before taking stairs.</div>}
+          {showAdvancedHud && (snapshot?.floor ?? 1) >= 9 && <div style={{fontSize:12,color:'#9de7ff'}}>Final approach: one more floor after this to clear the run.</div>}
           <div style={{margin:'4px 0 6px'}}>
             <div style={{fontSize:11,opacity:0.8}}>Run Progress</div>
             <div style={{height:6, background:'#1b2340', border:'1px solid #2f3d66', borderRadius:999}}>
@@ -865,9 +870,9 @@ export default function App(){
               <div style={{height:'100%', width:`${Math.min(100, (danger/12)*100)}%`, background:dangerColor, borderRadius:999}} />
             </div>
           </div>
-          <div style={{fontSize:12,color:'#9bb7e8'}}>
+          {showAdvancedHud && <div style={{fontSize:12,color:'#9bb7e8'}}>
             Visible threats: {visibleThreats.total} (Boss {visibleThreats.boss} · Spitter {visibleThreats.spitter} · Sentinel {visibleThreats.sentinel} · Other {visibleThreats.other})
-          </div>
+          </div>}
           {danger >= 6 && <div style={{fontSize:12,color:'#ff9c7a'}}>Tip: pressure is high — consider Blink/Backstep/Guard before pushing.</div>}
           {(snapshot?.bossCharging ?? 0) > 0 && <div style={{fontSize:12,color:'#ff7b7b'}}>Warning: boss slam is charging.</div>}
           <div style={{fontSize:12}}><I src={swordIcon}/>ATK+ {snapshot?.attackBonus ?? 0}</div>
