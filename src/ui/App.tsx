@@ -195,6 +195,7 @@ export default function App(){
   const floatingNumbers = getFloatNumbersFromUrl()
   const visualPreset = getVisualPresetFromUrl()
   const highContrast = getHighContrastFromUrl()
+  const visualPresetLabel = visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'
 
   useEffect(()=>{
     try{
@@ -652,6 +653,8 @@ export default function App(){
   }
 
 
+  const visualModeStatus = (prefix:string)=> `${prefix} (Visual: ${visualPresetLabel}).`
+
   const copyRunLink = async ()=>{
     if(seed==null) return
     const u = new URL(window.location.href)
@@ -661,7 +664,7 @@ export default function App(){
     u.searchParams.set('race', race)
     u.searchParams.set('vis', visualPreset)
     u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(`Run link copied (Visual: ${visualPreset}).`) }catch{}
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Run link copied')) }catch{}
   }
   const copyCreateLaunchLink = async ()=>{
     const u = new URL(window.location.href)
@@ -671,7 +674,7 @@ export default function App(){
     u.searchParams.set('race', race)
     u.searchParams.set('vis', visualPreset)
     u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(`Create launch link copied (Visual: ${visualPreset}).`) }catch{}
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Create launch link copied')) }catch{}
   }
   const openCreateForCurrent = ()=>{
     navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
@@ -691,7 +694,7 @@ export default function App(){
     u.searchParams.set('race', lastRun.race)
     u.searchParams.set('vis', visualPreset)
     u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(`Last run link copied (Visual: ${visualPreset}).`) }catch{}
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Last run link copied')) }catch{}
   }
   const copyLastRunSeed = async ()=>{
     if(!lastRun) return
@@ -736,7 +739,7 @@ export default function App(){
     u.searchParams.set('race',dailyPreset.race)
     u.searchParams.set('vis', visualPreset)
     u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(`Daily challenge link copied (Visual: ${visualPreset}).`) }catch{}
+    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Daily challenge link copied')) }catch{}
   }
   const copyBundleLinks = async ()=>{
     const u = new URL(window.location.href)
