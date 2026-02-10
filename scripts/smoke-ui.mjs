@@ -45,6 +45,7 @@ const checks = [
   ["visual keyed hint helper exists", "const visualLinkHintKeyed = (key:string)=> `${key} · ${visualLinkHint}`"],
   ["copy run link ui hint uses helper", "title={visualLinkHint}"],
   ["copy bundle ui hint uses keyed helper", "title={visualLinkHintKeyed('I')}"],
+  ["copy daily-link ui hint uses keyed helper", "title={visualLinkHintKeyed('J')}"],
   ["copy status helper exists", "const visualModeStatus = (prefix:string)=> `${prefix} (Visual: ${visualPresetLabel}).`"],
   ["copy run link status uses helper", "setStatus(visualModeStatus('Run link copied'))"],
   ["copy create launch status uses helper", "setStatus(visualModeStatus('Create launch link copied'))"],
