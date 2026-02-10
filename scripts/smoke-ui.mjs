@@ -78,6 +78,7 @@ const checks = [
   ["records button: open-last in create uses helper", "{lastRun && <button title='G · prefill create with last-run loadout' onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}"],
   ["records button: resume-last uses launcher", "{lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}"],
   ["records hint strip", "Quick keys:"],
+  ["records quick-keys mention visual-preserving link bundle", "I link bundle (preserve Visual)"],
   ["run primer visual mode hint", "Visual mode: <b>Readable</b> default, <b>Crisp</b> for max tactical clarity, <b>Normal</b> for mood."],
   ["patch notes visual preset bullet", "Visual presets: Normal / Readable / Crisp (Readable is now default)"],
   ["renderer fallback state", "const [showRendererFallback,setShowRendererFallback] = useState(false)"],
