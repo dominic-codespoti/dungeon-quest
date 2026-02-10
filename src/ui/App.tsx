@@ -247,7 +247,7 @@ export default function App(){
       )
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
       if(e.type==='vault_spawned') setStatus('Vault chest detected on this boss floor.')
-      if(e.type==='boss_charge') setStatus('Boss is charging a slam!')
+      if(e.type==='boss_charge') setStatus('Boss is charging a slam — keep distance or guard.')
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
       if(e.type==='spit_used') setStatus(`Spitter spits for ${e.payload?.damage ?? 0}.`)
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
@@ -942,6 +942,7 @@ export default function App(){
             <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>
             <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
             <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>
+            <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>
             <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>
