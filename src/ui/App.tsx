@@ -504,6 +504,13 @@ export default function App(){
   const nextIsBossFloor = (((snapshot?.floor ?? 1) + 1) >= 3) && (((snapshot?.floor ?? 1) + 1) % 3 === 0)
   const bossCount = (snapshot?.entities || []).filter(e=>e.type==='monster' && e.kind==='boss').length
   const bossAlive = bossCount > 0
+  const bossChargeCountdown = useMemo(()=>{
+    if(!snapshot || !bossAlive) return '-'
+    if((snapshot.bossCharging ?? 0) > 0) return 'READY'
+    const mod = snapshot.tick % 3
+    const turns = mod===0 ? 3 : (3 - mod)
+    return String(turns)
+  }, [snapshot, bossAlive])
   const objectiveText = snapshot
     ? (isBossFloor && bossAlive
       ? 'Defeat the boss to unseal stairs.'
@@ -943,6 +950,7 @@ export default function App(){
             <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
             <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>
             <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>
+            <div className='dq-stat'>Boss CD<b>{bossChargeCountdown}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
             {showAdvancedHud && <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>}

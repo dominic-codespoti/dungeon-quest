@@ -76,6 +76,7 @@ const checks = [
   ["sidebar stat: visible elites", "Visible Elites"],
   ["sidebar stat: visible boss hp", "Boss HP"],
   ["sidebar stat: boss charge readiness", "Boss Charge"],
+  ["sidebar stat: boss charge countdown", "Boss CD"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
