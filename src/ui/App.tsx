@@ -244,6 +244,12 @@ export default function App(){
     if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
     if(t==='shop_purchase') return `You buy *${p?.name || 'an offer'}*.`
     if(t==='shop_rerolled') return 'The Merchant reshuffles their stock.'
+    if(t==='shop_buy_blocked') return p?.reason==='merchant_far' ? 'You are too far from the Merchant to trade.' : 'You cannot afford that offer yet.'
+    if(t==='shop_reroll_blocked') return p?.reason==='merchant_far' ? 'You must stand beside the Merchant to reroll stock.' : 'You lack the essence to reroll.'
+    if(t==='interact_none') return 'There is nothing here to interact with.'
+    if(t==='skill_blocked') return `Your class cannot use *${p?.skill || 'that skill'}*.`
+    if(t==='dash_blocked' || t==='backstep_blocked' || t==='guard_blocked') return 'That skill is not ready yet.'
+    if(t==='bash_miss') return 'Your bash hits only empty air.'
     if(t==='wait') return 'You wait, listening to the dungeon breathe.'
     return `${t.replace(/_/g,' ')}.`
   }
