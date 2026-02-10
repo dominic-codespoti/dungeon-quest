@@ -325,20 +325,34 @@ export default function GameMount(){
               }
             }
 
-            const floorSeenAlpha = highContrast ? 0.72 : 0.52
+            const floorSeenAlpha = highContrast ? 0.82 : 0.66
             const floorHiddenAlpha = 0
-            const wallSeenAlpha = highContrast ? 0.78 : 0.6
+            const wallSeenAlpha = highContrast ? 0.86 : 0.72
             const wallHiddenAlpha = 0
 
             Object.keys(floorDisplays).forEach(k=>{
-              if(vis.has(k)) floorDisplays[k].setAlpha(0.95)
-              else if(seen.has(k)) floorDisplays[k].setAlpha(floorSeenAlpha)
-              else floorDisplays[k].setAlpha(floorHiddenAlpha)
+              const d = floorDisplays[k]
+              if(vis.has(k)){
+                d.setAlpha(1)
+                d.setTint(highContrast ? 0xffffff : 0xf4f8ff)
+              }
+              else if(seen.has(k)){
+                d.setAlpha(floorSeenAlpha)
+                d.setTint(highContrast ? 0xdde7ff : 0xc2d0f4)
+              }
+              else d.setAlpha(floorHiddenAlpha)
             })
 
             Object.keys(wallDisplays).forEach(k=>{
-              if(vis.has(k)) wallDisplays[k].setAlpha(1)
-              else if(seen.has(k)) wallDisplays[k].setAlpha(wallSeenAlpha)
+              const d = wallDisplays[k]
+              if(vis.has(k)){
+                d.setAlpha(1)
+                d.setTint(highContrast ? 0xffffff : 0xe0eaff)
+              }
+              else if(seen.has(k)){
+                d.setAlpha(wallSeenAlpha)
+                d.setTint(highContrast ? 0xe2ecff : 0xcad7f8)
+              }
               else wallDisplays[k].setAlpha(wallHiddenAlpha)
             })
 
