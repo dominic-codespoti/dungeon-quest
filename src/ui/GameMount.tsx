@@ -35,9 +35,7 @@ function getVisualPresetFromUrl(): VisualPreset {
   if(vis==='readable' || vis==='crisp') return vis
   return p.get('contrast') === '1' ? 'readable' : 'normal'
 }
-function getHighContrastFromUrl(){
-  return getVisualPresetFromUrl() !== 'normal'
-}
+// visual preset drives contrast; kept URL-compatible via vis param
 function getVisionDebugFromUrl(){
   return new URLSearchParams(window.location.search).get('debugvis') === '1'
 }
@@ -63,7 +61,6 @@ export default function GameMount(){
       const race = getRaceFromUrl()
       const showDamageNumbers = getFloatNumbersFromUrl()
       const visualPreset = getVisualPresetFromUrl()
-      const highContrast = getHighContrastFromUrl()
       const visionDebug = getVisionDebugFromUrl()
       const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
@@ -288,8 +285,9 @@ export default function GameMount(){
           function paintFog(){
             if(!fogGraphics) return
             fogGraphics.clear()
-            // Keep a very subtle vignette only; tile visibility is controlled by applyVision alpha.
-            fogGraphics.fillStyle(0x000000, highContrast ? 0.1 : 0.14)
+            // Keep a subtle vignette only; tile visibility is controlled by applyVision alpha.
+            const fogAlpha = visualPreset==='crisp' ? 0.08 : visualPreset==='readable' ? 0.1 : 0.14
+            fogGraphics.fillStyle(0x000000, fogAlpha)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
           }
 
