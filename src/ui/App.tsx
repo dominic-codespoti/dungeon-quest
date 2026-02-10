@@ -238,6 +238,8 @@ export default function App(){
     const t = String(e?.type || 'event')
     const p = e?.payload || {}
     if(t==='move' && p?.id==='p' && p?.to) return `You move to (${p.to.x}, ${p.to.y}).`
+    if(t==='bump') return p?.reason==='wall' ? 'You bump into a wall.' : 'You cannot squeeze through that corner.'
+    if(t==='item_here') return `There is *${itemLabel(p?.kind)}* here.`
     if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`
     if(t==='combat' && p?.target==='p') return `**${enemyNameFromId(String(p?.attacker || 'enemy'))}** hits you for ${p?.damage ?? '?'} damage.`
     if(t==='pickup') return `You pick up *${itemLabel(p?.kind)}*.`
@@ -245,6 +247,9 @@ export default function App(){
     if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
     if(t==='shop_purchase') return `You buy *${p?.name || 'an offer'}*.`
     if(t==='shop_rerolled') return 'The Merchant reshuffles their stock.'
+    if(t==='dash_used') return 'You burst forward in a quick dash.'
+    if(t==='backstep_used') return 'You slip back to safer footing.'
+    if(t==='guard_used') return 'You brace behind your guard.'
     if(t==='shop_buy_blocked') return p?.reason==='merchant_far' ? 'You are too far from the Merchant to trade.' : 'You cannot afford that offer yet.'
     if(t==='shop_reroll_blocked') return p?.reason==='merchant_far' ? 'You must stand beside the Merchant to reroll stock.' : 'You lack the essence to reroll.'
     if(t==='interact_none') return 'There is nothing here to interact with.'
