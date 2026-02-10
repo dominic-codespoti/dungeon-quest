@@ -164,6 +164,7 @@ const engineChecks = [
   ["engine unequip-all helper", "unequipAll(){"],
   ["engine sort helper", "sortInventory(){"],
   ["engine spirit modifier roll helper", "private rollSpiritModifier(): SpiritModifier {"],
+  ["spirit modifier rebalance comment", "Modifier rebalance pass: keep total value close while changing shape."],
   ["engine spirit loot drop helper", "private maybeDropSpiritLoot(dead: Entity){"],
   ["engine spirit equip method", "equipSpiritCore(index:number){"],
   ["engine spirit unequip method", "unequipSpiritCore(index:number){"],

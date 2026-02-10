@@ -281,17 +281,44 @@ export class Engine{
     const spirit = kind==='boss' ? 'Warlord' : kind==='spitter' ? 'Gutter Hex' : kind==='sentinel' ? 'Watcher' : kind==='brute' ? 'Titan' : kind==='skitter' ? 'Scuttler' : 'Goblin'
     const tier: 'major'|'minor' = (kind==='boss' || kind==='sentinel') ? 'major' : 'minor'
     const modifier = this.rollSpiritModifier()
+
     const base = {
       atk: kind==='brute' || kind==='boss' ? 1 : 0,
       def: kind==='sentinel' ? 1 : 0,
       hp: kind==='boss' ? 1 : 0,
       dex: kind==='skitter' || kind==='chaser' ? 1 : 0,
     }
+
     const bonuses = {...base}
-    if(modifier==='empowered') bonuses.atk += 1
-    if(modifier==='corrupted'){ bonuses.atk += 1; bonuses.def = Math.max(0, bonuses.def-1) }
-    if(modifier==='fractured'){ bonuses.dex += 1; bonuses.hp = Math.max(0, bonuses.hp-1) }
-    const note = modifier==='pure' ? 'stable spirit imprint' : modifier==='empowered' ? 'amplified core signal' : modifier==='corrupted' ? 'high output, unstable tradeoff' : 'split resonance with odd edges'
+    // Modifier rebalance pass: keep total value close while changing shape.
+    if(modifier==='empowered'){
+      // Upside-biased, no hard drawback, strongest on native stat profile.
+      if(kind==='spitter' || kind==='skitter' || kind==='chaser') bonuses.dex += 1
+      else if(kind==='sentinel') bonuses.def += 1
+      else bonuses.atk += 1
+    }
+    if(modifier==='corrupted'){
+      // Spiky upside + explicit downside.
+      bonuses.atk += 1
+      bonuses.dex += 1
+      if(bonuses.def>0) bonuses.def -= 1
+      else bonuses.hp = Math.max(0, bonuses.hp-1)
+    }
+    if(modifier==='fractured'){
+      // Utility leaning: mobility/guard rails, weaker frontloaded damage.
+      bonuses.dex += 1
+      if(bonuses.atk>0) bonuses.atk -= 1
+      else bonuses.hp += 1
+    }
+
+    const note = modifier==='pure'
+      ? 'stable spirit imprint'
+      : modifier==='empowered'
+      ? 'focused amplification around spirit specialty'
+      : modifier==='corrupted'
+      ? 'volatile surge: high output with a defensive crack'
+      : 'fractured resonance: lower force, higher utility'
+
     return {id:`sp-${source}-${this.tick}-${Math.floor(this.rand()*9999)}`, spirit, source, tier, modifier, bonuses, note}
   }
 
