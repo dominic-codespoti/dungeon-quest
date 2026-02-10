@@ -35,6 +35,7 @@ export class Engine{
   bossCharged = new Set<string>()
   gameOver = false
   outcome: 'victory'|'defeat'|undefined
+  floorStartTick = 0
   private rand: ()=>number
 
   constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight', playerRace:PlayerRace='human'){
@@ -187,6 +188,7 @@ export class Engine{
     const gearDrops = this.floor >= 2 ? 2 : 1
     for(let i=0;i<gearDrops;i++) this.spawnItem(`i${this.floor}-g${i+1}`,'gear')
 
+    this.floorStartTick = this.tick
     this.updateVision()
     const monstersNow = this.entities.filter(e=>e.type==='monster').length
     const itemsNow = this.entities.filter(e=>e.type==='item').length
@@ -1084,6 +1086,8 @@ export class Engine{
     this.updateVision()
     const playerPos = player.pos
     const monsters = this.entities.filter(e=>e.type==='monster')
+    const ambushOpening = this.floorModifier==='ambush' && (this.tick - this.floorStartTick) <= 2
+    let ambushRangedHitsThisTurn = 0
 
     const tryMoveMonster = (m:any, nd:Coord, via='path')=>{
       if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return false
@@ -1138,10 +1142,16 @@ export class Engine{
       if(kind==='spitter'){
         const canSpit = distance<=5 && distance>1 && this.hasLineOfSight(m.pos, playerPos)
         if(canSpit){
+          if(ambushOpening && ambushRangedHitsThisTurn>=1){
+            const strafe = {x:m.pos.x + (this.rand()<0.5 ? 1 : -1), y:m.pos.y}
+            tryMoveMonster(m, strafe, 'hold-fire')
+            return
+          }
           const spitBase = this.floorModifier==='ambush' ? 2 : 1
           let spit = Math.max(0, spitBase - this.defenseBonus)
           if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - spit
+          ambushRangedHitsThisTurn++
           this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:spit,kind,via:'spit'}})
           this.emit({tick:this.tick,type:'spit_used',payload:{id:m.id,damage:spit}})
           return
@@ -1156,10 +1166,14 @@ export class Engine{
       if(kind==='sentinel' && distance>1){
         // Sentinel anchors lanes and zaps nearby intruders, otherwise holds space.
         if(distance<=2 && this.hasLineOfSight(m.pos, playerPos)){
+          if(ambushOpening && ambushRangedHitsThisTurn>=1){
+            return
+          }
           const zapBase = this.floorModifier==='ambush' ? 2 : 1
           let zap = Math.max(0, zapBase - this.defenseBonus)
           if(this.guardActive){ zap = Math.max(0, zap-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
           player.hp = (player.hp||0) - zap
+          ambushRangedHitsThisTurn++
           this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:zap,kind,via:'zap'}})
         }
         return

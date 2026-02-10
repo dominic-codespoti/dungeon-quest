@@ -141,6 +141,8 @@ const engineChecks = [
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["ambush buffs spitter base damage", "const spitBase = this.floorModifier==='ambush' ? 2 : 1"],
   ["ambush buffs sentinel zap base damage", "const zapBase = this.floorModifier==='ambush' ? 2 : 1"],
+  ["ambush opening fairness window", "const ambushOpening = this.floorModifier==='ambush' && (this.tick - this.floorStartTick) <= 2"],
+  ["ambush ranged hit cap", "if(ambushOpening && ambushRangedHitsThisTurn>=1){"],
   ["ambush enforces ranged threat", "private enforceAmbushRangedThreat(){"],
   ["ambush ranged threat called before template", "this.enforceAmbushRangedThreat()"],
   ["engine auto-equip helper", "autoEquipBest(){"],
