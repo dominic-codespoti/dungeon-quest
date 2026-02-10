@@ -654,27 +654,23 @@ export default function App(){
 
 
   const visualModeStatus = (prefix:string)=> `${prefix} (Visual: ${visualPresetLabel}).`
+  const buildShareLink = (seedValue:string|number, classValue:PlayerClass, raceValue:PlayerRace)=>{
+    const u = new URL(window.location.href)
+    u.searchParams.set('screen','game')
+    u.searchParams.set('seed', String(seedValue))
+    u.searchParams.set('class', classValue)
+    u.searchParams.set('race', raceValue)
+    u.searchParams.set('vis', visualPreset)
+    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
+    return u.toString()
+  }
 
   const copyRunLink = async ()=>{
     if(seed==null) return
-    const u = new URL(window.location.href)
-    u.searchParams.set('screen','game')
-    u.searchParams.set('seed', String(seed))
-    u.searchParams.set('class', klass)
-    u.searchParams.set('race', race)
-    u.searchParams.set('vis', visualPreset)
-    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Run link copied')) }catch{}
+    try{ await navigator.clipboard.writeText(buildShareLink(seed, klass, race)); setStatus(visualModeStatus('Run link copied')) }catch{}
   }
   const copyCreateLaunchLink = async ()=>{
-    const u = new URL(window.location.href)
-    u.searchParams.set('screen','game')
-    u.searchParams.set('seed', String(resolveChosenSeed(customSeed)))
-    u.searchParams.set('class', klass)
-    u.searchParams.set('race', race)
-    u.searchParams.set('vis', visualPreset)
-    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Create launch link copied')) }catch{}
+    try{ await navigator.clipboard.writeText(buildShareLink(resolveChosenSeed(customSeed), klass, race)); setStatus(visualModeStatus('Create launch link copied')) }catch{}
   }
   const openCreateForCurrent = ()=>{
     navigate({screen:'create', class:klass, race, seed:seed ?? undefined})
@@ -687,14 +683,7 @@ export default function App(){
   }
   const copyLastRunLink = async ()=>{
     if(!lastRun) return
-    const u = new URL(window.location.href)
-    u.searchParams.set('screen','game')
-    u.searchParams.set('seed', String(lastRun.seed))
-    u.searchParams.set('class', lastRun.klass)
-    u.searchParams.set('race', lastRun.race)
-    u.searchParams.set('vis', visualPreset)
-    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Last run link copied')) }catch{}
+    try{ await navigator.clipboard.writeText(buildShareLink(lastRun.seed, lastRun.klass, lastRun.race)); setStatus(visualModeStatus('Last run link copied')) }catch{}
   }
   const copyLastRunSeed = async ()=>{
     if(!lastRun) return
@@ -732,37 +721,15 @@ export default function App(){
     if(withSeed) setCustomSeed(String(randomSeed()))
   }
   const copyDailyLink = async ()=>{
-    const u = new URL(window.location.href)
-    u.searchParams.set('screen','game')
-    u.searchParams.set('seed', String(dailyPreset.seed))
-    u.searchParams.set('class',dailyPreset.klass)
-    u.searchParams.set('race',dailyPreset.race)
-    u.searchParams.set('vis', visualPreset)
-    u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    try{ await navigator.clipboard.writeText(u.toString()); setStatus(visualModeStatus('Daily challenge link copied')) }catch{}
+    try{ await navigator.clipboard.writeText(buildShareLink(dailyPreset.seed, dailyPreset.klass, dailyPreset.race)); setStatus(visualModeStatus('Daily challenge link copied')) }catch{}
   }
   const copyBundleLinks = async ()=>{
-    const u = new URL(window.location.href)
     const links: string[] = []
 
-    const daily = new URL(u.toString())
-    daily.searchParams.set('screen','game')
-    daily.searchParams.set('seed', String(dailyPreset.seed))
-    daily.searchParams.set('class',dailyPreset.klass)
-    daily.searchParams.set('race',dailyPreset.race)
-    daily.searchParams.set('vis', visualPreset)
-    daily.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-    links.push(`daily=${daily.toString()}`)
+    links.push(`daily=${buildShareLink(dailyPreset.seed, dailyPreset.klass, dailyPreset.race)}`)
 
     if(lastRun){
-      const last = new URL(u.toString())
-      last.searchParams.set('screen','game')
-      last.searchParams.set('seed', String(lastRun.seed))
-      last.searchParams.set('class', lastRun.klass)
-      last.searchParams.set('race', lastRun.race)
-      last.searchParams.set('vis', visualPreset)
-      last.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')
-      links.push(`last=${last.toString()}`)
+      links.push(`last=${buildShareLink(lastRun.seed, lastRun.klass, lastRun.race)}`)
     }
 
     try{ await navigator.clipboard.writeText(links.join('\n')); setStatus('Link bundle copied.') }catch{}
