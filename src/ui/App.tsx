@@ -199,6 +199,7 @@ export default function App(){
   const highContrast = getHighContrastFromUrl()
   const visualPresetLabel = visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'
   const seenEnemyIds = useRef<Set<string>>(new Set())
+  const knownEnemyKinds = useRef<Record<string,string>>({})
   const lastUnderfootItemId = useRef<string>('')
 
   const appendActionLog = (msg:string, tick?:number)=>{
@@ -214,7 +215,7 @@ export default function App(){
   const enemyNameFromId = (id:string)=>{
     const st = (window as any).game?.getState?.()
     const e = st?.entities?.find((x:any)=>x?.id===id)
-    return e?.kind || id || 'enemy'
+    return e?.kind || knownEnemyKinds.current[id] || id || 'enemy'
   }
   const itemLabel = (kind:string|undefined)=>{
     const k = String(kind || 'item')
@@ -540,6 +541,7 @@ export default function App(){
     if(!snapshot) return
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
     const visibleMonsters = (snapshot.entities||[]).filter(e=>e.type==='monster' && e.pos && vis.has(`${e.pos.x},${e.pos.y}`))
+    for(const e of (snapshot.entities||[])) if(e.type==='monster' && e.id) knownEnemyKinds.current[e.id] = String(e.kind || 'enemy')
     for(const m of visibleMonsters){
       if(seenEnemyIds.current.has(m.id)) continue
       seenEnemyIds.current.add(m.id)

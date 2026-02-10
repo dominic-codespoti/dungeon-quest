@@ -152,6 +152,7 @@ const checks = [
   ["action log tone helper", "const actionLogTone = (line:string)=>{"],
   ["all events feed action log", "appendActionLog(eventToLogLine(e), e?.tick)"],
   ["action log enemy-id resolver", "const enemyNameFromId = (id:string)=>{"],
+  ["action log remembers known enemy kinds", "const knownEnemyKinds = useRef<Record<string,string>>({})"],
   ["action log item label helper", "const itemLabel = (kind:string|undefined)=>{"],
   ["action log enemy spot flavor helper", "const spotLineForKind = (kind:string)=>{"],
   ["enemy spotted log line via flavor helper", "appendActionLog(spotLineForKind(String(m.kind || 'enemy')), snapshot.tick)"],
