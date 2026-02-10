@@ -1084,7 +1084,7 @@ export default function App(){
     <div className='dq-shell'>
       <div className='dq-arena'>
         <div className='dq-center'>
-          <div className='dq-center-head'>WASD/Arrows move (+ diagonals: numpad 7/9/1/3) · Shift+Dir dash · Skills from Hotbar · E interact · Space wait · X auto-equip · Z sort inv · U unequip all · R new run · T retry seed · C copy seed · V copy link (preserves Visual) · P pregame · M menu · ?/H help</div>
+          <div className='dq-center-head'>Hotkeys: ?/H help · E interact · M menu · R new run · V copy link</div>
           <div className='dq-canvas-wrap'>
             {showRendererFallback && (
               <div style={{position:'absolute', left:16, top:40, zIndex:20, background:'rgba(8,12,20,0.88)', border:'1px solid rgba(124,156,255,0.5)', borderRadius:8, padding:'8px 10px', fontSize:12, color:'#dce8ff'}}>
