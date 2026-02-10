@@ -114,6 +114,8 @@ const checks = [
   ["merchant gating helper", "const merchantNearby = useMemo(()=>{"],
   ["merchant gating buy label", "Need Merchant"],
   ["merchant guidance text", "Find and stand next to the Merchant to access essence offers."],
+  ["merchant talk hint text", "press E (or Talk) to open offers."],
+  ["merchant talk button", "Talk (E)"],
   ["merchant blocked status copy", "Move next to the Merchant to buy."],
   ["shop spirit bonus vector preview", "ATK+{o.core?.bonuses?.atk||0} DEF+{o.core?.bonuses?.def||0} HP+{o.core?.bonuses?.hp||0} DEX+{o.core?.bonuses?.dex||0}"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
