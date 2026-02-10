@@ -82,6 +82,8 @@ const mountChecks = [
   ["boss intro title card", "showBossIntro('BOSS ENCOUNTER')"],
   ["enemy hp bar store tracks last hp", "const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}"],
   ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
+  ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],
+  ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -103,6 +105,7 @@ const absentChecks = [
   ["legacy direct bash hotkey removed", "if(ev.key==='b' || ev.key==='B') castOrArm('bash')"],
   ["legacy sidebar title removed", "className='dq-title'"],
   ["legacy sidebar objective block removed", "Objective: {objectiveText}"],
+  ["player halo removed", "playerHalo"],
 ]
 const absentFailures = absentChecks.filter(([, needle]) => src.includes(needle))
 
