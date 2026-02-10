@@ -101,6 +101,8 @@ const absentChecks = [
   ["legacy direct guard hotkey removed", "if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})"],
   ["legacy direct backstep hotkey removed", "if(ev.key==='q' || ev.key==='Q') castOrArm('backstep')"],
   ["legacy direct bash hotkey removed", "if(ev.key==='b' || ev.key==='B') castOrArm('bash')"],
+  ["legacy sidebar title removed", "className='dq-title'"],
+  ["legacy sidebar objective block removed", "Objective: {objectiveText}"],
 ]
 const absentFailures = absentChecks.filter(([, needle]) => src.includes(needle))
 
