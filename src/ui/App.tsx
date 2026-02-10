@@ -1075,6 +1075,10 @@ export default function App(){
 
           <div className='dq-side-section-label'>Build / Economy</div>
           <div className='dq-build-module'>
+          <div className='dq-build-snapshot'>
+            <div className='dq-build-chip'>Essence <b>{snapshot?.essence ?? 0}</b></div>
+            <div className='dq-build-chip'>Spirits <b>{snapshot?.spiritCores?.filter(s=>s.equipped).length ?? 0} equipped</b></div>
+          </div>
 
           <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}>Spirits</h3>

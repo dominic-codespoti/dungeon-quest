@@ -86,6 +86,22 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
   background: rgba(14,22,42,.35);
   padding: 6px 8px 8px;
 }
+.dq-build-snapshot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.dq-build-chip {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 7px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+.dq-build-chip b {
+  float: right;
+}
 .dq-module-list {
   max-height: 180px;
 }

@@ -142,6 +142,8 @@ const checks = [
   ["combat module wrapper class", "className='dq-combat-module'"],
   ["build economy section label", "Build / Economy"],
   ["build economy module wrapper", "className='dq-build-module'"],
+  ["build economy snapshot row", "className='dq-build-snapshot'"],
+  ["build economy snapshot essence chip", "Essence <b>{snapshot?.essence ?? 0}</b>"],
   ["build/economy uses shared module lists", "className='dq-equip-list dq-module-list'"],
   ["hotbar row uses cohesive class", "className='dq-skillrow dq-hotbar'"],
   ["hotbar explanatory hint", "Combat skills live here; inventory/loadout sits directly below for quick tactical swaps."],
