@@ -1074,6 +1074,7 @@ export default function App(){
           </div>
 
           <div className='dq-side-section-label'>Build / Economy</div>
+          <div className='dq-build-module'>
 
           <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}>Spirits</h3>
@@ -1137,6 +1138,7 @@ export default function App(){
           </div>
           </>
           )}
+          </div>
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>

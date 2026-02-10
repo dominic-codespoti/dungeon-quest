@@ -80,6 +80,12 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
 .dq-side-subhead h3 {
   font-size: 14px;
 }
+.dq-build-module {
+  border: 1px solid rgba(124,156,255,.16);
+  border-radius: 10px;
+  background: rgba(14,22,42,.35);
+  padding: 6px 8px 8px;
+}
 .dq-hotbar button {
   min-width: 108px;
   justify-content: flex-start;
