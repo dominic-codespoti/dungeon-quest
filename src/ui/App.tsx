@@ -806,6 +806,7 @@ export default function App(){
                 <li>New enemies: Spitter, Sentinel</li>
                 <li>New items: Bomb, Blink Shard, Chest, Shrine, Fountain, Rift Orb</li>
                 <li>Run goal: descend deeper and survive escalating threats</li>
+                <li>Visual presets: Normal / Readable / Crisp (Readable is now default)</li>
               </ul>
               <button onClick={()=>setShowPatchNotes(false)}>Close</button>
             </div>
