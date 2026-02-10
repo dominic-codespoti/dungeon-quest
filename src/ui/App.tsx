@@ -749,7 +749,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links · J Copy Daily Link · K Copy Profile · F Toggle Damage Numbers · P/R/H/? Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links (preserve Visual) · J Copy Daily Link · K Copy Profile · F Toggle Damage Numbers · P/R/H/? Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
