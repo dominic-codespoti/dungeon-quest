@@ -164,6 +164,7 @@ export class Engine{
     const potionCount = this.floorModifier==='scarce-potions' ? 0 : this.floor>=4 ? 2 : 1
     for(let i=0;i<potionCount;i++) this.spawnItem(`i${this.floor}-p${i+1}`,'potion')
     this.spawnItem(`i${this.floor}-r1`,'relic')
+    if(this.floorModifier==='scarce-potions') this.spawnItem(`i${this.floor}-cache1`,'chest')
 
     // Item variety pass: utility + risk/reward pickups.
     if(this.floor % 2 === 0) this.spawnItem(`i${this.floor}-e1`,'elixir')

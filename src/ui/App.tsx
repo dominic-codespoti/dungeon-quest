@@ -218,7 +218,11 @@ export default function App(){
       if(e.type==='gear_equipped') setStatus(`Equipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='gear_replaced') setStatus(`Swapped out ${e.payload?.removed?.name || 'gear'}.`)
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
-      if(e.type==='floor_brief') setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${e.payload?.modifier ?? 'none'}).`)
+      if(e.type==='floor_brief'){
+        const mod = String(e.payload?.modifier || 'none')
+        const modLabel = mod==='ambush' ? 'ambush' : mod==='brute-heavy' ? 'brute-heavy' : mod==='scarce-potions' ? 'scarce-potions' : mod==='swarm' ? 'swarm' : 'none'
+        setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${modLabel}).`)
+      }
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')
       if(e.type==='clear_reward') setStatus('Floor cleared: reward chest spawned.')
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')
