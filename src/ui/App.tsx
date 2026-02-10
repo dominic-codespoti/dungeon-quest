@@ -28,6 +28,8 @@ type Snapshot = {
   spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,bonuses:{atk:number,def:number,hp:number,dex:number},note?:string,equipped?:boolean}>
   spiritMajorSlots?: number
   spiritMinorSlots?: number
+  shopOffers?: Array<{id:string,name:string,kind:'essence-pack'|'spirit-core',cost:number,essenceAmount?:number,core?:{spirit:string,modifier:string,tier:'major'|'minor'}}>
+  shopRerollCost?: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown:number
   backstepCooldown:number
@@ -262,6 +264,10 @@ export default function App(){
       if(e.type==='spirit_core_equipped') setStatus(`Spirit equipped: ${e.payload?.spirit || 'core'} (${e.payload?.modifier || 'pure'}).`)
       if(e.type==='spirit_core_unequipped') setStatus(`Spirit unequipped: ${e.payload?.spirit || 'core'}.`)
       if(e.type==='spirit_equip_blocked') setStatus(e.payload?.reason==='major_slots_full' ? 'Major spirit slots full.' : 'Minor spirit slots full.')
+      if(e.type==='shop_purchase') setStatus(`Shop: bought ${e.payload?.name || 'offer'} (cost ${e.payload?.cost || 0}).`)
+      if(e.type==='shop_buy_blocked') setStatus(`Shop: need ${e.payload?.cost || 0} essence (have ${e.payload?.essence || 0}).`)
+      if(e.type==='shop_rerolled') setStatus(`Shop rerolled (cost ${e.payload?.cost || 0}, rerolls ${e.payload?.rerolls || 0}).`)
+      if(e.type==='shop_reroll_blocked') setStatus(`Shop reroll needs ${e.payload?.cost || 0} essence.`)
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
@@ -1064,6 +1070,26 @@ export default function App(){
                 {!s.equipped && <button disabled={Boolean(blockedReason)} style={{marginTop:4,fontSize:11,opacity:blockedReason?0.6:1}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
                 {s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipSpiritCore?.(idx)}>Remove</button>}
               </div>
+              )
+            })}
+          </div>
+
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
+            <h3 style={{margin:0}}>Essence Shop</h3>
+            <button style={{fontSize:11}} onClick={()=> (window as any).game?.rerollShopOffers?.()}>Reroll ({snapshot?.shopRerollCost ?? 20})</button>
+          </div>
+          <div className='dq-equip-list'>
+            {(snapshot?.shopOffers || []).length===0 && <div style={{opacity:0.7}}>No offers. Try rerolling.</div>}
+            {(snapshot?.shopOffers || []).map((o,idx)=>{
+              const afford = (snapshot?.essence ?? 0) >= (o.cost || 0)
+              return (
+                <div className='dq-item' key={o.id} style={{opacity: afford ? 1 : 0.72}}>
+                  <div className='name'>{o.name}</div>
+                  <div className='meta'>{o.kind} · cost {o.cost}</div>
+                  {o.kind==='essence-pack' && <div>Gain +{o.essenceAmount || 0} essence</div>}
+                  {o.kind==='spirit-core' && <div>Core: {o.core?.spirit || 'Unknown'} · {o.core?.tier || 'minor'} · {o.core?.modifier || 'pure'}</div>}
+                  <button disabled={!afford} style={{marginTop:4,fontSize:11,opacity:afford?1:0.6}} onClick={()=> (window as any).game?.buyShopOffer?.(idx)}>{afford ? 'Buy' : 'Need Essence'}</button>
+                </div>
               )
             })}
           </div>

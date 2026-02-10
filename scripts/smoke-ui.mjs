@@ -82,6 +82,8 @@ const checks = [
   ["spirit panel header", "Spirits</h3>"],
   ["spirit panel implant action", "Implant"],
   ["spirit panel blocked reason inline", "Major slots full"],
+  ["essence shop header", "Essence Shop"],
+  ["essence shop reroll button", "Reroll ("],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
@@ -128,6 +130,8 @@ const mountChecks = [
   ["mount exposes sort api", "sortInventory: ()=> eng.sortInventory()"],
   ["mount exposes spirit equip api", "equipSpiritCore: (index:number)=> eng.equipSpiritCore(index)"],
   ["mount exposes spirit unequip api", "unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index)"],
+  ["mount exposes shop buy api", "buyShopOffer: (index:number)=> eng.buyShopOffer(index)"],
+  ["mount exposes shop reroll api", "rerollShopOffers: ()=> eng.rerollShopOffers()"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -170,6 +174,9 @@ const engineChecks = [
   ["engine spirit equip method", "equipSpiritCore(index:number){"],
   ["engine spirit unequip method", "unequipSpiritCore(index:number){"],
   ["engine spirit blocked reason state", "lastSpiritEquipBlockedReason"],
+  ["engine shop refresh helper", "private refreshShopOffers(){"],
+  ["engine shop buy method", "buyShopOffer(index:number){"],
+  ["engine shop reroll method", "rerollShopOffers(){"],
   ["engine score helper", "private scoreForKill(kind:string|undefined){"],
   ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]

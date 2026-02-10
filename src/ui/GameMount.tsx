@@ -75,7 +75,9 @@ export default function GameMount(){
         unequipAll: ()=> eng.unequipAll(),
         sortInventory: ()=> eng.sortInventory(),
         equipSpiritCore: (index:number)=> eng.equipSpiritCore(index),
-        unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index)
+        unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index),
+        buyShopOffer: (index:number)=> eng.buyShopOffer(index),
+        rerollShopOffers: ()=> eng.rerollShopOffers()
       }
 
       const scene = g.scene.scenes[0]

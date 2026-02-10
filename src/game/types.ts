@@ -7,6 +7,15 @@ export type Rarity = 'common'|'magic'|'rare'|'epic'
 
 export type SpiritModifier = 'pure'|'empowered'|'corrupted'|'fractured'
 
+export type ShopOffer = {
+  id: string
+  name: string
+  kind: 'essence-pack'|'spirit-core'
+  cost: number
+  essenceAmount?: number
+  core?: SpiritCore
+}
+
 export type SpiritCore = {
   id: string
   spirit: string
@@ -66,6 +75,8 @@ export type GameSnapshot = {
   spiritCores: SpiritCore[]
   spiritMajorSlots: number
   spiritMinorSlots: number
+  shopOffers: ShopOffer[]
+  shopRerollCost: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown: number
   backstepCooldown: number
