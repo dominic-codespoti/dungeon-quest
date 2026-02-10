@@ -88,6 +88,7 @@ export default function GameMount(){
           let fogGraphics: any
           let flashOverlay: any
           let targetingGraphics: any
+          let playerHalo: any
           let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -288,19 +289,23 @@ export default function GameMount(){
             const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
             Object.keys(floorDisplays).forEach(k=>{
-              if(vis.has(k)) floorDisplays[k].setAlpha(0.9)
-              else if(seen.has(k)) floorDisplays[k].setAlpha(0.23)
-              else floorDisplays[k].setAlpha(0)
+              if(vis.has(k)) floorDisplays[k].setAlpha(0.95)
+              else if(seen.has(k)) floorDisplays[k].setAlpha(0.3)
+              else floorDisplays[k].setAlpha(0.08)
             })
 
             Object.keys(wallDisplays).forEach(k=>{
               if(vis.has(k)) wallDisplays[k].setAlpha(1)
-              else if(seen.has(k)) wallDisplays[k].setAlpha(0.32)
-              else wallDisplays[k].setAlpha(0)
+              else if(seen.has(k)) wallDisplays[k].setAlpha(0.38)
+              else wallDisplays[k].setAlpha(0.06)
             })
 
             let activeBoss:any = null
             const p = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
+            if(playerHalo){
+              const pp = toScreen(p)
+              playerHalo.setPosition(pp.x, pp.y)
+            }
             ;(state.entities||[]).forEach((ent:any)=>{
               const d = displays[ent.id]
               if(!d) return
@@ -564,6 +569,8 @@ export default function GameMount(){
 
             fogGraphics = sc.add.graphics().setDepth(500)
             targetingGraphics = sc.add.graphics().setDepth(700)
+            if(playerHalo){ try{ playerHalo.destroy() }catch{} }
+            playerHalo = sc.add.circle(0,0, Math.max(4, tileSize*0.33), 0x87b3ff, 0.2).setDepth(340)
             paintFog()
             applyVision()
             drawTargeting()
