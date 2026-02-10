@@ -783,6 +783,17 @@ export class Engine{
     this.updateVision()
     const playerPos = player.pos
     const monsters = this.entities.filter(e=>e.type==='monster')
+
+    const tryMoveMonster = (m:any, nd:Coord, via='path')=>{
+      if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) return false
+      if(this.isWall(nd)) return false
+      const occ = this.entities.find(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)
+      if(occ) return false
+      m.pos = nd
+      this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd,via}})
+      return true
+    }
+
     monsters.forEach(m=>{
       const kind = m.kind || 'chaser'
       const attacks = (kind==='skitter' && this.tick % 3 === 0) || (kind==='boss' && this.tick % 2 === 0) ? 0 : 1
@@ -825,18 +836,43 @@ export class Engine{
         }
       }
 
-      if(kind==='spitter' && distance<=4 && distance>1 && this.hasLineOfSight(m.pos, playerPos)){
-        let spit = Math.max(0, 1 - this.defenseBonus)
-        if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
-        player.hp = (player.hp||0) - spit
-        this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:spit,kind,via:'spit'}})
-        this.emit({tick:this.tick,type:'spit_used',payload:{id:m.id,damage:spit}})
-        return
+      if(kind==='spitter'){
+        const canSpit = distance<=5 && distance>1 && this.hasLineOfSight(m.pos, playerPos)
+        if(canSpit){
+          let spit = Math.max(0, 1 - this.defenseBonus)
+          if(this.guardActive){ spit = Math.max(0, spit-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
+          player.hp = (player.hp||0) - spit
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:spit,kind,via:'spit'}})
+          this.emit({tick:this.tick,type:'spit_used',payload:{id:m.id,damage:spit}})
+          return
+        }
+        // Kiting behavior: if too close, retreat to hold range.
+        if(distance<=2){
+          const away = {x:m.pos.x - Math.sign(dx), y:m.pos.y - Math.sign(dy)}
+          if(tryMoveMonster(m, away, 'kite')) return
+        }
       }
 
       if(kind==='sentinel' && distance>1){
-        // Sentinel anchors space: no chase, only zone control.
+        // Sentinel anchors lanes and zaps nearby intruders, otherwise holds space.
+        if(distance<=2 && this.hasLineOfSight(m.pos, playerPos)){
+          let zap = Math.max(0, 1 - this.defenseBonus)
+          if(this.guardActive){ zap = Math.max(0, zap-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
+          player.hp = (player.hp||0) - zap
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:zap,kind,via:'zap'}})
+        }
         return
+      }
+
+      if(kind==='brute' && distance===2 && (dx===0 || dy===0)){
+        const step = {x:m.pos.x + Math.sign(dx), y:m.pos.y + Math.sign(dy)}
+        if(tryMoveMonster(m, step, 'lunge')){
+          let crash = Math.max(0, 2 - this.defenseBonus)
+          if(this.guardActive){ crash = Math.max(0, crash-1); this.guardActive = false; this.emit({tick:this.tick,type:'guard_triggered'}) }
+          player.hp = (player.hp||0) - crash
+          this.emit({tick:this.tick,type:'combat',payload:{attacker:m.id,target:'p',damage:crash,kind,via:'lunge'}})
+          return
+        }
       }
 
       if(distance===1){
@@ -849,7 +885,7 @@ export class Engine{
       }
 
       const pathStep = this.nextStepToward(m.pos, playerPos, m.id)
-      if(pathStep){ m.pos = pathStep; this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:pathStep,via:'path'}}); return }
+      if(pathStep && tryMoveMonster(m, pathStep, 'path')) return
 
       const movePref: Coord[] = []
       if(kind==='skitter') movePref.push({x:Math.sign(dy),y:0},{x:0,y:Math.sign(dx)},{x:Math.sign(dx),y:0},{x:0,y:Math.sign(dy)})
@@ -858,10 +894,7 @@ export class Engine{
 
       for(const step of movePref){
         const nd = {x:m.pos.x + step.x, y:m.pos.y + step.y}
-        if(nd.x<0 || nd.x>=this.width || nd.y<0 || nd.y>=this.height) continue
-        if(this.isWall(nd)) continue
-        const occ = this.entities.find(e=>e.id!==m.id && e.pos.x===nd.x && e.pos.y===nd.y)
-        if(!occ){ m.pos = nd; this.emit({tick:this.tick,type:'move',payload:{id:m.id,to:nd}}); break }
+        if(tryMoveMonster(m, nd, kind==='skitter' ? 'skitter-step' : 'advance')) break
       }
     })
 

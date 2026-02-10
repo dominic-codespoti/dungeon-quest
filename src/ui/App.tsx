@@ -147,6 +147,7 @@ export default function App(){
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
+  const [showInventoryPanel,setShowInventoryPanel] = useState(false)
 
   const closeMenuModals = ()=>{
     setShowPatchNotes(false)
@@ -900,18 +901,23 @@ export default function App(){
             {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel Targeting</button>}
           </div>
 
-          <h3 style={{margin:'8px 0 0'}}><I src={treasureIcon}/>Equipment</h3>
-          <div className='dq-equip-list'>
-            {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
-            {(snapshot?.inventory || []).map((it,idx)=>(
-              <div className='dq-item' key={idx}>
-                <div className='name'>{it.name}</div>
-                <div className='meta'>{it.itemClass} · {it.rarity}</div>
-                <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
-                {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
-              </div>
-            ))}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
+            <h3 style={{margin:0}}><I src={treasureIcon}/>Equipment</h3>
+            <button onClick={()=>setShowInventoryPanel(v=>!v)} style={{fontSize:11}}>{showInventoryPanel ? 'Hide' : 'Show'}</button>
           </div>
+          {showInventoryPanel && (
+            <div className='dq-equip-list'>
+              {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear equipped yet.</div>}
+              {(snapshot?.inventory || []).map((it,idx)=>(
+                <div className='dq-item' key={idx}>
+                  <div className='name'>{it.name}</div>
+                  <div className='meta'>{it.itemClass} · {it.rarity}</div>
+                  <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
+                  {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
+                </div>
+              ))}
+            </div>
+          )}
         </aside>
       </div>
 
