@@ -751,7 +751,7 @@ export default function App(){
             Latest: boss charge/slam telegraphs, spitter/sentinel enemies, shrine/fountain/rift orb items.
           </div>
           {lastRun && <div style={{fontSize:11,opacity:0.8, marginBottom:8}}>Last run: floor {lastRun.floor}, score {lastRun.score}, {lastRun.klass}/{lastRun.race}</div>}
-          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links (preserve Visual) · J Copy Daily Link · K Copy Profile · F Toggle Damage Numbers · P/R/H/? Primer · N Notes · L Legend · O Records</div>
+          <div style={{fontSize:11,opacity:0.7, marginBottom:4}}>Hotkeys: Enter Play · A Quick Start · Y Resume Last · G Open Last Build · U Copy Last Seed · Z Daily Build · D Daily Challenge · V Copy Daily Preset · I Copy Links (preserves Visual) · J Copy Daily Link · K Copy Profile · F Toggle Damage Numbers · P/R/H/? Primer · N Notes · L Legend · O Records</div>
           <div style={{display:'flex',alignItems:'center',gap:8,fontSize:11,opacity:0.65, marginBottom:8,flexWrap:'wrap'}}>
             <span>Daily seed: {dailyPreset.seed} ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</span>
             <button style={{fontSize:10}} title='copies seed only' onClick={async()=>{ try{ await navigator.clipboard.writeText(String(dailyPreset.seed)); setStatus('Daily seed copied.') }catch{} }}>Copy Seed</button>
@@ -838,7 +838,7 @@ export default function App(){
               <p>Best Score: <b>{bestScore}</b></p>
               <p>Best Floor: <b>{bestFloor}</b></p>
               <p>Daily Seed: <b>{dailyPreset.seed}</b> ({dailyPreset.klass}/{dailyPreset.race}) · resets in {getDailyResetEta()} (UTC)</p>
-              <p style={{fontSize:11,opacity:0.7,marginTop:-4}}>Quick keys: {lastRun ? 'Y resume last · G open last build · U copy last seed · ' : ''}Z open daily build · D play daily · V daily preset · J daily link · I link bundle (preserve Visual) · K profile · Esc close</p>
+              <p style={{fontSize:11,opacity:0.7,marginTop:-4}}>Quick keys: {lastRun ? 'Y resume last · G open last build · U copy last seed · ' : ''}Z open daily build · D play daily · V daily preset · J daily link · I link bundle (preserves Visual) · K profile · Esc close</p>
               {lastRun && <p style={{fontSize:12,opacity:0.9}}>Last Run: score {lastRun.score}, floor {lastRun.floor}, eff {lastRun.efficiency ?? 0}/turn, {lastRun.klass}/{lastRun.race}, seed {lastRun.seed}</p>}
               <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
                 <button title='best_score + best_floor' onClick={async()=>{ try{ await navigator.clipboard.writeText(`best_score=${bestScore} best_floor=${bestFloor}`); setStatus('Best stats copied.') }catch{} }}>Copy Best Stats</button>
