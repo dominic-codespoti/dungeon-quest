@@ -19,10 +19,22 @@
   - `checked-shield` (Lorc)
   - `totem-head` (Lorc)
 
-## Tile/Surface Textures
-- Source: https://www.transparenttextures.com
-- Files:
-  - `dark-mosaic` (floor)
-  - `brick-wall-dark` (walls)
+## Roguelike Tileset & Sprite Art
+- Source: Kenney — Tiny Dungeon
+  - https://kenney.nl/assets/tiny-dungeon
+- License: **Creative Commons CC0 1.0**
+- Files used (tile indices from pack):
+  - `floor.png` ← `tile_0038.png`
+  - `wall.png` ← `tile_0040.png`
+  - `knight.png` ← `tile_0096.png`
+  - `rogue.png` ← `tile_0098.png`
+  - `chaser.png` ← `tile_0109.png`
+  - `brute.png` ← `tile_0110.png`
+  - `skitter.png` ← `tile_0122.png`
+  - `stairs.png` ← `tile_0078.png`
+  - `relic.png` ← `tile_0101.png`
+  - `gear.png` ← `tile_0103.png`
+  - `idol.png` ← `tile_0121.png`
+  - `potion.png` ← `tile_0113.png`
 
-Please keep attribution when distributing builds.
+Please keep attribution notes when distributing builds.
