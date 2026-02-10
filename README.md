@@ -105,10 +105,12 @@ The game exposes copy helpers that generate URL-style launch links (seed/class/r
 
 Typical forms:
 
-- Run link: `...?seed=<number>&class=<knight|rogue>&race=<human|elf|dwarf>`
+- Run link: `...?seed=<number>&class=<knight|rogue>&race=<human|elf|dwarf>&vis=<normal|readable|crisp>&contrast=<0|1>`
 - Daily link: same shape, using current UTC daily seed/preset
 - Last-run link: same shape, using persisted last-run snapshot
 - Link bundle: multiline export combining key launch/copy variants for sharing
+
+Links preserve the current visual preset so recipients see the same readability profile you intended.
 
 Use these links to relaunch deterministic presets quickly across sessions/devices.
 
