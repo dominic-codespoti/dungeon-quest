@@ -71,11 +71,6 @@ const checks = [
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
-  ["meta progress model exists", "type MetaProgress = {unlocks:{rogueKit:boolean, tacticalCache:boolean, veteranInsight:boolean},milestones:{bestFloor:number,bestScore:number,runs:number}}"],
-  ["meta records show unlocks", "Unlocks:"],
-  ["meta keeps run count", "Runs: <b>{metaProgress.milestones.runs}</b>"],
-  ["links include unlock params helper", "const applyUnlockParams = (u:URL)=>{"],
-  ["launch preset carries unlock params", "ukit: metaProgress.unlocks.rogueKit ? 1 : undefined"],
 ]
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
@@ -89,10 +84,6 @@ const mountChecks = [
   ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
   ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],
   ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
-  ["mount reads unlock params", "function getUnlocksFromUrl(){"],
-  ["engine receives unlocks", "const eng = new Engine(30,30,seed,klass,race,unlocks)"],
-  ["hard renderer reset helper", "const tryHardRendererReset = (reason:string)=>{"],
-  ["dim collapse triggers hard reset", "if(dimRatio > 0.965 && forcedSceneRebuilds >= 2 && forcedVisionRecoveries >= 4){"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -101,10 +92,7 @@ const engineChecks = [
   ["knight starts with short sword", "name:'Short Sword'"],
   ["rogue starts with dagger", "name:'Rogue Dagger'"],
   ["starting gear applied on initial floor", "for(const gear of this.buildStartingGear()) this.equipGear(gear, player)"],
-  ["engine unlock type", "type UnlockFlags = {rogueKit?:boolean,tacticalCache?:boolean,veteranInsight?:boolean}"],
-  ["rogue unlock kit item", "name:'Throwing Knife Kit'"],
-  ["tactical cache unlock adds chest", "if(this.unlocks.tacticalCache && this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-cache-${this.tick}`,'chest')"],
-  ["veteran insight raises vision radius", "const radius = this.unlocks.veteranInsight ? 9 : 8"],
+  ["base vision radius", "const radius = 8"],
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
 ]

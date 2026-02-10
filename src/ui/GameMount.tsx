@@ -31,26 +31,15 @@ function getFloatNumbersFromUrl(){
 function getHighContrastFromUrl(){
   return new URLSearchParams(window.location.search).get('contrast') === '1'
 }
-function getUnlocksFromUrl(){
-  const p = new URLSearchParams(window.location.search)
-  return {
-    rogueKit: p.get('ukit') === '1',
-    tacticalCache: p.get('ucache') === '1',
-    veteranInsight: p.get('uinsight') === '1',
-  }
-}
 function getVisionDebugFromUrl(){
   return new URLSearchParams(window.location.search).get('debugvis') === '1'
 }
 
-function navigate(seed:number, klass:PlayerClass, race:PlayerRace, unlocks:{rogueKit:boolean,tacticalCache:boolean,veteranInsight:boolean}){
+function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
   const u = new URL(window.location.href)
   u.searchParams.set('seed', String(seed))
   u.searchParams.set('class', klass)
   u.searchParams.set('race', race)
-  if(unlocks.rogueKit) u.searchParams.set('ukit','1'); else u.searchParams.delete('ukit')
-  if(unlocks.tacticalCache) u.searchParams.set('ucache','1'); else u.searchParams.delete('ucache')
-  if(unlocks.veteranInsight) u.searchParams.set('uinsight','1'); else u.searchParams.delete('uinsight')
   window.location.href = u.toString()
 }
 
@@ -59,25 +48,6 @@ export default function GameMount(){
   useEffect(()=>{
     let unsub:()=>void = ()=>{}
     let cancelled = false
-
-    const tryHardRendererReset = (reason:string)=>{
-      try{
-        const key = 'dq_renderer_hard_resets'
-        const used = Number(sessionStorage.getItem(key) || '0')
-        if(used >= 2) return false
-        sessionStorage.setItem(key, String(used + 1))
-        const u = new URL(window.location.href)
-        u.searchParams.set('_rboot', String(Date.now()))
-        u.searchParams.set('_rreason', reason.slice(0, 24))
-        console.warn('[GameMount] hard renderer reset', {reason, attempt: used + 1})
-        window.location.replace(u.toString())
-        return true
-      }catch(err){
-        console.error('[GameMount] hard renderer reset failed', err)
-        return false
-      }
-    }
-
     if(ref.current){
       const g = createGame(ref.current)
 
@@ -87,18 +57,17 @@ export default function GameMount(){
       const showDamageNumbers = getFloatNumbersFromUrl()
       const highContrast = getHighContrastFromUrl()
       const visionDebug = getVisionDebugFromUrl()
-      const unlocks = getUnlocksFromUrl()
-      const eng = new Engine(30,30,seed,klass,race,unlocks)
+      const eng = new Engine(30,30,seed,klass,race)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
         getSeed: ()=> seed,
         getClass: ()=> klass,
         getRace: ()=> race,
-        resetSameSeed: ()=> navigate(seed, klass, race, unlocks),
-        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race, unlocks),
-        setClass: (next:PlayerClass)=> navigate(seed, next, race, unlocks),
-        setRace: (next:PlayerRace)=> navigate(seed, klass, next, unlocks),
+        resetSameSeed: ()=> navigate(seed, klass, race),
+        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race),
+        setClass: (next:PlayerClass)=> navigate(seed, next, race),
+        setRace: (next:PlayerRace)=> navigate(seed, klass, next),
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) },
         equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index)
       }
@@ -129,8 +98,6 @@ export default function GameMount(){
           let flashOverlay: any
           let targetingGraphics: any
           let visionDebugText: any
-          let forcedVisionRecoveries = 0
-          let forcedSceneRebuilds = 0
           let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -367,32 +334,6 @@ export default function GameMount(){
 
             // Last-line visual safety net: if almost everything is near-black while state is live,
             // force a readable baseline once and keep going.
-            const floorKeys = Object.keys(floorDisplays)
-            const wallKeys = Object.keys(wallDisplays)
-            const totalTiles = floorKeys.length + wallKeys.length
-            if(totalTiles > 0){
-              let dim = 0
-              for(const k of floorKeys){ if((floorDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
-              for(const k of wallKeys){ if((wallDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
-              const dimRatio = dim / totalTiles
-              if(dimRatio > 0.92 && forcedSceneRebuilds < 2){
-                forcedSceneRebuilds++
-                console.warn('[GameMount] forced scene rebuild', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedSceneRebuilds})
-                rebuildMapAndEntities(state)
-                return
-              }
-              if(dimRatio > 0.92 && forcedVisionRecoveries < 4){
-                forcedVisionRecoveries++
-                for(const k of floorKeys){ floorDisplays[k].setAlpha(Math.max(0.28, floorDisplays[k]?.alpha ?? 0)) }
-                for(const k of wallKeys){ wallDisplays[k].setAlpha(Math.max(0.24, wallDisplays[k]?.alpha ?? 0)) }
-                console.warn('[GameMount] forced vision recovery', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedVisionRecoveries})
-              }
-              if(dimRatio > 0.965 && forcedSceneRebuilds >= 2 && forcedVisionRecoveries >= 4){
-                const didReset = tryHardRendererReset('dim-collapse')
-                if(didReset) return
-              }
-            }
-
             let activeBoss:any = null
             const p = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
             ;(state.entities||[]).forEach((ent:any)=>{
@@ -677,10 +618,8 @@ export default function GameMount(){
             drawTargeting()
           }
 
-          let sawInitEvent = false
           const handler = (e:any)=>{
             if(e.type==='init'){
-              sawInitEvent = true
               rebuildMapAndEntities(e.payload || {})
             } else if(e.type==='move'){
               const id = e.payload.id
@@ -769,21 +708,9 @@ export default function GameMount(){
           unsub = eventBus.subscribe(handler)
           eventBus.getLines().forEach(l=>{ try{ handler(JSON.parse(l)) }catch(_){ } })
 
-          const initWatchdog = setTimeout(()=>{
-            if(sawInitEvent) return
-            console.warn('[GameMount] init watchdog triggered; forcing rebuild from snapshot')
-            try{
-              const st = (window as any).game?.getState?.()
-              if(st) rebuildMapAndEntities(st)
-              sawInitEvent = true
-            }catch(err){
-              console.error('[GameMount] init watchdog rebuild failed', err)
-            }
-          }, 1800)
-
           const visionPoll = setInterval(applyVision, 140)
           const oldUnsub = unsub
-          unsub = ()=>{ clearTimeout(initWatchdog); clearInterval(visionPoll); oldUnsub() }
+          unsub = ()=>{ clearInterval(visionPoll); oldUnsub() }
         }catch(err){ console.error('renderer setup failed',err) }
       }
 
