@@ -131,6 +131,7 @@ const checks = [
   ["hud secondary stats toggle label", "More Stats"],
   ["danger model includes ranged in-range weighting", "const rangedInRange = (kind==='spitter' && d>1 && d<=5) || (kind==='sentinel' && d>1 && d<=2)"],
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory / Loadout"],
+  ["inventory panel defaults open", "const [showInventoryPanel,setShowInventoryPanel] = useState(true)"],
   ["inventory quick auto-equip button", "Auto Equip"],
   ["inventory quick unequip-all button", "Unequip All"],
   ["inventory quick sort button", "Sort"],

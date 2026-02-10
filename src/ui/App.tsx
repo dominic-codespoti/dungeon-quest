@@ -166,7 +166,7 @@ export default function App(){
   const [showLegend,setShowLegend] = useState(false)
   const [showMeta,setShowMeta] = useState(false)
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
-  const [showInventoryPanel,setShowInventoryPanel] = useState(false)
+  const [showInventoryPanel,setShowInventoryPanel] = useState(true)
   const [showMerchantPanel,setShowMerchantPanel] = useState(false)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
