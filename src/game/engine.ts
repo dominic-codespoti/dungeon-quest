@@ -156,6 +156,7 @@ export class Engine{
       threat += cost
     }
 
+    this.enforceAmbushRangedThreat()
     this.applyEncounterTemplate()
 
     // Mini-boss prototype: every 3rd floor gets one heavy elite.
@@ -411,6 +412,20 @@ export class Engine{
       }
     }
     return false
+  }
+
+  private enforceAmbushRangedThreat(){
+    if(this.floorModifier!=='ambush') return
+    const monsters = this.entities.filter(e=>e.type==='monster' && e.kind!=='boss')
+    if(monsters.length===0) return
+    const hasRanged = monsters.some(m=>m.kind==='spitter' || m.kind==='sentinel')
+    if(hasRanged) return
+
+    const target = monsters.find(m=>m.kind==='skitter' || m.kind==='chaser') || monsters[0]
+    if(!target) return
+    target.kind = this.floor >= 7 ? 'sentinel' : 'spitter'
+    const hpBase = target.kind==='sentinel' ? 8 + Math.floor((this.floor-1)/3) : 4 + Math.floor((this.floor-1)/4)
+    target.hp = hpBase
   }
 
   private applyEncounterTemplate(){
