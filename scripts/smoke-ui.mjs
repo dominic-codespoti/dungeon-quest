@@ -3,8 +3,10 @@ import { resolve } from 'node:path'
 
 const appPath = resolve(process.cwd(), 'src/ui/App.tsx')
 const mountPath = resolve(process.cwd(), 'src/ui/GameMount.tsx')
+const enginePath = resolve(process.cwd(), 'src/game/engine.ts')
 const src = readFileSync(appPath, 'utf8')
 const mountSrc = readFileSync(mountPath, 'utf8')
+const engineSrc = readFileSync(enginePath, 'utf8')
 
 const checks = [
   ["shared helper: random seed", "function randomSeed(){"],
@@ -65,6 +67,9 @@ const checks = [
   ["renderer fallback state", "const [showRendererFallback,setShowRendererFallback] = useState(false)"],
   ["renderer fallback delayed", "const t = window.setTimeout(()=>setShowRendererFallback(true), 1600)"],
   ["renderer fallback retry button", "Renderer still initializing… <button onClick={retryRenderer}"],
+  ["sidebar stat: visible enemies", "Visible Enemies"],
+  ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
+  ["skills section header", "<I src={bootsIcon}/>Skills"],
 ]
 
 const failures = checks.filter(([, needle]) => !src.includes(needle))
@@ -79,16 +84,25 @@ const mountChecks = [
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
+const engineChecks = [
+  ["starting gear helper exists", "private buildStartingGear(): GeneratedItem[]"],
+  ["knight starts with short sword", "name:'Short Sword'"],
+  ["rogue starts with dagger", "name:'Rogue Dagger'"],
+  ["starting gear applied on initial floor", "for(const gear of this.buildStartingGear()) this.equipGear(gear, player)"],
+]
+const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
+
 const legacySeedExpr = "Math.floor(Math.random()*1_000_000)+1"
 const seedExprCount = src.split(legacySeedExpr).length - 1
 const seedExprGuardFailed = seedExprCount !== 1
 
-if (failures.length || mountFailures.length || seedExprGuardFailed) {
+if (failures.length || mountFailures.length || engineFailures.length || seedExprGuardFailed) {
   console.error('UI smoke checks failed:')
   for (const [name] of failures) console.error(`- missing: ${name}`)
   for (const [name] of mountFailures) console.error(`- mount missing: ${name}`)
+  for (const [name] of engineFailures) console.error(`- engine missing: ${name}`)
   if (seedExprGuardFailed) console.error(`- guard: expected exactly 1 random-seed expression (in helper), found ${seedExprCount}`)
   process.exit(1)
 }
 
-console.log(`UI smoke checks passed (${checks.length + mountChecks.length} checks, 1 guard).`)
+console.log(`UI smoke checks passed (${checks.length + mountChecks.length + engineChecks.length} checks, 1 guard).`)
