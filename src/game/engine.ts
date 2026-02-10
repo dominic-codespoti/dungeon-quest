@@ -8,6 +8,8 @@ function rng(seed:number){
 
 const key = (p:Coord)=> `${p.x},${p.y}`
 
+type UnlockFlags = {rogueKit?:boolean,tacticalCache?:boolean,veteranInsight?:boolean}
+
 export class Engine{
   tick = 0
   floor = 1
@@ -35,13 +37,15 @@ export class Engine{
   bossCharged = new Set<string>()
   gameOver = false
   outcome: 'victory'|'defeat'|undefined
+  unlocks: UnlockFlags = {}
   private rand: ()=>number
 
-  constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight', playerRace:PlayerRace='human'){
+  constructor(width=30,height=30,seed=1,playerClass:PlayerClass='knight', playerRace:PlayerRace='human', unlocks:UnlockFlags={}){
     this.width = width
     this.height = height
     this.playerClass = playerClass
     this.playerRace = playerRace
+    this.unlocks = unlocks || {}
     this.rand = rng(seed)
     this.applyRaceBonuses()
     this.setupFloor(true)
@@ -84,10 +88,14 @@ export class Engine{
 
   private buildStartingGear(): GeneratedItem[]{
     if(this.playerClass==='rogue'){
-      return [
+      const base: GeneratedItem[] = [
         {itemClass:'weapon', baseType:'Dagger', rarity:'common', name:'Rogue Dagger', atkBonus:1, defBonus:0, hpBonus:0, scoreValue:30, enchantments:['Quickdraw'], equipped:true},
         {itemClass:'armor', baseType:'Leather', rarity:'common', name:'Leather Jerkin', atkBonus:0, defBonus:1, hpBonus:0, scoreValue:30, enchantments:['Lightweight'], equipped:true},
       ]
+      if(this.unlocks.rogueKit){
+        base.push({itemClass:'weapon', baseType:'Throwing Knife', rarity:'common', name:'Throwing Knife Kit', atkBonus:1, defBonus:0, hpBonus:0, scoreValue:35, enchantments:['Hidden stash'], equipped:false})
+      }
+      return base
     }
     return [
       {itemClass:'weapon', baseType:'Short Sword', rarity:'common', name:'Short Sword', atkBonus:1, defBonus:0, hpBonus:0, scoreValue:30, enchantments:['Tempered'], equipped:true},
@@ -170,6 +178,7 @@ export class Engine{
     if(this.floor >= 2 && this.rand() < 0.45) this.spawnItem(`i${this.floor}-b1`,'bomb')
     if(this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-s1`,'blink-shard')
     if(this.floor >= 3 && this.rand() < 0.25) this.spawnItem(`i${this.floor}-c2`,'chest')
+    if(this.unlocks.tacticalCache && this.floor >= 2 && this.rand() < 0.35) this.spawnItem(`i${this.floor}-cache-${this.tick}`,'chest')
     if(this.floor >= 4 && this.rand() < 0.22) this.spawnItem(`i${this.floor}-h1`,'shrine')
     if(this.floor >= 5 && this.rand() < 0.18) this.spawnItem(`i${this.floor}-f1`,'fountain')
     if(this.floor >= 5 && this.rand() < 0.2) this.spawnItem(`i${this.floor}-r1`,'rift-orb')
@@ -450,7 +459,7 @@ export class Engine{
   private updateVision(){
     const player = this.entities.find(e=>e.id==='p')
     if(!player) return
-    const radius = 8
+    const radius = this.unlocks.veteranInsight ? 9 : 8
     this.visible.clear()
     for(let y=player.pos.y-radius; y<=player.pos.y+radius; y++){
       for(let x=player.pos.x-radius; x<=player.pos.x+radius; x++){

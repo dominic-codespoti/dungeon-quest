@@ -594,6 +594,12 @@ export default function App(){
     if(seed==null) return
     try{ await navigator.clipboard.writeText(String(seed)); setStatus(`Seed ${seed} copied.`) }catch{}
   }
+  const applyUnlockParams = (u:URL)=>{
+    if(metaProgress.unlocks.rogueKit) u.searchParams.set('ukit','1'); else u.searchParams.delete('ukit')
+    if(metaProgress.unlocks.tacticalCache) u.searchParams.set('ucache','1'); else u.searchParams.delete('ucache')
+    if(metaProgress.unlocks.veteranInsight) u.searchParams.set('uinsight','1'); else u.searchParams.delete('uinsight')
+  }
+
   const copyRunLink = async ()=>{
     if(seed==null) return
     const u = new URL(window.location.href)
@@ -601,6 +607,7 @@ export default function App(){
     u.searchParams.set('seed', String(seed))
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
+    applyUnlockParams(u)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Run link copied.') }catch{}
   }
   const copyCreateLaunchLink = async ()=>{
@@ -609,6 +616,7 @@ export default function App(){
     u.searchParams.set('seed', String(resolveChosenSeed(customSeed)))
     u.searchParams.set('class', klass)
     u.searchParams.set('race', race)
+    applyUnlockParams(u)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Create launch link copied.') }catch{}
   }
   const openCreateForCurrent = ()=>{
@@ -618,7 +626,12 @@ export default function App(){
     navigate({screen:'create', class:preset.klass, race:preset.race, seed:preset.seed})
   }
   const launchGamePreset = (preset:{klass:PlayerClass,race:PlayerRace,seed:number|string})=>{
-    navigate({screen:'game', class:preset.klass, race:preset.race, seed:preset.seed})
+    navigate({
+      screen:'game', class:preset.klass, race:preset.race, seed:preset.seed,
+      ukit: metaProgress.unlocks.rogueKit ? 1 : undefined,
+      ucache: metaProgress.unlocks.tacticalCache ? 1 : undefined,
+      uinsight: metaProgress.unlocks.veteranInsight ? 1 : undefined,
+    })
   }
   const copyLastRunLink = async ()=>{
     if(!lastRun) return
@@ -627,6 +640,7 @@ export default function App(){
     u.searchParams.set('seed', String(lastRun.seed))
     u.searchParams.set('class', lastRun.klass)
     u.searchParams.set('race', lastRun.race)
+    applyUnlockParams(u)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Last run link copied.') }catch{}
   }
   const copyLastRunSeed = async ()=>{
@@ -670,6 +684,7 @@ export default function App(){
     u.searchParams.set('seed', String(dailyPreset.seed))
     u.searchParams.set('class',dailyPreset.klass)
     u.searchParams.set('race',dailyPreset.race)
+    applyUnlockParams(u)
     try{ await navigator.clipboard.writeText(u.toString()); setStatus('Daily challenge link copied.') }catch{}
   }
   const copyBundleLinks = async ()=>{
@@ -681,6 +696,7 @@ export default function App(){
     daily.searchParams.set('seed', String(dailyPreset.seed))
     daily.searchParams.set('class',dailyPreset.klass)
     daily.searchParams.set('race',dailyPreset.race)
+    applyUnlockParams(daily)
     links.push(`daily=${daily.toString()}`)
 
     if(lastRun){
@@ -689,6 +705,7 @@ export default function App(){
       last.searchParams.set('seed', String(lastRun.seed))
       last.searchParams.set('class', lastRun.klass)
       last.searchParams.set('race', lastRun.race)
+      applyUnlockParams(last)
       links.push(`last=${last.toString()}`)
     }
 

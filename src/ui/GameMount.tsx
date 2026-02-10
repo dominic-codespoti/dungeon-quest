@@ -31,15 +31,26 @@ function getFloatNumbersFromUrl(){
 function getHighContrastFromUrl(){
   return new URLSearchParams(window.location.search).get('contrast') === '1'
 }
+function getUnlocksFromUrl(){
+  const p = new URLSearchParams(window.location.search)
+  return {
+    rogueKit: p.get('ukit') === '1',
+    tacticalCache: p.get('ucache') === '1',
+    veteranInsight: p.get('uinsight') === '1',
+  }
+}
 function getVisionDebugFromUrl(){
   return new URLSearchParams(window.location.search).get('debugvis') === '1'
 }
 
-function navigate(seed:number, klass:PlayerClass, race:PlayerRace){
+function navigate(seed:number, klass:PlayerClass, race:PlayerRace, unlocks:{rogueKit:boolean,tacticalCache:boolean,veteranInsight:boolean}){
   const u = new URL(window.location.href)
   u.searchParams.set('seed', String(seed))
   u.searchParams.set('class', klass)
   u.searchParams.set('race', race)
+  if(unlocks.rogueKit) u.searchParams.set('ukit','1'); else u.searchParams.delete('ukit')
+  if(unlocks.tacticalCache) u.searchParams.set('ucache','1'); else u.searchParams.delete('ucache')
+  if(unlocks.veteranInsight) u.searchParams.set('uinsight','1'); else u.searchParams.delete('uinsight')
   window.location.href = u.toString()
 }
 
@@ -57,17 +68,18 @@ export default function GameMount(){
       const showDamageNumbers = getFloatNumbersFromUrl()
       const highContrast = getHighContrastFromUrl()
       const visionDebug = getVisionDebugFromUrl()
-      const eng = new Engine(30,30,seed,klass,race)
+      const unlocks = getUnlocksFromUrl()
+      const eng = new Engine(30,30,seed,klass,race,unlocks)
       ;(window as any).game = {
         getState: ()=> eng.getState(),
         step: (a:any)=> eng.step(a),
         getSeed: ()=> seed,
         getClass: ()=> klass,
         getRace: ()=> race,
-        resetSameSeed: ()=> navigate(seed, klass, race),
-        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race),
-        setClass: (next:PlayerClass)=> navigate(seed, next, race),
-        setRace: (next:PlayerRace)=> navigate(seed, klass, next),
+        resetSameSeed: ()=> navigate(seed, klass, race, unlocks),
+        resetNewSeed: ()=> navigate(Math.floor(Math.random()*1_000_000)+1, klass, race, unlocks),
+        setClass: (next:PlayerClass)=> navigate(seed, next, race, unlocks),
+        setRace: (next:PlayerRace)=> navigate(seed, klass, next, unlocks),
         subscribe: (fn:(e:any)=>void)=>{ return eventBus.subscribe(fn) },
         equipInventoryIndex: (index:number)=> eng.equipInventoryIndex(index)
       }
