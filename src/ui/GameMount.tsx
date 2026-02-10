@@ -28,8 +28,15 @@ function getRaceFromUrl(): PlayerRace {
 function getFloatNumbersFromUrl(){
   return new URLSearchParams(window.location.search).get('float') !== '0'
 }
+type VisualPreset = 'normal'|'readable'|'crisp'
+function getVisualPresetFromUrl(): VisualPreset {
+  const p = new URLSearchParams(window.location.search)
+  const vis = p.get('vis')
+  if(vis==='readable' || vis==='crisp') return vis
+  return p.get('contrast') === '1' ? 'readable' : 'normal'
+}
 function getHighContrastFromUrl(){
-  return new URLSearchParams(window.location.search).get('contrast') === '1'
+  return getVisualPresetFromUrl() !== 'normal'
 }
 function getVisionDebugFromUrl(){
   return new URLSearchParams(window.location.search).get('debugvis') === '1'
@@ -55,6 +62,7 @@ export default function GameMount(){
       const klass = getClassFromUrl()
       const race = getRaceFromUrl()
       const showDamageNumbers = getFloatNumbersFromUrl()
+      const visualPreset = getVisualPresetFromUrl()
       const highContrast = getHighContrastFromUrl()
       const visionDebug = getVisionDebugFromUrl()
       const eng = new Engine(30,30,seed,klass,race)
@@ -325,20 +333,24 @@ export default function GameMount(){
               }
             }
 
-            const floorSeenAlpha = highContrast ? 0.82 : 0.66
+            const floorSeenAlpha = visualPreset==='crisp' ? 0.78 : visualPreset==='readable' ? 0.72 : 0.66
             const floorHiddenAlpha = 0
-            const wallSeenAlpha = highContrast ? 0.86 : 0.72
+            const wallSeenAlpha = visualPreset==='crisp' ? 0.84 : visualPreset==='readable' ? 0.78 : 0.72
             const wallHiddenAlpha = 0
+            const floorVisibleTint = visualPreset==='crisp' ? 0xffffff : visualPreset==='readable' ? 0xf8fbff : 0xf4f8ff
+            const floorSeenTint = visualPreset==='crisp' ? 0xe7efff : visualPreset==='readable' ? 0xd9e5ff : 0xc2d0f4
+            const wallVisibleTint = visualPreset==='crisp' ? 0xffffff : visualPreset==='readable' ? 0xebf2ff : 0xe0eaff
+            const wallSeenTint = visualPreset==='crisp' ? 0xecf2ff : visualPreset==='readable' ? 0xdee9ff : 0xcad7f8
 
             Object.keys(floorDisplays).forEach(k=>{
               const d = floorDisplays[k]
               if(vis.has(k)){
                 d.setAlpha(1)
-                d.setTint(highContrast ? 0xffffff : 0xf4f8ff)
+                d.setTint(floorVisibleTint)
               }
               else if(seen.has(k)){
                 d.setAlpha(floorSeenAlpha)
-                d.setTint(highContrast ? 0xdde7ff : 0xc2d0f4)
+                d.setTint(floorSeenTint)
               }
               else d.setAlpha(floorHiddenAlpha)
             })
@@ -347,11 +359,11 @@ export default function GameMount(){
               const d = wallDisplays[k]
               if(vis.has(k)){
                 d.setAlpha(1)
-                d.setTint(highContrast ? 0xffffff : 0xe0eaff)
+                d.setTint(wallVisibleTint)
               }
               else if(seen.has(k)){
                 d.setAlpha(wallSeenAlpha)
-                d.setTint(highContrast ? 0xe2ecff : 0xcad7f8)
+                d.setTint(wallSeenTint)
               }
               else wallDisplays[k].setAlpha(wallHiddenAlpha)
             })
@@ -519,7 +531,7 @@ export default function GameMount(){
                 if(wallSet.has(k)){
                   const wall = sc.add.image(p.x, p.y, TEX_KEYS.wall).setOrigin(0.5)
                   wall.setDisplaySize(tileSize-1, tileSize-1)
-                  wall.setTint(highContrast ? 0xe6eeff : 0xc8d3f0)
+                  wall.setTint(visualPreset==='crisp' ? 0xf1f6ff : visualPreset==='readable' ? 0xe6eeff : 0xc8d3f0)
                   wall.setInteractive()
                   wall.on('pointerdown', ()=>{
                     selectedEnemyId = null
@@ -530,7 +542,7 @@ export default function GameMount(){
                 } else {
                   const floor = sc.add.image(p.x, p.y, TEX_KEYS.floor).setOrigin(0.5)
                   floor.setDisplaySize(tileSize-1, tileSize-1)
-                  floor.setTint(highContrast ? 0xf2f6ff : 0xd7e2ff)
+                  floor.setTint(visualPreset==='crisp' ? 0xfcfdff : visualPreset==='readable' ? 0xf2f6ff : 0xd7e2ff)
                   floor.setInteractive({cursor:'pointer'})
                   floor.on('pointerdown', ()=>{
                     selectedEnemyId = null

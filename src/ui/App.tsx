@@ -88,8 +88,15 @@ function getRaceFromUrl(): Race {
 function getFloatNumbersFromUrl(){
   return getParams().get('float') !== '0'
 }
+type VisualPreset = 'normal'|'readable'|'crisp'
+
+function getVisualPresetFromUrl(): VisualPreset {
+  const vis = getParams().get('vis')
+  if(vis==='readable' || vis==='crisp') return vis
+  return getParams().get('contrast') === '1' ? 'readable' : 'normal'
+}
 function getHighContrastFromUrl(){
-  return getParams().get('contrast') === '1'
+  return getVisualPresetFromUrl() !== 'normal'
 }
 function navigate(patch: Record<string,string|number|undefined>){
   const u = new URL(window.location.href)
@@ -186,6 +193,7 @@ export default function App(){
   const [lastRun,setLastRun] = useState<{score:number,floor:number,seed:string,klass:PlayerClass,race:PlayerRace,efficiency?:number}|null>(null)
   const [newRecord,setNewRecord] = useState<string | null>(null)
   const floatingNumbers = getFloatNumbersFromUrl()
+  const visualPreset = getVisualPresetFromUrl()
   const highContrast = getHighContrastFromUrl()
 
   useEffect(()=>{
@@ -616,7 +624,10 @@ export default function App(){
   const newSeed = ()=> (window as any).game?.resetNewSeed?.()
   const backToMenu = ()=> navigate({screen:'menu'})
   const toggleFloatingNumbers = ()=> navigate({float: floatingNumbers ? 0 : 1})
-  const toggleHighContrast = ()=> navigate({contrast: highContrast ? 0 : 1})
+  const cycleVisualPreset = ()=> {
+    const next: VisualPreset = visualPreset==='normal' ? 'readable' : visualPreset==='readable' ? 'crisp' : 'normal'
+    navigate({vis: next, contrast: next==='normal' ? 0 : 1})
+  }
   const retryRenderer = ()=> window.location.reload()
   const resetRecords = ()=>{
     setBestScore(0)
@@ -1100,7 +1111,7 @@ export default function App(){
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
-            <button onClick={toggleHighContrast} style={{fontSize:11}}>Contrast: {highContrast ? 'High' : 'Normal'}</button>
+            <button onClick={cycleVisualPreset} style={{fontSize:11}}>Visual: {visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <button onClick={copyRunLink} style={{fontSize:11}}>Copy Run Link</button>
           </div>
