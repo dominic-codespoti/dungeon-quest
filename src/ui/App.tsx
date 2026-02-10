@@ -1073,7 +1073,9 @@ export default function App(){
           )}
           </div>
 
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
+          <div className='dq-side-section-label'>Build / Economy</div>
+
+          <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}>Spirits</h3>
             <div style={{fontSize:11,opacity:0.8}}>Slots: {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='major').length ?? 0}/{snapshot?.spiritMajorSlots ?? 1}M · {snapshot?.spiritCores?.filter(s=>s.equipped && s.tier==='minor').length ?? 0}/{snapshot?.spiritMinorSlots ?? 0}m</div>
           </div>
@@ -1101,7 +1103,7 @@ export default function App(){
             })}
           </div>
 
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
+          <div className='dq-side-subhead' style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
             <h3 style={{margin:0}}>Merchant {((snapshot?.spiritDryFloors ?? 0)>=2) ? '• Pity Ready' : ''}</h3>
             <div style={{display:'flex',gap:6}}>
               <button disabled={!merchantNearby} style={{fontSize:11,opacity:merchantNearby?1:0.65}} onClick={()=>(window as any).game?.step?.({type:'interact'})}>Talk (E)</button>
