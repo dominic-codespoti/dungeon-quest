@@ -1107,9 +1107,9 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Enemies Left<b>{String(enemiesRemaining)}</b></div>
             <div className='dq-stat'>Stairs<b>{stairsVisible}</b></div>
-            <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>
-            <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>
-            <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            {showAdvancedHud && <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Merchant<b>{merchantNearby ? 'Near' : 'Far'}</b></div>}
+            {showAdvancedHud && <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>}
