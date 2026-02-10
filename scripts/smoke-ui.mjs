@@ -68,6 +68,8 @@ const checks = [
   ["renderer fallback delayed", "const t = window.setTimeout(()=>setShowRendererFallback(true), 1600)"],
   ["renderer fallback retry button", "Renderer still initializing… <button onClick={retryRenderer}"],
   ["game hotkey auto-equip", "if(ev.key==='x' || ev.key==='X') (window as any).game?.autoEquipBest?.()"],
+  ["game hotkey sort inventory", "if(ev.key==='z' || ev.key==='Z') (window as any).game?.sortInventory?.()"],
+  ["game hotkey unequip all", "if(ev.key==='u' || ev.key==='U') (window as any).game?.unequipAll?.()"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
   ["sidebar stat: next modifier", "Next Mod"],
   ["sidebar stat: next boss", "Next Boss"],
