@@ -159,6 +159,8 @@ const mountChecks = [
   ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
   ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],
   ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
+  ["tile floor fills full cell", "floor.setDisplaySize(tileSize, tileSize)"],
+  ["tile wall fills full cell", "wall.setDisplaySize(tileSize, tileSize)"],
   ["deterministic state bootstrap rebuild", "if(st) rebuildMapAndEntities(st)"],
   ["floor event triggers deterministic rebuild", "} else if(e.type==='floor'){"],
   ["mount exposes auto-equip api", "autoEquipBest: ()=> eng.autoEquipBest()"],

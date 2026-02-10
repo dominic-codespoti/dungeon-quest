@@ -530,7 +530,7 @@ export default function GameMount(){
                 const p = toScreen({x,y})
                 if(wallSet.has(k)){
                   const wall = sc.add.image(p.x, p.y, TEX_KEYS.wall).setOrigin(0.5)
-                  wall.setDisplaySize(tileSize-1, tileSize-1)
+                  wall.setDisplaySize(tileSize, tileSize)
                   wall.setTint(visualPreset==='crisp' ? 0xf1f6ff : visualPreset==='readable' ? 0xe6eeff : 0xc8d3f0)
                   wall.setInteractive()
                   wall.on('pointerdown', ()=>{
@@ -541,7 +541,7 @@ export default function GameMount(){
                   wallDisplays[k] = wall
                 } else {
                   const floor = sc.add.image(p.x, p.y, TEX_KEYS.floor).setOrigin(0.5)
-                  floor.setDisplaySize(tileSize-1, tileSize-1)
+                  floor.setDisplaySize(tileSize, tileSize)
                   floor.setTint(visualPreset==='crisp' ? 0xfcfdff : visualPreset==='readable' ? 0xf2f6ff : 0xd7e2ff)
                   floor.setInteractive({cursor:'pointer'})
                   floor.on('pointerdown', ()=>{
