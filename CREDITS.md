@@ -24,8 +24,8 @@
   - https://kenney.nl/assets/tiny-dungeon
 - License: **Creative Commons CC0 1.0**
 - Files used (tile indices from pack):
-  - `floor.png` ← `tile_0038.png`
-  - `wall.png` ← `tile_0040.png`
+  - `floor.png` ← `tile_0049.png`
+  - `wall.png` ← `tile_0059.png`
   - `knight.png` ← `tile_0096.png`
   - `rogue.png` ← `tile_0098.png`
   - `chaser.png` ← `tile_0109.png`
