@@ -508,6 +508,25 @@ export default function GameMount(){
                   selectedEnemyId = selectedEnemyId===ent.id ? null : ent.id
                   const st = (window as any).game?.getState?.()
                   renderEnemyInfo(st)
+                  const p = st?.entities?.find((x:any)=>x.id==='p')?.pos
+                  if(!p || !ent.pos) return
+                  const dx = ent.pos.x - p.x
+                  const dy = ent.pos.y - p.y
+                  const md = Math.abs(dx)+Math.abs(dy)
+                  const sx = Math.sign(dx)
+                  const sy = Math.sign(dy)
+                  let dir:any = null
+                  if(sx===0 && sy===-1) dir='up'
+                  else if(sx===0 && sy===1) dir='down'
+                  else if(sx===-1 && sy===0) dir='left'
+                  else if(sx===1 && sy===0) dir='right'
+                  else if(sx===-1 && sy===-1) dir='up-left'
+                  else if(sx===1 && sy===-1) dir='up-right'
+                  else if(sx===-1 && sy===1) dir='down-left'
+                  else if(sx===1 && sy===1) dir='down-right'
+                  if(!dir) return
+                  if(md<=2) (window as any).game?.step?.({type:'move', dir})
+                  else (window as any).game?.step?.({type:'move', dir})
                 })
               }
               if(ent.type==='item'){
