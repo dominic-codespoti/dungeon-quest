@@ -66,6 +66,7 @@ const checks = [
   ["records button: open-last in create uses helper", "{lastRun && <button title='G · prefill create with last-run loadout' onClick={()=>openCreatePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Open Last in Create</button>}"],
   ["records button: resume-last uses launcher", "{lastRun && <button title='Y' onClick={()=>launchGamePreset({klass:lastRun.klass, race:lastRun.race, seed:lastRun.seed})}>Resume Last Run</button>}"],
   ["records hint strip", "Quick keys:"],
+  ["run primer visual mode hint", "Visual mode: <b>Readable</b> default, <b>Crisp</b> for max tactical clarity, <b>Normal</b> for mood."],
   ["renderer fallback state", "const [showRendererFallback,setShowRendererFallback] = useState(false)"],
   ["renderer fallback delayed", "const t = window.setTimeout(()=>setShowRendererFallback(true), 1600)"],
   ["renderer fallback retry button", "Renderer still initializing… <button onClick={retryRenderer}"],

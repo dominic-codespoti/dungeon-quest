@@ -822,6 +822,7 @@ export default function App(){
                 <li>Use danger/threat HUD before committing to melee.</li>
                 <li>Save mobility items (Blink/Rift) for spike turns.</li>
                 <li>Depth and survival over mindless score greed.</li>
+                <li>Visual mode: <b>Readable</b> default, <b>Crisp</b> for max tactical clarity, <b>Normal</b> for mood.</li>
                 <li>Daily preset today: <b>{dailyPreset.seed}</b> · <b>{dailyPreset.klass}/{dailyPreset.race}</b>.</li>
               </ul>
               <button onClick={()=>setShowRunPrimer(false)}>Close</button>
