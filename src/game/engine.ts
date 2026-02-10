@@ -30,6 +30,7 @@ export class Engine{
   spiritCores: SpiritCore[] = []
   spiritMajorSlots = 1
   spiritMinorSlots = 0
+  lastSpiritEquipBlockedReason: string | null = null
   visible = new Set<string>()
   discovered = new Set<string>()
   dashCooldown = 0
@@ -116,6 +117,7 @@ export class Engine{
       this.spiritCores = []
       this.spiritMajorSlots = 1
       this.spiritMinorSlots = 0
+      this.lastSpiritEquipBlockedReason = null
       this.discovered.clear()
       this.applyRaceBonuses()
       const player = this.entities.find(e=>e.id==='p')
@@ -678,6 +680,7 @@ export class Engine{
       spiritCores: JSON.parse(JSON.stringify(this.spiritCores)),
       spiritMajorSlots:this.spiritMajorSlots,
       spiritMinorSlots:this.spiritMinorSlots,
+      lastSpiritEquipBlockedReason:this.lastSpiritEquipBlockedReason,
       dashCooldown:this.dashCooldown,
       backstepCooldown:this.backstepCooldown,
       guardCooldown:this.guardCooldown,
@@ -808,14 +811,17 @@ export class Engine{
     const majorUsed = equipped.filter(c=>c.tier==='major').length
     const minorUsed = equipped.filter(c=>c.tier==='minor').length
     if(core.tier==='major' && majorUsed>=this.spiritMajorSlots){
+      this.lastSpiritEquipBlockedReason = 'major_slots_full'
       this.emit({tick:this.tick,type:'spirit_equip_blocked',payload:{reason:'major_slots_full',major:this.spiritMajorSlots}})
       return this.getState()
     }
     if(core.tier==='minor' && minorUsed>=this.spiritMinorSlots){
+      this.lastSpiritEquipBlockedReason = 'minor_slots_full'
       this.emit({tick:this.tick,type:'spirit_equip_blocked',payload:{reason:'minor_slots_full',minor:this.spiritMinorSlots}})
       return this.getState()
     }
 
+    this.lastSpiritEquipBlockedReason = null
     this.setSpiritEquipped(core, true, player)
     this.emit({tick:this.tick,type:'spirit_core_equipped',payload:{id:core.id,spirit:core.spirit,tier:core.tier,modifier:core.modifier}})
     return this.getState()

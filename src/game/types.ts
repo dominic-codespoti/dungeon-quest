@@ -66,6 +66,7 @@ export type GameSnapshot = {
   spiritCores: SpiritCore[]
   spiritMajorSlots: number
   spiritMinorSlots: number
+  lastSpiritEquipBlockedReason?: string | null
   dashCooldown: number
   backstepCooldown: number
   guardCooldown: number

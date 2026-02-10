@@ -81,6 +81,7 @@ const checks = [
   ["sidebar stat: spirits", "Spirits"],
   ["spirit panel header", "Spirits</h3>"],
   ["spirit panel implant action", "Implant"],
+  ["spirit panel blocked reason inline", "Major slots full"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
@@ -168,6 +169,7 @@ const engineChecks = [
   ["engine spirit loot drop helper", "private maybeDropSpiritLoot(dead: Entity){"],
   ["engine spirit equip method", "equipSpiritCore(index:number){"],
   ["engine spirit unequip method", "unequipSpiritCore(index:number){"],
+  ["engine spirit blocked reason state", "lastSpiritEquipBlockedReason"],
   ["engine score helper", "private scoreForKill(kind:string|undefined){"],
   ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]

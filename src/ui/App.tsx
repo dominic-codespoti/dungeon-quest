@@ -28,6 +28,7 @@ type Snapshot = {
   spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,bonuses:{atk:number,def:number,hp:number,dex:number},note?:string,equipped?:boolean}>
   spiritMajorSlots?: number
   spiritMinorSlots?: number
+  lastSpiritEquipBlockedReason?: string | null
   dashCooldown:number
   backstepCooldown:number
   guardCooldown:number
@@ -1045,16 +1046,26 @@ export default function App(){
           </div>
           <div className='dq-equip-list'>
             {(snapshot?.spiritCores || []).length===0 && <div style={{opacity:0.7}}>No spirit cores collected yet.</div>}
-            {(snapshot?.spiritCores || []).map((s,idx)=>(
+            {(snapshot?.spiritCores || []).map((s,idx)=>{
+              const majorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='major').length
+              const minorUsed = (snapshot?.spiritCores || []).filter(c=>c.equipped && c.tier==='minor').length
+              const blockedReason = !s.equipped && s.tier==='major' && majorUsed >= (snapshot?.spiritMajorSlots ?? 1)
+                ? 'Major slots full'
+                : !s.equipped && s.tier==='minor' && minorUsed >= (snapshot?.spiritMinorSlots ?? 0)
+                ? 'Minor slots full'
+                : null
+              return (
               <div className='dq-item' key={s.id} style={{outline: s.equipped ? '1px solid #b996ff' : 'none', background: s.equipped ? 'rgba(185,150,255,0.08)' : undefined}}>
                 <div className='name'>{s.spirit} {s.equipped ? '• Implanted' : ''}</div>
                 <div className='meta'>{s.tier} · {s.modifier} · from {s.source}</div>
                 <div>ATK+{s.bonuses?.atk||0} DEF+{s.bonuses?.def||0} HP+{s.bonuses?.hp||0} DEX+{s.bonuses?.dex||0}</div>
                 <div className='meta'>{s.note}</div>
-                {!s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
+                {blockedReason && <div className='meta' style={{color:'#ffb1b1'}}>{blockedReason}</div>}
+                {!s.equipped && <button disabled={Boolean(blockedReason)} style={{marginTop:4,fontSize:11,opacity:blockedReason?0.6:1}} onClick={()=> (window as any).game?.equipSpiritCore?.(idx)}>Implant</button>}
                 {s.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipSpiritCore?.(idx)}>Remove</button>}
               </div>
-            ))}
+              )
+            })}
           </div>
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
