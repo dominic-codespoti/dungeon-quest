@@ -143,6 +143,8 @@ const checks = [
   ["inventory quick auto-equip button", "Auto Equip"],
   ["inventory quick unequip-all button", "Unequip All"],
   ["inventory quick sort button", "Sort"],
+  ["inventory icon bars wrapper", "className='dq-icon-bars'"],
+  ["inventory icon bar labels", "{label:'Eq', items:equipped}"],
   ["inventory icon grid", "className='dq-icon-grid'"],
   ["inventory icon slot class", "className={`dq-icon-slot rarity-${it.rarity} class-${it.itemClass} ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}"],
   ["inventory detail panel", "className='dq-item dq-detail-panel'"],

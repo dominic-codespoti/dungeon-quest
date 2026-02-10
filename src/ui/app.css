@@ -161,6 +161,28 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .dq-item { background:#1a2443; border:1px solid #314574; border-radius:8px; padding:7px; font-size:12px; }
 .dq-item .name { font-weight:700; }
 .dq-item .meta { color: var(--muted); }
+.dq-icon-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dq-icon-bar {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+.dq-icon-bar-label {
+  font-size: 10px;
+  color: #9fb2df;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.dq-icon-bar-empty {
+  font-size: 11px;
+  opacity: .5;
+  align-self: center;
+}
 .dq-icon-grid {
   display: grid;
   grid-template-columns: repeat(8, minmax(0,1fr));

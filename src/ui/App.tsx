@@ -1181,22 +1181,43 @@ export default function App(){
               {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear collected yet.</div>}
               {(snapshot?.inventory || []).length>0 && (
                 <>
-                <div className='dq-icon-grid'>
-                  {(snapshot?.inventory || []).map((it,idx)=>{
-                    const icon = it.itemClass==='weapon' ? swordIcon : shieldIcon
-                    const selected = selectedInventoryIndex===idx
-                    return (
-                      <button
-                        key={idx}
-                        className={`dq-icon-slot rarity-${it.rarity} class-${it.itemClass} ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
-                        title={`${it.name} · ${it.itemClass} · ${it.rarity}`}
-                        onClick={()=>setSelectedInventoryIndex(idx)}
-                      >
-                        <I src={icon}/>
-                      </button>
-                    )
-                  })}
-                </div>
+                {(() => {
+                  const inv = (snapshot?.inventory || [])
+                  const equipped = inv.map((it, idx)=>({it, idx})).filter(x=>x.it.equipped)
+                  const weapons = inv.map((it, idx)=>({it, idx})).filter(x=>x.it.itemClass==='weapon' && !x.it.equipped)
+                  const armor = inv.map((it, idx)=>({it, idx})).filter(x=>x.it.itemClass==='armor' && !x.it.equipped)
+                  const rows = [
+                    {label:'Eq', items:equipped},
+                    {label:'Wpn', items:weapons},
+                    {label:'Arm', items:armor},
+                  ]
+                  return (
+                    <div className='dq-icon-bars'>
+                      {rows.map(row=> (
+                        <div key={row.label} className='dq-icon-bar'>
+                          <div className='dq-icon-bar-label'>{row.label}</div>
+                          <div className='dq-icon-grid'>
+                            {row.items.length===0 && <div className='dq-icon-bar-empty'>—</div>}
+                            {row.items.map(({it, idx})=>{
+                              const icon = it.itemClass==='weapon' ? swordIcon : shieldIcon
+                              const selected = selectedInventoryIndex===idx
+                              return (
+                                <button
+                                  key={idx}
+                                  className={`dq-icon-slot rarity-${it.rarity} class-${it.itemClass} ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
+                                  title={`${it.name} · ${it.itemClass} · ${it.rarity}`}
+                                  onClick={()=>setSelectedInventoryIndex(idx)}
+                                >
+                                  <I src={icon}/>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
                 {(() => {
                   const idx = selectedInventoryIndex ?? 0
                   const it = (snapshot?.inventory || [])[idx]
