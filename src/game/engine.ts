@@ -154,6 +154,16 @@ export class Engine{
         ? 4
         : 5
       this.spawnMonster(`m${this.floor}-${i+1}`,kind,hp,minDist)
+      if(this.floorModifier==='ambush'){
+        const player = this.entities.find(e=>e.id==='p')
+        const m = this.entities.find(e=>e.id===`m${this.floor}-${i+1}`)
+        if(player && m){
+          const d = Math.abs(m.pos.x-player.pos.x)+Math.abs(m.pos.y-player.pos.y)
+          if(d<=5 && this.hasLineOfSight(m.pos, player.pos)){
+            m.pos = this.spawnFreePos(5)
+          }
+        }
+      }
       threat += cost
     }
 
