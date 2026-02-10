@@ -118,6 +118,7 @@ const engineChecks = [
   ["high-floor encounter template branch", "if(this.floor >= 4){"],
   ["high-floor crossfire placement", "if(rangedA) this.tryRepositionMonster(rangedA, {x:anchor.x+2,y:anchor.y-1}, 5)"],
   ["modifier hint event emitted", "if(modHint) this.emit({tick:this.tick,type:'modifier_hint'"],
+  ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["engine auto-equip helper", "autoEquipBest(){"],
   ["engine unequip helper", "unequipInventoryIndex(index:number){"],
   ["engine unequip-all helper", "unequipAll(){"],

@@ -1065,7 +1065,7 @@ export class Engine{
       const dx = playerPos.x - m.pos.x
       const dy = playerPos.y - m.pos.y
       const distance = Math.abs(dx)+Math.abs(dy)
-      const senseRadius = kind==='boss' ? 10 : (this.floorModifier==='swarm' ? 9 : 7)
+      const senseRadius = kind==='boss' ? 10 : (this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7)
       const canSense = distance <= senseRadius && this.hasLineOfSight(m.pos, playerPos)
       if(!canSense){
         if(this.rand() < 0.25){
