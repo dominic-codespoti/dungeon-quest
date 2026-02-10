@@ -37,6 +37,9 @@ export function createGame(container: HTMLElement){
     parent: container,
     width: w,
     height: h,
+    pixelArt: true,
+    antialias: false,
+    render: { roundPixels: true },
     scene: {
       preload(){
         this.load.image(TEX_KEYS.floor, floorTex)
