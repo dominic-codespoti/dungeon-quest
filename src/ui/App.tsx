@@ -175,7 +175,7 @@ export default function App(){
   const [showControlPad,setShowControlPad] = useState(false)
   const [showUtilityPanel,setShowUtilityPanel] = useState(false)
   const [showIconLegend,setShowIconLegend] = useState(false)
-  const [showThreatIntel,setShowThreatIntel] = useState(false)
+  // Lean HUD mode: keep optional panels collapsed unless explicitly opened.
   const [showRendererFallback,setShowRendererFallback] = useState(false)
 
   const closeMenuModals = ()=>{
@@ -1145,7 +1145,7 @@ export default function App(){
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'10px 0 6px'}}>
             <h3 style={{margin:0}}><I src={bootsIcon}/>Combat / Loadout</h3>
           </div>
-          <div style={{display:'none'}} />
+          {/* intentionally no helper copy here to keep HUD minimal */}
           <div className='dq-skillrow dq-hotbar'>
             {klass==='rogue' && <button className='dq-hotbar-icon' onClick={dash} title={targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}><I src={bootsIcon}/><span>{snapshot?.dashCooldown ?? 0}</span></button>}
             {klass==='rogue' && <button className='dq-hotbar-icon' onClick={backstep} title={targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}><I src={bootsIcon}/><span>{snapshot?.backstepCooldown ?? 0}</span></button>}
