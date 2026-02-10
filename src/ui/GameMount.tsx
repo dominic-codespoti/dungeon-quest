@@ -32,8 +32,8 @@ type VisualPreset = 'normal'|'readable'|'crisp'
 function getVisualPresetFromUrl(): VisualPreset {
   const p = new URLSearchParams(window.location.search)
   const vis = p.get('vis')
-  if(vis==='readable' || vis==='crisp') return vis
-  return p.get('contrast') === '1' ? 'readable' : 'normal'
+  if(vis==='normal' || vis==='readable' || vis==='crisp') return vis
+  return p.get('contrast') === '0' ? 'normal' : 'readable'
 }
 // visual preset drives contrast; kept URL-compatible via vis param
 function getVisionDebugFromUrl(){

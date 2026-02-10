@@ -92,8 +92,8 @@ type VisualPreset = 'normal'|'readable'|'crisp'
 
 function getVisualPresetFromUrl(): VisualPreset {
   const vis = getParams().get('vis')
-  if(vis==='readable' || vis==='crisp') return vis
-  return getParams().get('contrast') === '1' ? 'readable' : 'normal'
+  if(vis==='normal' || vis==='readable' || vis==='crisp') return vis
+  return getParams().get('contrast') === '0' ? 'normal' : 'readable'
 }
 function getHighContrastFromUrl(){
   return getVisualPresetFromUrl() !== 'normal'
