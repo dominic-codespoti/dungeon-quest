@@ -37,6 +37,7 @@ const checks = [
   ["menu action: damage numbers toggle button", "<button onClick={toggleFloatingNumbers} title='F'>Damage Numbers:"],
   ["copy run link preserves visual preset", "u.searchParams.set('vis', visualPreset)"],
   ["copy run link preserves contrast flag", "u.searchParams.set('contrast', visualPreset==='normal' ? '0' : '1')"],
+  ["copy run link ui hint includes visual mode", "title='Includes current Visual mode'"],
   ["visual preset helper exists", "function getVisualPresetFromUrl(): VisualPreset"],
   ["visual preset default readable", "return getParams().get('contrast') === '0' ? 'normal' : 'readable'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],
