@@ -47,6 +47,7 @@ const checks = [
   ["copy create launch status uses helper", "setStatus(visualModeStatus('Create launch link copied'))"],
   ["copy last-run link status uses helper", "setStatus(visualModeStatus('Last run link copied'))"],
   ["copy daily link status uses helper", "setStatus(visualModeStatus('Daily challenge link copied'))"],
+  ["copy link bundle status uses helper", "setStatus(visualModeStatus('Link bundle copied'))"],
   ["visual preset helper exists", "function getVisualPresetFromUrl(): VisualPreset"],
   ["visual preset default readable", "return getParams().get('contrast') === '0' ? 'normal' : 'readable'"],
   ["create hotkey: R reroll build+seed", "if(ev.key==='r' || ev.key==='R'){"],

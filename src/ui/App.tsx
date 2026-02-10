@@ -732,7 +732,7 @@ export default function App(){
       links.push(`last=${buildShareLink(lastRun.seed, lastRun.klass, lastRun.race)}`)
     }
 
-    try{ await navigator.clipboard.writeText(links.join('\n')); setStatus('Link bundle copied.') }catch{}
+    try{ await navigator.clipboard.writeText(links.join('\n')); setStatus(visualModeStatus('Link bundle copied')) }catch{}
   }
   const setClass = (c:PlayerClass)=> navigate({class:c})
 
