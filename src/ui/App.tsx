@@ -169,6 +169,7 @@ export default function App(){
   const [showMeta,setShowMeta] = useState(false)
   const [showAdvancedHud,setShowAdvancedHud] = useState(false)
   const [showInventoryPanel,setShowInventoryPanel] = useState(true)
+  const [selectedInventoryIndex,setSelectedInventoryIndex] = useState<number | null>(null)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
 
@@ -237,7 +238,7 @@ export default function App(){
   const eventToLogLine = (e:any)=>{
     const t = String(e?.type || 'event')
     const p = e?.payload || {}
-    if(t==='move' && p?.id==='p' && p?.to) return `You move to (${p.to.x}, ${p.to.y}).`
+    if(t==='move') return ''
     if(t==='bump') return p?.reason==='wall' ? 'You bump into a wall.' : 'You cannot squeeze through that corner.'
     if(t==='item_here') return `There is *${itemLabel(p?.kind)}* here.`
     if(t==='combat' && p?.attacker==='p') return `You hit **${enemyNameFromId(String(p?.target || 'foe'))}** for ${p?.damage ?? '?'} damage.`
@@ -270,7 +271,7 @@ export default function App(){
     if(t==='rift_used') return `The rift howls, dragging ${p?.pulled ?? 0} foes inward.`
     if(t==='stairs_used') return `You descend to floor ${p?.toFloor ?? '?'}.`
     if(t==='floor') return `A new floor unfolds: *${p?.modifier || 'none'}*.`
-    if(t==='die' && p?.kind) return `**${p.kind}** falls.`
+    if(t==='die') return ''
     if(t==='victory') return '**Victory.** The dungeon yields.'
     if(t==='defeat') return '**Defeat.** The dungeon claims another run.'
     if(t==='wait') return 'You wait, listening to the dungeon breathe.'
@@ -644,11 +645,7 @@ export default function App(){
     : snapshot?.floorModifier==='swarm'
     ? 'chest+bomb'
     : 'chest'
-  const equippedByClass = useMemo(()=>{
-    const m: Record<string,Gear|undefined> = {}
-    for(const it of (snapshot?.inventory || [])) if(it.equipped) m[it.itemClass] = it
-    return m
-  }, [snapshot?.inventory])
+  const inventoryCount = snapshot?.inventory?.length ?? 0
   const dailyPreset = getDailyPreset()
   const dangerColor = danger >= 9 ? '#ff5f5f' : danger >= 6 ? '#ff9c7a' : danger >= 3 ? '#ffd27a' : '#8fd8a8'
   const streakToReward = Math.max(0, 4 - (snapshot?.killStreak ?? 0))
@@ -1139,11 +1136,11 @@ export default function App(){
           </div>
           <div style={{fontSize:11,opacity:0.72,margin:'-2px 0 6px'}}>Combat skills live here; inventory/loadout sits directly below for quick tactical swaps.</div>
           <div className='dq-skillrow dq-hotbar'>
-            {klass==='rogue' && <button onClick={dash}><I src={bootsIcon}/>{targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}</button>}
-            {klass==='rogue' && <button onClick={backstep}><I src={bootsIcon}/>{targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}</button>}
-            {klass==='knight' && <button onClick={guard}><I src={shieldIcon}/>Guard ({snapshot?.guardCooldown ?? 0})</button>}
-            {klass==='knight' && <button onClick={bash}><I src={swordIcon}/>{targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash'}</button>}
-            {targetSkill && <button onClick={()=>setTargetSkill(null)}>Cancel</button>}
+            {klass==='rogue' && <button className='dq-hotbar-icon' onClick={dash} title={targetSkill==='dash' ? `Confirm Dash (${targetDir})` : `Dash (${snapshot?.dashCooldown ?? 0})`}><I src={bootsIcon}/><span>{snapshot?.dashCooldown ?? 0}</span></button>}
+            {klass==='rogue' && <button className='dq-hotbar-icon' onClick={backstep} title={targetSkill==='backstep' ? `Confirm Backstep (${targetDir})` : `Backstep (${snapshot?.backstepCooldown ?? 0})`}><I src={bootsIcon}/><span>{snapshot?.backstepCooldown ?? 0}</span></button>}
+            {klass==='knight' && <button className='dq-hotbar-icon' onClick={guard} title={`Guard (${snapshot?.guardCooldown ?? 0})`}><I src={shieldIcon}/><span>{snapshot?.guardCooldown ?? 0}</span></button>}
+            {klass==='knight' && <button className='dq-hotbar-icon' onClick={bash} title={targetSkill==='bash' ? `Confirm Bash (${targetDir})` : 'Bash'}><I src={swordIcon}/><span>•</span></button>}
+            {targetSkill && <button onClick={()=>setTargetSkill(null)} title='Cancel targeting'>✕</button>}
           </div>
 
           <div className='dq-controls'>
@@ -1162,7 +1159,7 @@ export default function App(){
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout</h3>
+            <h3 style={{margin:0}}><I src={treasureIcon}/>Inventory / Loadout ({inventoryCount})</h3>
             <div className='dq-loadout-actions' style={{display:'flex',gap:6}}>
               <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
               <button onClick={()=> (window as any).game?.unequipAll?.()} style={{fontSize:11}}>Unequip All</button>
@@ -1173,26 +1170,41 @@ export default function App(){
           {showInventoryPanel && (
             <div className='dq-equip-list'>
               {(snapshot?.inventory || []).length===0 && <div style={{opacity:0.7}}>No gear collected yet.</div>}
-              {(snapshot?.inventory || []).map((it,idx)=>{
-                const eq = equippedByClass[it.itemClass]
-                const dAtk = (it.atkBonus||0) - (eq?.atkBonus||0)
-                const dDef = (it.defBonus||0) - (eq?.defBonus||0)
-                const dHp = (it.hpBonus||0) - (eq?.hpBonus||0)
-                const deltaLabel = it.equipped
-                  ? 'Δ vs equipped: current'
-                  : `Δ vs equipped: ATK ${dAtk>=0?'+':''}${dAtk} · DEF ${dDef>=0?'+':''}${dDef} · HP ${dHp>=0?'+':''}${dHp}`
-                return (
-                <div className='dq-item' key={idx} style={{outline: it.equipped ? '1px solid #7cd2a6' : 'none', background: it.equipped ? 'rgba(124,210,166,0.08)' : undefined}}>
-                  <div className='name'>{it.name} {it.equipped ? '• Equipped' : ''}</div>
-                  <div className='meta'>{it.itemClass} · {it.rarity}</div>
-                  <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
-                  <div className='meta'>{deltaLabel}</div>
-                  {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
-                  {!it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipInventoryIndex?.(idx)}>Equip</button>}
-                  {it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipInventoryIndex?.(idx)}>Unequip</button>}
+              {(snapshot?.inventory || []).length>0 && (
+                <>
+                <div className='dq-icon-grid'>
+                  {(snapshot?.inventory || []).map((it,idx)=>{
+                    const icon = it.itemClass==='weapon' ? swordIcon : shieldIcon
+                    const selected = selectedInventoryIndex===idx
+                    return (
+                      <button
+                        key={idx}
+                        className={`dq-icon-slot ${it.equipped ? 'is-equipped' : ''} ${selected ? 'is-selected' : ''}`}
+                        title={`${it.name} · ${it.itemClass} · ${it.rarity}`}
+                        onClick={()=>setSelectedInventoryIndex(idx)}
+                      >
+                        <I src={icon}/>
+                      </button>
+                    )
+                  })}
                 </div>
-                )
-              })}
+                {(() => {
+                  const idx = selectedInventoryIndex ?? 0
+                  const it = (snapshot?.inventory || [])[idx]
+                  if(!it) return null
+                  return (
+                    <div className='dq-item dq-detail-panel'>
+                      <div className='name'>{it.name} {it.equipped ? '• Equipped' : ''}</div>
+                      <div className='meta'>{it.itemClass} · {it.rarity}</div>
+                      <div>ATK+{it.atkBonus} DEF+{it.defBonus} HP+{it.hpBonus}</div>
+                      {it.enchantments?.length>0 && <div className='meta'>✦ {it.enchantments.join(', ')}</div>}
+                      {!it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.equipInventoryIndex?.(idx)}>Equip</button>}
+                      {it.equipped && <button style={{marginTop:4,fontSize:11}} onClick={()=> (window as any).game?.unequipInventoryIndex?.(idx)}>Unequip</button>}
+                    </div>
+                  )
+                })()}
+                </>
+              )}
             </div>
           )}
           </div>

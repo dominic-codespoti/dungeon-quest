@@ -128,11 +128,17 @@ button.dq-stat:hover { border-color: rgba(124,156,255,.7); background: rgba(124,
   max-height: 180px;
 }
 .dq-hotbar button {
-  min-width: 108px;
-  justify-content: flex-start;
+  min-width: 40px;
+  min-height: 34px;
+  justify-content: center;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  padding: 4px 6px;
+}
+.dq-hotbar-icon span {
+  font-size: 10px;
+  opacity: .9;
 }
 .dq-loadout-actions button {
   min-width: 86px;
@@ -155,6 +161,26 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .dq-item { background:#1a2443; border:1px solid #314574; border-radius:8px; padding:7px; font-size:12px; }
 .dq-item .name { font-weight:700; }
 .dq-item .meta { color: var(--muted); }
+.dq-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0,1fr));
+  gap: 6px;
+}
+.dq-icon-slot {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+.dq-icon-slot.is-equipped {
+  border-color: #7cd2a6;
+  background: rgba(124,210,166,0.12);
+}
+.dq-icon-slot.is-selected {
+  outline: 1px solid #7c9cff;
+}
+.dq-detail-panel { margin-top: 6px; }
 
 .dq-overlay { position: fixed; inset: 0; background: rgba(4,8,18,.65); display:flex; align-items:center; justify-content:center; z-index:20; }
 .dq-overlay .box { width: 360px; background: #121a2f; border:1px solid #3b4f86; border-radius: 12px; padding: 14px; }
