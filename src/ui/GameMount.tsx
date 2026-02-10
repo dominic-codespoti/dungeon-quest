@@ -676,6 +676,12 @@ export default function GameMount(){
               }
             } else if(e.type==='boss_slam'){
               try{ sc.cameras.main.shake(140, 0.005) }catch{}
+              const boss = displays[e.payload?.id]
+              if(boss){
+                const impact = sc.add.circle(boss.x, boss.y, tileSize*0.35, 0xffb07a, 0.22).setDepth(371)
+                impact.setStrokeStyle(2, 0xffd2a1, 0.9)
+                sc.tweens.add({targets:impact, scale:2.8, alpha:0, duration:260, onComplete:()=>{ try{ impact.destroy() }catch{} }})
+              }
             } else if(e.type==='spit_used'){
               const attacker = displays[e.payload?.id]
               if(attacker) sc.tweens.add({targets:attacker, scale:1.12, duration:70, yoyo:true})
