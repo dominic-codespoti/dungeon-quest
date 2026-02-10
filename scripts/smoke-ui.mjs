@@ -72,6 +72,7 @@ const checks = [
   ["game hotkey unequip all", "if(ev.key==='u' || ev.key==='U') (window as any).game?.unequipAll?.()"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
   ["sidebar stat: visible ranged", "Visible Ranged"],
+  ["sidebar stat: ranged in range", "Ranged In Range"],
   ["sidebar stat: visible elites", "Visible Elites"],
   ["sidebar stat: visible boss hp", "Boss HP"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],

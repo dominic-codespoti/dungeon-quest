@@ -436,6 +436,19 @@ export default function App(){
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
     return snapshot.entities.filter(e=>e.type==='monster' && (e.kind==='brute' || e.kind==='sentinel' || e.kind==='boss') && e.pos && vis.has(`${e.pos.x},${e.pos.y}`)).length
   }, [snapshot])
+  const rangedInRange = useMemo(()=>{
+    if(!snapshot) return '-'
+    const p = snapshot.entities.find(e=>e.id==='p')?.pos
+    if(!p) return '-'
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    return snapshot.entities.filter(e=>{
+      if(e.type!=='monster' || !e.pos || !vis.has(`${e.pos.x},${e.pos.y}`)) return false
+      const d = Math.abs(e.pos.x-p.x)+Math.abs(e.pos.y-p.y)
+      if(e.kind==='spitter') return d<=5 && d>1
+      if(e.kind==='sentinel') return d<=2 && d>1
+      return false
+    }).length
+  }, [snapshot])
   const visibleBossHp = useMemo(()=>{
     if(!snapshot) return '-'
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
@@ -918,6 +931,7 @@ export default function App(){
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Visible Enemies<b>{String(monstersLeft)}</b></div>
             <div className='dq-stat'>Visible Ranged<b>{String(rangedVisible)}</b></div>
+            <div className='dq-stat'>Ranged In Range<b>{String(rangedInRange)}</b></div>
             <div className='dq-stat'>Visible Elites<b>{String(elitesVisible)}</b></div>
             <div className='dq-stat'>Boss HP<b>{visibleBossHp}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
