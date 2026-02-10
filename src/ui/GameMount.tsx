@@ -271,7 +271,7 @@ export default function GameMount(){
             if(!fogGraphics) return
             fogGraphics.clear()
             // Keep a very subtle vignette only; tile visibility is controlled by applyVision alpha.
-            fogGraphics.fillStyle(0x000000, 0.18)
+            fogGraphics.fillStyle(0x000000, highContrast ? 0.1 : 0.14)
             fogGraphics.fillRect(0, 0, sc.scale.width, sc.scale.height)
           }
 
@@ -297,23 +297,27 @@ export default function GameMount(){
             const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
             const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
-            // Defensive render fallback: if visibility payload collapses, reveal a small local radius
-            // so the board never hard-blacks out despite live game state.
+            // Defensive render fallback: if visibility payload collapses OR does not map to known tiles,
+            // reveal a local radius so board contrast never hard-drops to black.
             const player = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
-            if(player && vis.size===0){
+            const hasMappedVis = [...vis].some((k)=> {
+              const key = String(k)
+              return Boolean(floorDisplays[key] || wallDisplays[key])
+            })
+            if(player && (!vis.size || !hasMappedVis)){
               for(let y=Math.max(0, player.y-3); y<=Math.min(eng.height-1, player.y+3); y++){
                 for(let x=Math.max(0, player.x-3); x<=Math.min(eng.width-1, player.x+3); x++){
                   const d = Math.abs(x-player.x)+Math.abs(y-player.y)
                   if(d<=3) vis.add(`${x},${y}`)
-                  if(d<=5) seen.add(`${x},${y}`)
+                  if(d<=6) seen.add(`${x},${y}`)
                 }
               }
             }
 
-            const floorSeenAlpha = highContrast ? 0.5 : 0.3
-            const floorHiddenAlpha = highContrast ? 0.16 : 0.08
-            const wallSeenAlpha = highContrast ? 0.56 : 0.38
-            const wallHiddenAlpha = highContrast ? 0.14 : 0.06
+            const floorSeenAlpha = highContrast ? 0.62 : 0.42
+            const floorHiddenAlpha = highContrast ? 0.28 : 0.18
+            const wallSeenAlpha = highContrast ? 0.68 : 0.5
+            const wallHiddenAlpha = highContrast ? 0.24 : 0.14
 
             Object.keys(floorDisplays).forEach(k=>{
               if(vis.has(k)) floorDisplays[k].setAlpha(0.95)
