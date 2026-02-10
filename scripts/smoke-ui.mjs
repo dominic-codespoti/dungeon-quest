@@ -116,6 +116,8 @@ const checks = [
   ["merchant guidance text", "Find and stand next to the Merchant to access essence offers."],
   ["merchant talk hint text", "press E (or Talk) to open offers."],
   ["merchant talk button", "Talk (E)"],
+  ["shop open derives from snapshot", "const shopOpen = Boolean(snapshot?.shopOpen)"],
+  ["merchant close uses engine api", "game?.closeShop?.()"],
   ["merchant blocked status copy", "Move next to the Merchant to buy."],
   ["shop spirit bonus vector preview", "ATK+{o.core?.bonuses?.atk||0} DEF+{o.core?.bonuses?.def||0} HP+{o.core?.bonuses?.hp||0} DEX+{o.core?.bonuses?.dex||0}"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
@@ -182,6 +184,7 @@ const mountChecks = [
   ["mount exposes spirit unequip api", "unequipSpiritCore: (index:number)=> eng.unequipSpiritCore(index)"],
   ["mount exposes shop buy api", "buyShopOffer: (index:number)=> eng.buyShopOffer(index)"],
   ["mount exposes shop reroll api", "rerollShopOffers: ()=> eng.rerollShopOffers()"],
+  ["mount exposes shop close api", "closeShop: ()=> eng.closeShop('manual')"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -228,10 +231,13 @@ const engineChecks = [
   ["engine spirit pity trigger", "const pityReady = this.spiritDryFloors >= 2"],
   ["engine shop buy method", "buyShopOffer(index:number){"],
   ["engine shop reroll method", "rerollShopOffers(){"],
+  ["engine shop close method", "closeShop(reason:'manual'|'moved_away'='manual'){"],
   ["engine merchant proximity helper", "private isMerchantNearby(range=1){"],
   ["engine floor spawns merchant", "this.spawnItem(`i${this.floor}-merchant`,'merchant')"],
   ["engine shop buy blocked when merchant far", "shop_buy_blocked',payload:{reason:'merchant_far'"],
   ["engine shop reroll blocked when merchant far", "shop_reroll_blocked',payload:{reason:'merchant_far'"],
+  ["engine auto-closes shop when leaving merchant", "if(this.shopOpen && !this.isMerchantNearby(1)) this.closeShop('moved_away')"],
+  ["engine snapshot includes shopOpen", "shopOpen:this.shopOpen,"],
   ["engine score helper", "private scoreForKill(kind:string|undefined){"],
   ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]

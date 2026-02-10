@@ -32,6 +32,7 @@ export class Engine{
   spiritMinorSlots = 0
   shopOffers: ShopOffer[] = []
   shopRerolls = 0
+  shopOpen = false
   spiritDryFloors = 0
   spiritCoreAcquiredThisFloor = false
   lastSpiritEquipBlockedReason: string | null = null
@@ -152,6 +153,7 @@ export class Engine{
     }
     this.dashCooldown = 0
     this.backstepCooldown = 0
+    this.shopOpen = false
     this.guardCooldown = 0
     this.guardActive = false
     this.bossCharged.clear()
@@ -358,6 +360,13 @@ export class Engine{
     this.shopRerolls++
     this.refreshShopOffers()
     this.emit({tick:this.tick,type:'shop_rerolled',payload:{cost,essence:this.essence,rerolls:this.shopRerolls}})
+    return this.getState()
+  }
+
+  closeShop(reason:'manual'|'moved_away'='manual'){
+    if(!this.shopOpen) return this.getState()
+    this.shopOpen = false
+    this.emit({tick:this.tick,type:'merchant_closed',payload:{reason}})
     return this.getState()
   }
 
@@ -774,6 +783,7 @@ export class Engine{
       spiritMinorSlots:this.spiritMinorSlots,
       shopOffers: JSON.parse(JSON.stringify(this.shopOffers)),
       shopRerollCost:this.currentShopRerollCost(),
+      shopOpen:this.shopOpen,
       spiritDryFloors:this.spiritDryFloors,
       lastSpiritEquipBlockedReason:this.lastSpiritEquipBlockedReason,
       dashCooldown:this.dashCooldown,
@@ -1239,6 +1249,7 @@ export class Engine{
         }
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='merchant'){
+        this.shopOpen = true
         this.emit({tick:this.tick,type:'merchant_contact',payload:{floor:this.floor,shopOffers:this.shopOffers.length,rerollCost:this.currentShopRerollCost()}})
       } else if(item.kind==='stairs'){
         const bossAlive = this.entities.some(e=>e.type==='monster' && e.kind==='boss')
@@ -1352,6 +1363,8 @@ export class Engine{
     } else {
       this.killStreak = 0
     }
+
+    if(this.shopOpen && !this.isMerchantNearby(1)) this.closeShop('moved_away')
 
     this.updateVision()
     const playerPos = player.pos
