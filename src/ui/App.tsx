@@ -171,6 +171,7 @@ export default function App(){
   const [showInventoryPanel,setShowInventoryPanel] = useState(true)
   const [selectedInventoryIndex,setSelectedInventoryIndex] = useState<number | null>(null)
   const [selectedSpiritIndex,setSelectedSpiritIndex] = useState<number | null>(null)
+  const [showBuildPanel,setShowBuildPanel] = useState(false)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
 
@@ -1210,8 +1211,11 @@ export default function App(){
           )}
           </div>
 
-          <div className='dq-side-section-label'>Build / Economy</div>
-          <div className='dq-build-module'>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div className='dq-side-section-label' style={{marginTop:0}}>Build / Economy</div>
+            <button style={{fontSize:10,padding:'3px 7px'}} onClick={()=>setShowBuildPanel(v=>!v)}>{showBuildPanel ? 'Hide' : 'Show'}</button>
+          </div>
+          {showBuildPanel && <div className='dq-build-module'>
           <div className='dq-build-snapshot'>
             <div className='dq-build-chip'>Essence <b>{snapshot?.essence ?? 0}</b></div>
             <div className='dq-build-chip'>Spirits <b>{snapshot?.spiritCores?.filter(s=>s.equipped).length ?? 0} equipped</b></div>
@@ -1301,7 +1305,7 @@ export default function App(){
           </div>
           </>
           )}
-          </div>
+          </div>}
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>

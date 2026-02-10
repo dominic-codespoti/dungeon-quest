@@ -145,6 +145,8 @@ const checks = [
   ["combat/loadout section header", "<I src={bootsIcon}/>Combat / Loadout"],
   ["combat module wrapper class", "className='dq-combat-module'"],
   ["build economy section label", "Build / Economy"],
+  ["build economy toggle state", "const [showBuildPanel,setShowBuildPanel] = useState(false)"],
+  ["build economy toggle copy", "{showBuildPanel ? 'Hide' : 'Show'}"],
   ["build economy module wrapper", "className='dq-build-module'"],
   ["build economy snapshot row", "className='dq-build-snapshot'"],
   ["build economy snapshot essence chip", "Essence <b>{snapshot?.essence ?? 0}</b>"],
