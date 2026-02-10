@@ -335,8 +335,18 @@ export default function GameMount(){
 
               if(shouldShowBar){
                 if(!hpBars[ent.id]){
+                  const entId = ent.id
                   const bg = sc.add.rectangle(d.x, d.y + tileSize*0.56, tileSize*0.74, 4, 0x1a1a1a, 0.86).setDepth(360)
                   const fg = sc.add.rectangle(d.x - (tileSize*0.74)/2 + 1, d.y + tileSize*0.56, tileSize*0.74 - 2, 2, 0x87e08a, 0.95).setOrigin(0,0.5).setDepth(361)
+                  bg.setInteractive({cursor:'pointer'})
+                  fg.setInteractive({cursor:'pointer'})
+                  const selectFromBar = ()=>{
+                    selectedEnemyId = selectedEnemyId===entId ? null : entId
+                    const st = (window as any).game?.getState?.()
+                    renderEnemyInfo(st)
+                  }
+                  bg.on('pointerdown', selectFromBar)
+                  fg.on('pointerdown', selectFromBar)
                   hpBars[ent.id] = {bg, fg, lastHp: Number(ent.hp)}
                 }
                 const bar = hpBars[ent.id]
