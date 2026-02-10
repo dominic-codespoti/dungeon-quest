@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useMemo, useRef, useState} from 'react'
 import AdminPage from './admin/AdminPage'
 import GameMount from './GameMount'
 import type {Dir, PlayerClass, PlayerRace} from '../game/types'
@@ -156,7 +156,6 @@ export default function App(){
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Explore, loot, survive.')
   const [actionLog,setActionLog] = useState<string[]>(['Explore, loot, survive.'])
-  const [actionLogFilter,setActionLogFilter] = useState<'all'|'combat'|'loot'|'system'>('all')
   const [seed,setSeed] = useState<number | null>(null)
   const [klass,setKlass] = useState<PlayerClass>(getClassFromUrl())
   const [race,setRace] = useState<Race>(getRaceFromUrl())
@@ -199,6 +198,33 @@ export default function App(){
   const visualPreset = getVisualPresetFromUrl()
   const highContrast = getHighContrastFromUrl()
   const visualPresetLabel = visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'
+  const seenEnemyIds = useRef<Set<string>>(new Set())
+  const lastUnderfootItemId = useRef<string>('')
+
+  const appendActionLog = (msg:string, tick?:number)=>{
+    const text = String(msg || '').trim()
+    if(!text) return
+    const stamped = Number(tick||0) > 0 ? `[t${tick}] ${text}` : text
+    setActionLog(prev=>{
+      if(prev[0]===stamped) return prev
+      return [stamped, ...prev].slice(0, 14)
+    })
+  }
+
+  const eventToLogLine = (e:any)=>{
+    const t = String(e?.type || 'event')
+    const p = e?.payload || {}
+    if(t==='move' && p?.id==='p' && p?.to) return `You move to (${p.to.x}, ${p.to.y}).`
+    if(t==='combat' && p?.attacker==='p') return `You hit **${p?.target || 'foe'}** for ${p?.damage ?? '?'} damage.`
+    if(t==='combat' && p?.target==='p') return `**${p?.attacker || 'Enemy'}** hits you for ${p?.damage ?? '?'} damage.`
+    if(t==='pickup') return `You pick up *${p?.kind || 'item'}*.`
+    if(t==='merchant_contact') return `The *Merchant* greets you with ${p?.shopOffers ?? 0} offers.`
+    if(t==='stairs_spawned') return 'The air shifts — **stairs appear**.'
+    if(t==='shop_purchase') return `You buy *${p?.name || 'an offer'}*.`
+    if(t==='shop_rerolled') return 'The Merchant reshuffles their stock.'
+    if(t==='wait') return 'You wait, listening to the dungeon breathe.'
+    return `${t.replace(/_/g,' ')}.`
+  }
 
   useEffect(()=>{
     try{
@@ -297,6 +323,7 @@ export default function App(){
       if(e.type==='victory') setStatus('Victory! You conquered the dungeon run.')
       if(e.type==='defeat') setStatus('Defeat.')
       if(e.type==='class_scaling' && (e.payload?.attack || e.payload?.defense || e.payload?.dash || e.payload?.backstep)) setStatus(`${e.payload?.playerClass} scaling: +${e.payload?.attack||0} ATK, +${e.payload?.defense||0} DEF`)
+      appendActionLog(eventToLogLine(e), e?.tick)
     })
     return ()=>{ clearInterval(poll); if(typeof unsub==='function') unsub() }
   },[])
@@ -447,11 +474,7 @@ export default function App(){
     const msg = String(status || '').trim()
     if(!msg) return
     const tick = Number((window as any).game?.getState?.()?.tick ?? 0)
-    const stamped = tick>0 ? `[t${tick}] ${msg}` : msg
-    setActionLog(prev=>{
-      if(prev[0]===stamped) return prev
-      return [stamped, ...prev].slice(0, 9)
-    })
+    appendActionLog(msg, tick)
   }, [status])
 
   useEffect(()=>{
@@ -484,6 +507,28 @@ export default function App(){
     return snapshot.entities.some(e=> e.type==='item' && e.kind==='merchant' && e.pos && (Math.abs(e.pos.x-p.x)+Math.abs(e.pos.y-p.y))<=1)
   }, [snapshot])
   const shopOpen = Boolean(snapshot?.shopOpen)
+
+  useEffect(()=>{
+    if(!snapshot) return
+    const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
+    const visibleMonsters = (snapshot.entities||[]).filter(e=>e.type==='monster' && e.pos && vis.has(`${e.pos.x},${e.pos.y}`))
+    for(const m of visibleMonsters){
+      if(seenEnemyIds.current.has(m.id)) continue
+      seenEnemyIds.current.add(m.id)
+      appendActionLog(`You spot **${m.kind || 'enemy'}** in the dark.`, snapshot.tick)
+    }
+
+    const p = snapshot.entities.find(e=>e.id==='p')?.pos
+    const item = p ? snapshot.entities.find(e=>e.type==='item' && e.pos && e.pos.x===p.x && e.pos.y===p.y) : null
+    if(item){
+      if(lastUnderfootItemId.current !== item.id){
+        lastUnderfootItemId.current = item.id
+        appendActionLog(`You stand over *${item.kind || 'item'}*.`, snapshot.tick)
+      }
+    } else {
+      lastUnderfootItemId.current = ''
+    }
+  }, [snapshot])
   const rangedVisible = useMemo(()=>{
     if(!snapshot) return '-'
     const vis = new Set((snapshot.visible||[]).map(v=>`${v.x},${v.y}`))
@@ -977,14 +1022,6 @@ export default function App(){
     if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('copied')) return 'reward'
     return 'neutral'
   }
-  const actionLogKind = (line:string): 'combat'|'loot'|'system' => {
-    const s = line.toLowerCase()
-    if(s.includes('hits for') || s.includes('slam') || s.includes('defeat') || s.includes('spitter') || s.includes('boss')) return 'combat'
-    if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('essence') || s.includes('copied')) return 'loot'
-    return 'system'
-  }
-  const visibleActionLog = actionLog.filter(line=> actionLogFilter==='all' ? true : actionLogKind(line)===actionLogFilter)
-
   return (
     <div className='dq-shell'>
       <div className='dq-arena'>
@@ -999,14 +1036,7 @@ export default function App(){
             <GameMount />
           </div>
           <div className='dq-action-log'>
-            <div className='dq-action-log-title'>Action Log</div>
-            <div className='dq-action-log-filters'>
-              <button onClick={()=>setActionLogFilter('all')} className={actionLogFilter==='all' ? 'dq-active' : ''}>All</button>
-              <button onClick={()=>setActionLogFilter('combat')} className={actionLogFilter==='combat' ? 'dq-active' : ''}>Combat</button>
-              <button onClick={()=>setActionLogFilter('loot')} className={actionLogFilter==='loot' ? 'dq-active' : ''}>Loot</button>
-              <button onClick={()=>setActionLogFilter('system')} className={actionLogFilter==='system' ? 'dq-active' : ''}>System</button>
-            </div>
-            {visibleActionLog.slice(0,7).map((line, idx)=>(
+            {actionLog.slice(0,8).map((line, idx)=>(
               <div key={`${idx}-${line}`} className={`dq-action-log-line dq-action-log-${actionLogTone(line)}`}>{line}</div>
             ))}
           </div>
