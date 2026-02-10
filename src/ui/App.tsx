@@ -834,8 +834,8 @@ export default function App(){
             <div className='dq-stat'>Floor<b>{snapshot?.floor ?? '-'} / 10</b></div>
             <div className='dq-stat'>HP<b>{String(playerHp)} / {snapshot?.maxHp ?? '-'}</b></div>
             <div className='dq-stat'>Monsters<b>{String(monstersLeft)}</b></div>
-            <div className='dq-stat'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></div>
-            <div className='dq-stat'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></div>
+            <button className='dq-stat' onClick={()=>setShowThreatIntel(v=>!v)} title='Toggle threat intel panel'>Danger<b style={{color:dangerColor}}>{danger} ({dangerLabel})</b></button>
+            <button className='dq-stat' onClick={()=>setShowThreatIntel(v=>!v)} title='Toggle threat intel panel'>Nearby<b>{nearby.monsters} enemy · {nearby.items} item</b></button>
 
             {showAdvancedHud && <div className='dq-stat'>Class<b>{klass}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Race<b>{race}</b></div>}

@@ -176,6 +176,10 @@ export default function GameMount(){
             return 'Melee pressure unit'
           }
 
+          function enemyLevel(ent:any, state:any){
+            return Math.max(1, Math.floor((state?.floor || 1) + ((ent?.kind==='boss' ? 3 : ent?.kind==='brute' || ent?.kind==='sentinel' ? 1 : 0))))
+          }
+
           function ensureEnemyInfo(){
             if(enemyInfoWrap) return
             const w = Math.min(360, sc.scale.width * 0.44)
@@ -201,7 +205,7 @@ export default function GameMount(){
             const name = enemyArchetypeLabel(String(ent.kind||'chaser'))
             const hp = Number.isFinite(ent.hp) ? ent.hp : '?'
             const maxHp = Number.isFinite(ent.maxHp) ? ent.maxHp : '?'
-            const level = Math.max(1, Math.floor((state?.floor || 1) + ((ent.kind==='boss' ? 3 : ent.kind==='brute' || ent.kind==='sentinel' ? 1 : 0))))
+            const level = enemyLevel(ent, state)
             enemyInfoText.setText(`${name} · Lv ${level}\nHP ${hp}/${maxHp} · ${enemyRoleHint(String(ent.kind||'chaser'))}`)
             enemyInfoWrap.setVisible(true)
           }
@@ -287,6 +291,7 @@ export default function GameMount(){
             })
 
             let activeBoss:any = null
+            const p = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
             ;(state.entities||[]).forEach((ent:any)=>{
               const d = displays[ent.id]
               if(!d) return
@@ -306,7 +311,8 @@ export default function GameMount(){
               const isEnemy = ent.type==='monster'
               const hasHp = Number.isFinite(ent.hp) && Number.isFinite(ent.maxHp) && ent.maxHp>0
               const shouldShowBar = isEnemy && hasHp && ent.kind!=='boss' && isVisible && ent.hp < ent.maxHp
-              const showNameTag = isEnemy && isVisible && (hoveredEnemyId===ent.id || selectedEnemyId===ent.id)
+              const distToPlayer = Math.abs((ent.pos?.x||0)-p.x) + Math.abs((ent.pos?.y||0)-p.y)
+              const showNameTag = isEnemy && isVisible && (hoveredEnemyId===ent.id || selectedEnemyId===ent.id || distToPlayer<=4)
               if(showNameTag){
                 if(!enemyNameTags[ent.id]){
                   enemyNameTags[ent.id] = sc.add.text(d.x, d.y - tileSize*0.76, enemyArchetypeLabel(String(ent.kind||'chaser')), {
@@ -317,8 +323,11 @@ export default function GameMount(){
                     strokeThickness:2
                   }).setOrigin(0.5,1).setDepth(365)
                 }
+                const short = enemyArchetypeLabel(String(ent.kind||'chaser'))
+                const lvl = enemyLevel(ent, state)
+                enemyNameTags[ent.id].setText(`${short} L${lvl}`)
                 enemyNameTags[ent.id].setPosition(d.x, d.y - tileSize*0.72)
-                enemyNameTags[ent.id].setAlpha(selectedEnemyId===ent.id ? 0.98 : 0.84)
+                enemyNameTags[ent.id].setAlpha(selectedEnemyId===ent.id ? 0.98 : hoveredEnemyId===ent.id ? 0.9 : 0.58)
               } else if(enemyNameTags[ent.id]){
                 try{ enemyNameTags[ent.id].destroy() }catch{}
                 delete enemyNameTags[ent.id]
