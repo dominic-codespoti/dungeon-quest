@@ -98,6 +98,9 @@ const absentChecks = [
   ["legacy run progress label removed", "Run Progress"],
   ["legacy nearby stat removed", "Nearby<b>"],
   ["legacy equipment header renamed", "/>Equipment</h3>"],
+  ["legacy direct guard hotkey removed", "if(ev.key==='g' || ev.key==='G') g.step({type:'guard'})"],
+  ["legacy direct backstep hotkey removed", "if(ev.key==='q' || ev.key==='Q') castOrArm('backstep')"],
+  ["legacy direct bash hotkey removed", "if(ev.key==='b' || ev.key==='B') castOrArm('bash')"],
 ]
 const absentFailures = absentChecks.filter(([, needle]) => src.includes(needle))
 
