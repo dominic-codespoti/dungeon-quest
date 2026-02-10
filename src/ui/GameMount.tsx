@@ -292,6 +292,19 @@ export default function GameMount(){
             const vis = new Set((state.visible||[]).map((v:any)=>`${v.x},${v.y}`))
             const seen = new Set((state.discovered||[]).map((v:any)=>`${v.x},${v.y}`))
 
+            // Defensive render fallback: if visibility payload collapses, reveal a small local radius
+            // so the board never hard-blacks out despite live game state.
+            const player = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
+            if(player && vis.size===0){
+              for(let y=Math.max(0, player.y-3); y<=Math.min(eng.height-1, player.y+3); y++){
+                for(let x=Math.max(0, player.x-3); x<=Math.min(eng.width-1, player.x+3); x++){
+                  const d = Math.abs(x-player.x)+Math.abs(y-player.y)
+                  if(d<=3) vis.add(`${x},${y}`)
+                  if(d<=5) seen.add(`${x},${y}`)
+                }
+              }
+            }
+
             const floorSeenAlpha = highContrast ? 0.5 : 0.3
             const floorHiddenAlpha = highContrast ? 0.16 : 0.08
             const wallSeenAlpha = highContrast ? 0.56 : 0.38
