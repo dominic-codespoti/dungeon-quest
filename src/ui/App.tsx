@@ -172,6 +172,7 @@ export default function App(){
   const [selectedInventoryIndex,setSelectedInventoryIndex] = useState<number | null>(null)
   const [selectedSpiritIndex,setSelectedSpiritIndex] = useState<number | null>(null)
   const [showBuildPanel,setShowBuildPanel] = useState(false)
+  const [showIconLegend,setShowIconLegend] = useState(false)
   const [showThreatIntel,setShowThreatIntel] = useState(false)
   const [showRendererFallback,setShowRendererFallback] = useState(false)
 
@@ -1309,10 +1310,19 @@ export default function App(){
 
           <div style={{marginTop:10, display:'flex', gap:8, flexWrap:'wrap'}}>
             <button onClick={()=>setShowAdvancedHud(v=>!v)} style={{fontSize:11}}>{showAdvancedHud ? 'Less Stats' : 'More Stats'}</button>
+            <button onClick={()=>setShowIconLegend(v=>!v)} style={{fontSize:11}}>{showIconLegend ? 'Hide Icons' : 'Icon Legend'}</button>
             <button onClick={cycleVisualPreset} style={{fontSize:11}}>Visual: {visualPreset==='normal' ? 'Normal' : visualPreset==='readable' ? 'Readable' : 'Crisp'}</button>
             <button onClick={copySeed} style={{fontSize:11}}>Copy Seed</button>
             <button onClick={copyRunLink} title={visualLinkHint} style={{fontSize:11}}>Copy Run Link</button>
           </div>
+          {showIconLegend && (
+            <div className='dq-item dq-icon-legend'>
+              <div><b>Icons:</b> sword=weapon, shield=armor, gem=spirit</div>
+              <div><b>Borders:</b> common/magic/rare/epic color tiers</div>
+              <div><b>Glow:</b> green=equipped, blue=selected</div>
+              <div><b>Hotbar pips:</b> number shows cooldown/ready hint</div>
+            </div>
+          )}
         </aside>
       </div>
 

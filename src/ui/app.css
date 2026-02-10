@@ -189,6 +189,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   outline: 1px solid #7c9cff;
 }
 .dq-detail-panel { margin-top: 6px; }
+.dq-icon-legend {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.35;
+}
 
 .dq-overlay { position: fixed; inset: 0; background: rgba(4,8,18,.65); display:flex; align-items:center; justify-content:center; z-index:20; }
 .dq-overlay .box { width: 360px; background: #121a2f; border:1px solid #3b4f86; border-radius: 12px; padding: 14px; }
