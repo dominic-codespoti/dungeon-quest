@@ -223,6 +223,7 @@ export default function App(){
         const modLabel = mod==='ambush' ? 'ambush' : mod==='brute-heavy' ? 'brute-heavy' : mod==='scarce-potions' ? 'scarce-potions' : mod==='swarm' ? 'swarm' : 'none'
         setStatus(`Floor ${e.payload?.floor}: ${e.payload?.monsters ?? '?'} monsters, ${e.payload?.items ?? '?'} items (${modLabel}).`)
       }
+      if(e.type==='modifier_hint' && e.payload?.text) setStatus(String(e.payload.text))
       if(e.type==='stairs_blocked_boss') setStatus('Stairs sealed: defeat the boss first.')
       if(e.type==='clear_reward') setStatus('Floor cleared: reward chest spawned.')
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')

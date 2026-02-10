@@ -186,6 +186,16 @@ export class Engine{
     if(!initial){
       this.emit({tick:this.tick,type:'floor',payload:{floor:this.floor,modifier:this.floorModifier}})
       this.emit({tick:this.tick,type:'floor_brief',payload:{floor:this.floor,modifier:this.floorModifier,monsters:monstersNow,items:itemsNow}})
+      const modHint = this.floorModifier==='ambush'
+        ? 'Ambush floor: expect pincer packs and rear pressure.'
+        : this.floorModifier==='brute-heavy'
+        ? 'Brute-heavy floor: stronger frontline enemies.'
+        : this.floorModifier==='scarce-potions'
+        ? 'Scarce-potions floor: healing is limited.'
+        : this.floorModifier==='swarm'
+        ? 'Swarm floor: higher enemy count, lower individual threat.'
+        : ''
+      if(modHint) this.emit({tick:this.tick,type:'modifier_hint',payload:{floor:this.floor,modifier:this.floorModifier,text:modHint}})
     }
     this.emit({
       tick:this.tick,
