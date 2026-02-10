@@ -85,6 +85,7 @@ const checks = [
   ["essence shop header", "Essence Shop"],
   ["essence shop pity ready label", "• Pity Ready"],
   ["essence shop reroll button", "Reroll ("],
+  ["shop spirit bonus vector preview", "ATK+{o.core?.bonuses?.atk||0} DEF+{o.core?.bonuses?.def||0} HP+{o.core?.bonuses?.hp||0} DEX+{o.core?.bonuses?.dex||0}"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],

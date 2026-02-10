@@ -28,7 +28,7 @@ type Snapshot = {
   spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,bonuses:{atk:number,def:number,hp:number,dex:number},note?:string,equipped?:boolean}>
   spiritMajorSlots?: number
   spiritMinorSlots?: number
-  shopOffers?: Array<{id:string,name:string,kind:'essence-pack'|'spirit-core',cost:number,essenceAmount?:number,core?:{spirit:string,modifier:string,tier:'major'|'minor'}}>
+  shopOffers?: Array<{id:string,name:string,kind:'essence-pack'|'spirit-core',cost:number,essenceAmount?:number,core?:{spirit:string,modifier:string,tier:'major'|'minor',bonuses:{atk:number,def:number,hp:number,dex:number},note?:string}}>
   shopRerollCost?: number
   spiritDryFloors?: number
   lastSpiritEquipBlockedReason?: string | null
@@ -1090,6 +1090,8 @@ export default function App(){
                   <div className='meta'>{o.kind} · cost {o.cost}</div>
                   {o.kind==='essence-pack' && <div>Gain +{o.essenceAmount || 0} essence</div>}
                   {o.kind==='spirit-core' && <div>Core: {o.core?.spirit || 'Unknown'} · {o.core?.tier || 'minor'} · {o.core?.modifier || 'pure'}</div>}
+                  {o.kind==='spirit-core' && <div className='meta'>ATK+{o.core?.bonuses?.atk||0} DEF+{o.core?.bonuses?.def||0} HP+{o.core?.bonuses?.hp||0} DEX+{o.core?.bonuses?.dex||0}</div>}
+                  {o.kind==='spirit-core' && <div className='meta'>{o.core?.note || ''}</div>}
                   <button disabled={!afford} style={{marginTop:4,fontSize:11,opacity:afford?1:0.6}} onClick={()=> (window as any).game?.buyShopOffer?.(idx)}>{afford ? 'Buy' : 'Need Essence'}</button>
                 </div>
               )
