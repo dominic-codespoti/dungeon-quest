@@ -709,12 +709,15 @@ export class Engine{
         if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')
         if(this.floorModifier==='brute-heavy') this.spawnItem(`i${this.floor}-brute-reward-${this.tick}`,'gear')
         if(this.floorModifier==='scarce-potions') this.spawnItem(`i${this.floor}-scarce-reward-${this.tick}`,'elixir')
+        if(this.floorModifier==='swarm') this.spawnItem(`i${this.floor}-swarm-reward-${this.tick}`,'bomb')
         const reward = this.floorModifier==='ambush'
           ? 'chest+potion'
           : this.floorModifier==='brute-heavy'
           ? 'chest+gear'
           : this.floorModifier==='scarce-potions'
           ? 'chest+elixir'
+          : this.floorModifier==='swarm'
+          ? 'chest+bomb'
           : 'chest'
         this.emit({tick:this.tick,type:'clear_reward',payload:{floor:this.floor,reward}})
       }

@@ -241,6 +241,8 @@ export default function App(){
           ? 'Floor cleared: reward chest + bonus gear spawned.'
           : e.payload?.reward==='chest+elixir'
           ? 'Floor cleared: reward chest + elixir spawned.'
+          : e.payload?.reward==='chest+bomb'
+          ? 'Floor cleared: reward chest + bomb spawned.'
           : 'Floor cleared: reward chest spawned.'
       )
       if(e.type==='boss_spawned') setStatus('A boss lurks on this floor.')

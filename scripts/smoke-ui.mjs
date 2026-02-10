@@ -128,6 +128,7 @@ const engineChecks = [
   ["ambush clear reward includes potion", "if(this.floorModifier==='ambush') this.spawnItem(`i${this.floor}-ambush-recover-${this.tick}`,'potion')"],
   ["brute-heavy clear reward includes gear", "if(this.floorModifier==='brute-heavy') this.spawnItem(`i${this.floor}-brute-reward-${this.tick}`,'gear')"],
   ["scarce-potions clear reward includes elixir", "if(this.floorModifier==='scarce-potions') this.spawnItem(`i${this.floor}-scarce-reward-${this.tick}`,'elixir')"],
+  ["swarm clear reward includes bomb", "if(this.floorModifier==='swarm') this.spawnItem(`i${this.floor}-swarm-reward-${this.tick}`,'bomb')"],
   ["ambush increases AI sense radius", "this.floorModifier==='ambush' ? 10 : this.floorModifier==='swarm' ? 9 : 7"],
   ["ambush buffs spitter base damage", "const spitBase = this.floorModifier==='ambush' ? 2 : 1"],
   ["ambush buffs sentinel zap base damage", "const zapBase = this.floorModifier==='ambush' ? 2 : 1"],
