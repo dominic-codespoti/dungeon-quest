@@ -30,6 +30,7 @@ type Snapshot = {
   spiritMinorSlots?: number
   shopOffers?: Array<{id:string,name:string,kind:'essence-pack'|'spirit-core',cost:number,essenceAmount?:number,core?:{spirit:string,modifier:string,tier:'major'|'minor'}}>
   shopRerollCost?: number
+  spiritDryFloors?: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown:number
   backstepCooldown:number
@@ -268,6 +269,7 @@ export default function App(){
       if(e.type==='shop_buy_blocked') setStatus(`Shop: need ${e.payload?.cost || 0} essence (have ${e.payload?.essence || 0}).`)
       if(e.type==='shop_rerolled') setStatus(`Shop rerolled (cost ${e.payload?.cost || 0}, rerolls ${e.payload?.rerolls || 0}).`)
       if(e.type==='shop_reroll_blocked') setStatus(`Shop reroll needs ${e.payload?.cost || 0} essence.`)
+      if(e.type==='spirit_pity_offer') setStatus(`Spirit pity offer available: ${e.payload?.core || 'core'} at ${e.payload?.cost || '?'} essence.`)
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
@@ -1075,7 +1077,7 @@ export default function App(){
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',margin:'8px 0 0'}}>
-            <h3 style={{margin:0}}>Essence Shop</h3>
+            <h3 style={{margin:0}}>Essence Shop {((snapshot?.spiritDryFloors ?? 0)>=2) ? '• Pity Ready' : ''}</h3>
             <button style={{fontSize:11}} onClick={()=> (window as any).game?.rerollShopOffers?.()}>Reroll ({snapshot?.shopRerollCost ?? 20})</button>
           </div>
           <div className='dq-equip-list'>

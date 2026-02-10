@@ -77,6 +77,7 @@ export type GameSnapshot = {
   spiritMinorSlots: number
   shopOffers: ShopOffer[]
   shopRerollCost: number
+  spiritDryFloors: number
   lastSpiritEquipBlockedReason?: string | null
   dashCooldown: number
   backstepCooldown: number

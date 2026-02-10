@@ -32,6 +32,8 @@ export class Engine{
   spiritMinorSlots = 0
   shopOffers: ShopOffer[] = []
   shopRerolls = 0
+  spiritDryFloors = 0
+  spiritCoreAcquiredThisFloor = false
   lastSpiritEquipBlockedReason: string | null = null
   visible = new Set<string>()
   discovered = new Set<string>()
@@ -121,6 +123,8 @@ export class Engine{
       this.spiritMinorSlots = 0
       this.shopOffers = []
       this.shopRerolls = 0
+      this.spiritDryFloors = 0
+      this.spiritCoreAcquiredThisFloor = false
       this.lastSpiritEquipBlockedReason = null
       this.discovered.clear()
       this.applyRaceBonuses()
@@ -220,6 +224,10 @@ export class Engine{
     const gearDrops = this.floor >= 2 ? 2 : 1
     for(let i=0;i<gearDrops;i++) this.spawnItem(`i${this.floor}-g${i+1}`,'gear')
 
+    if(!initial){
+      this.spiritDryFloors = this.spiritCoreAcquiredThisFloor ? 0 : (this.spiritDryFloors + 1)
+      this.spiritCoreAcquiredThisFloor = false
+    }
     this.shopRerolls = 0
     this.refreshShopOffers()
 
@@ -287,11 +295,21 @@ export class Engine{
     const essenceHigh = 18 + Math.floor(this.floor*3)
     offers.push({id:`offer-ess-s-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Essence Cache (+${essenceLow})`, kind:'essence-pack', cost:16 + this.floor*2, essenceAmount:essenceLow})
     offers.push({id:`offer-ess-l-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Greater Essence (+${essenceHigh})`, kind:'essence-pack', cost:28 + this.floor*3, essenceAmount:essenceHigh})
-    const shopKind = this.rand() < 0.5 ? 'chaser' : this.rand() < 0.7 ? 'brute' : this.rand() < 0.85 ? 'spitter' : this.rand() < 0.95 ? 'sentinel' : 'boss'
-    const core = this.spiritCoreFromEnemy(shopKind)
-    offers.push({id:`offer-core-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Spirit Core: ${core.spirit} (${core.modifier})`, kind:'spirit-core', cost:40 + (core.tier==='major' ? 30 : 10) + this.floor*2, core})
+
+    const pityReady = this.spiritDryFloors >= 2
+    const coreChance = pityReady ? 1 : 0.45
+    if(this.rand() < coreChance){
+      const shopKind = this.rand() < 0.5 ? 'chaser' : this.rand() < 0.7 ? 'brute' : this.rand() < 0.85 ? 'spitter' : this.rand() < 0.95 ? 'sentinel' : 'boss'
+      const core = this.spiritCoreFromEnemy(shopKind)
+      if(pityReady) core.modifier = 'pure'
+      const baseCost = 40 + (core.tier==='major' ? 30 : 10) + this.floor*2
+      const cost = pityReady ? Math.max(20, baseCost - 12) : baseCost
+      offers.push({id:`offer-core-${this.tick}-${Math.floor(this.rand()*9999)}`, name:`Spirit Core: ${core.spirit} (${core.modifier})`, kind:'spirit-core', cost, core})
+      if(pityReady) this.emit({tick:this.tick,type:'spirit_pity_offer',payload:{dryFloors:this.spiritDryFloors,core:core.spirit,cost}})
+    }
+
     this.shopOffers = offers
-    this.emit({tick:this.tick,type:'shop_refreshed',payload:{offers:this.shopOffers,rerollCost:this.currentShopRerollCost()}})
+    this.emit({tick:this.tick,type:'shop_refreshed',payload:{offers:this.shopOffers,rerollCost:this.currentShopRerollCost(),spiritDryFloors:this.spiritDryFloors,pityReady}})
   }
 
   buyShopOffer(index:number){
@@ -308,6 +326,7 @@ export class Engine{
       this.emit({tick:this.tick,type:'shop_purchase',payload:{name:offer.name,kind:offer.kind,cost:offer.cost,gain,essence:this.essence}})
     } else if(offer.kind==='spirit-core' && offer.core){
       this.spiritCores.push({...offer.core, equipped:false})
+      this.spiritCoreAcquiredThisFloor = true
       this.emit({tick:this.tick,type:'shop_purchase',payload:{name:offer.name,kind:offer.kind,cost:offer.cost,essence:this.essence,core:offer.core}})
     }
     this.shopOffers = this.shopOffers.filter((_,i)=>i!==index)
@@ -739,6 +758,7 @@ export class Engine{
       spiritMinorSlots:this.spiritMinorSlots,
       shopOffers: JSON.parse(JSON.stringify(this.shopOffers)),
       shopRerollCost:this.currentShopRerollCost(),
+      spiritDryFloors:this.spiritDryFloors,
       lastSpiritEquipBlockedReason:this.lastSpiritEquipBlockedReason,
       dashCooldown:this.dashCooldown,
       backstepCooldown:this.backstepCooldown,
@@ -1195,6 +1215,7 @@ export class Engine{
         const core = item.spiritLoot
         if(core){
           this.spiritCores.push(core)
+          this.spiritCoreAcquiredThisFloor = true
           this.score += core.tier==='major' ? 120 : 70
           this.emit({tick:this.tick,type:'spirit_core_pickup',payload:{core,total:this.spiritCores.length}})
         } else {
