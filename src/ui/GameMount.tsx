@@ -83,6 +83,7 @@ export default function GameMount(){
           let bossBarBg: any
           let bossBarFill: any
           let bossBarText: any
+          let activeBossIdForUi: string | null = null
           let fogGraphics: any
           let flashOverlay: any
           let targetingGraphics: any
@@ -219,6 +220,13 @@ export default function GameMount(){
             bossBarWrap = sc.add.container(0,0).setDepth(900)
             bossBarBg = sc.add.rectangle(x + w/2, y + h/2, w, h, 0x1a1414, 0.92)
             bossBarBg.setStrokeStyle(2, 0x6b3a3a, 1)
+            bossBarBg.setInteractive({cursor:'pointer'})
+            bossBarBg.on('pointerdown', ()=>{
+              if(!activeBossIdForUi) return
+              selectedEnemyId = selectedEnemyId===activeBossIdForUi ? null : activeBossIdForUi
+              const st = (window as any).game?.getState?.()
+              renderEnemyInfo(st)
+            })
             bossBarFill = sc.add.rectangle(x + 2, y + h/2, w-4, h-4, 0xb23a3a, 0.95).setOrigin(0,0.5)
             bossBarText = sc.add.text(sc.scale.width/2, y - 11, 'BOSS', {
               fontFamily:'monospace', fontSize:'12px', color:'#ffd9d9', stroke:'#120f0f', strokeThickness:2
@@ -392,6 +400,7 @@ export default function GameMount(){
             })
 
             if(activeBoss && Number.isFinite(activeBoss.hp) && Number.isFinite(activeBoss.maxHp) && activeBoss.maxHp>0){
+              activeBossIdForUi = String(activeBoss.id)
               if(bossIntroForId !== String(activeBoss.id)){
                 bossIntroForId = String(activeBoss.id)
                 showBossIntro('BOSS ENCOUNTER')
@@ -406,6 +415,7 @@ export default function GameMount(){
                 bossBarText.setText(`${String(activeBoss.kind || 'Boss').toUpperCase()} · ${phase}  ${activeBoss.hp}/${activeBoss.maxHp}`)
               }
             } else {
+              activeBossIdForUi = null
               bossIntroForId = null
               clearBossBar()
             }
