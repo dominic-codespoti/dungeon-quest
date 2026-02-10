@@ -77,6 +77,8 @@ const checks = [
   ["sidebar stat: visible boss hp", "Boss HP"],
   ["sidebar stat: boss charge readiness", "Boss Charge"],
   ["sidebar stat: boss charge countdown", "Boss CD"],
+  ["sidebar stat: essence", "Essence"],
+  ["sidebar stat: spirits", "Spirits"],
   ["sidebar stat: current modifier", "Mod<b>{snapshot?.floorModifier ?? 'none'}</b>"],
   ["sidebar stat: current boss floor", "Boss Floor"],
   ["sidebar stat: boss alive", "Boss Alive"],
@@ -157,6 +159,8 @@ const engineChecks = [
   ["engine unequip helper", "unequipInventoryIndex(index:number){"],
   ["engine unequip-all helper", "unequipAll(){"],
   ["engine sort helper", "sortInventory(){"],
+  ["engine spirit modifier roll helper", "private rollSpiritModifier(): SpiritModifier {"],
+  ["engine spirit loot drop helper", "private maybeDropSpiritLoot(dead: Entity){"],
   ["engine score helper", "private scoreForKill(kind:string|undefined){"],
   ["ambush score multiplier", "this.floorModifier==='ambush' ? 1.2 : this.floorModifier==='brute-heavy' ? 1.1 : 1"],
 ]

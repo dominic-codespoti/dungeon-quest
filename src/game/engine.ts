@@ -1,4 +1,4 @@
-import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, Dir, PlayerClass, PlayerRace, GeneratedItem, Rarity} from './types'
+import type {GameSnapshot, PlayerAction, GameEvent, Entity, Coord, Dir, PlayerClass, PlayerRace, GeneratedItem, Rarity, SpiritCore, SpiritModifier} from './types'
 import eventBus from './eventBus'
 
 function rng(seed:number){
@@ -26,6 +26,9 @@ export class Engine{
   defenseBonus = 0
   maxHp = 12
   inventory: GeneratedItem[] = []
+  essence = 0
+  spiritCores: SpiritCore[] = []
+  spiritMajorSlots = 1
   visible = new Set<string>()
   discovered = new Set<string>()
   dashCooldown = 0
@@ -108,6 +111,9 @@ export class Engine{
       this.attackBonus = 0
       this.defenseBonus = 0
       this.inventory = []
+      this.essence = 0
+      this.spiritCores = []
+      this.spiritMajorSlots = 1
       this.discovered.clear()
       this.applyRaceBonuses()
       const player = this.entities.find(e=>e.id==='p')
@@ -250,6 +256,45 @@ export class Engine{
     if(r < 0.82) return 'magic'
     if(r < 0.95) return 'rare'
     return 'epic'
+  }
+
+  private rollSpiritModifier(): SpiritModifier {
+    const r = this.rand()
+    if(r < 0.5) return 'pure'
+    if(r < 0.75) return 'empowered'
+    if(r < 0.92) return 'corrupted'
+    return 'fractured'
+  }
+
+  private spiritCoreFromEnemy(kind:string|undefined): SpiritCore {
+    const source = String(kind || 'unknown')
+    const spirit = kind==='boss' ? 'Warlord' : kind==='spitter' ? 'Gutter Hex' : kind==='sentinel' ? 'Watcher' : kind==='brute' ? 'Titan' : kind==='skitter' ? 'Scuttler' : 'Goblin'
+    const tier: 'major'|'minor' = (kind==='boss' || kind==='sentinel') ? 'major' : 'minor'
+    const modifier = this.rollSpiritModifier()
+    const base = {
+      atk: kind==='brute' || kind==='boss' ? 1 : 0,
+      def: kind==='sentinel' ? 1 : 0,
+      hp: kind==='boss' ? 1 : 0,
+      dex: kind==='skitter' || kind==='chaser' ? 1 : 0,
+    }
+    const bonuses = {...base}
+    if(modifier==='empowered') bonuses.atk += 1
+    if(modifier==='corrupted'){ bonuses.atk += 1; bonuses.def = Math.max(0, bonuses.def-1) }
+    if(modifier==='fractured'){ bonuses.dex += 1; bonuses.hp = Math.max(0, bonuses.hp-1) }
+    const note = modifier==='pure' ? 'stable spirit imprint' : modifier==='empowered' ? 'amplified core signal' : modifier==='corrupted' ? 'high output, unstable tradeoff' : 'split resonance with odd edges'
+    return {id:`sp-${source}-${this.tick}-${Math.floor(this.rand()*9999)}`, spirit, source, tier, modifier, bonuses, note}
+  }
+
+  private maybeDropSpiritLoot(dead: Entity){
+    if(dead.type!=='monster') return
+    const pos = {x:dead.pos.x,y:dead.pos.y}
+    const boss = dead.kind==='boss'
+    const spiritChance = boss ? 1 : 0.18
+    if(this.rand() < spiritChance){
+      this.entities.push({id:`i${this.floor}-spirit-${this.tick}-${dead.id}`,type:'item',kind:'spirit-implant',pos,spiritLoot:this.spiritCoreFromEnemy(dead.kind)})
+    }
+    const essenceDrop = boss ? 18 : dead.kind==='sentinel' ? 8 : dead.kind==='brute' ? 6 : 4
+    this.entities.push({id:`i${this.floor}-ess-${this.tick}-${dead.id}`,type:'item',kind:'essence',pos,essenceAmount:essenceDrop})
   }
 
   private generateGear(): GeneratedItem {
@@ -502,7 +547,7 @@ export class Engine{
     monsters.slice(0,3).forEach((m,i)=> this.tryRepositionMonster(m, tri[i]!, 4))
   }
 
-  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'){
+  private spawnItem(id:string,kind:'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'|'essence'|'spirit-implant'){
     const loot = kind==='gear' ? this.generateGear() : undefined
     this.entities.push({id,type:'item',kind,pos:this.spawnFreePos(kind==='stairs' ? 6 : 3), ...(loot ? {loot} : {})})
   }
@@ -592,6 +637,9 @@ export class Engine{
       defenseBonus:this.defenseBonus,
       maxHp:this.maxHp,
       inventory: JSON.parse(JSON.stringify(this.inventory)),
+      essence:this.essence,
+      spiritCores: JSON.parse(JSON.stringify(this.spiritCores)),
+      spiritMajorSlots:this.spiritMajorSlots,
       dashCooldown:this.dashCooldown,
       backstepCooldown:this.backstepCooldown,
       guardCooldown:this.guardCooldown,
@@ -821,6 +869,7 @@ export class Engine{
           this.bossCharged.delete(occ.id)
           this.entities = this.entities.filter(e=>e.id!==occ.id)
           this.maybeBossLoot(occ)
+          this.maybeDropSpiritLoot(occ)
           this.score += this.scoreForKill(occ.kind)
           playerScoredKill = true
           if(this.playerClass==='rogue' && moveType==='dash'){
@@ -915,6 +964,7 @@ export class Engine{
             this.bossCharged.delete(m.id)
             this.entities = this.entities.filter(e=>e.id!==m.id)
             this.maybeBossLoot(m)
+            this.maybeDropSpiritLoot(m)
             this.score += this.scoreForKill(m.kind)
             playerScoredKill = true
           }
@@ -980,6 +1030,22 @@ export class Engine{
         }
         this.score += 80 + pulled*10
         this.emit({tick:this.tick,type:'rift_used',payload:{pulled}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='essence'){
+        const gain = Math.max(1, Number(item.essenceAmount || 0))
+        this.essence += gain
+        this.score += 10 + gain
+        this.emit({tick:this.tick,type:'essence_pickup',payload:{amount:gain,total:this.essence}})
+        this.entities = this.entities.filter(e=>e.id!==item.id)
+      } else if(item.kind==='spirit-implant'){
+        const core = item.spiritLoot
+        if(core){
+          this.spiritCores.push(core)
+          this.score += core.tier==='major' ? 120 : 70
+          this.emit({tick:this.tick,type:'spirit_core_pickup',payload:{core,total:this.spiritCores.length}})
+        } else {
+          this.emit({tick:this.tick,type:'pickup',payload:{id:item.id,kind:item.kind}})
+        }
         this.entities = this.entities.filter(e=>e.id!==item.id)
       } else if(item.kind==='stairs'){
         const bossAlive = this.entities.some(e=>e.type==='monster' && e.kind==='boss')
@@ -1064,6 +1130,7 @@ export class Engine{
             this.bossCharged.delete(occ.id)
             this.entities = this.entities.filter(e=>e.id!==occ.id)
             this.maybeBossLoot(occ)
+            this.maybeDropSpiritLoot(occ)
             this.score += this.scoreForKill(occ.kind)
             playerScoredKill = true
           }

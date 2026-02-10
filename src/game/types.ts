@@ -5,6 +5,18 @@ export type PlayerRace = 'human'|'elf'|'dwarf'
 export type ItemClass = 'weapon'|'armor'
 export type Rarity = 'common'|'magic'|'rare'|'epic'
 
+export type SpiritModifier = 'pure'|'empowered'|'corrupted'|'fractured'
+
+export type SpiritCore = {
+  id: string
+  spirit: string
+  source: string
+  tier: 'major'|'minor'
+  modifier: SpiritModifier
+  bonuses: {atk:number,def:number,hp:number,dex:number}
+  note: string
+}
+
 export type GeneratedItem = {
   itemClass: ItemClass
   baseType: string
@@ -21,10 +33,12 @@ export type GeneratedItem = {
 export type Entity = {
   id: string
   type: 'player'|'monster'|'item'
-  kind?: 'chaser'|'brute'|'skitter'|'spitter'|'boss'|'sentinel'|'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'
+  kind?: 'chaser'|'brute'|'skitter'|'spitter'|'boss'|'sentinel'|'potion'|'relic'|'stairs'|'elixir'|'cursed-idol'|'gear'|'bomb'|'blink-shard'|'chest'|'shrine'|'fountain'|'rift-orb'|'essence'|'spirit-implant'
   pos: Coord
   hp?: number
   loot?: GeneratedItem
+  spiritLoot?: SpiritCore
+  essenceAmount?: number
   used?: boolean
 }
 
@@ -47,6 +61,9 @@ export type GameSnapshot = {
   defenseBonus: number
   maxHp: number
   inventory: GeneratedItem[]
+  essence: number
+  spiritCores: SpiritCore[]
+  spiritMajorSlots: number
   dashCooldown: number
   backstepCooldown: number
   guardCooldown: number

@@ -24,6 +24,9 @@ type Snapshot = {
   defenseBonus:number
   maxHp:number
   inventory?: Gear[]
+  essence?: number
+  spiritCores?: Array<{id:string,spirit:string,source:string,tier:'major'|'minor',modifier:string,note?:string}>
+  spiritMajorSlots?: number
   dashCooldown:number
   backstepCooldown:number
   guardCooldown:number
@@ -251,6 +254,8 @@ export default function App(){
       if(e.type==='boss_slam') setStatus(`Boss slam hits for ${e.payload?.damage ?? '?'}!`)
       if(e.type==='spit_used') setStatus(`Spitter spits for ${e.payload?.damage ?? 0}.`)
       if(e.type==='boss_loot') setStatus(`Boss dropped ${e.payload?.drop === 'blink-shard' ? 'a Blink Shard' : 'a Bomb'}!`)
+      if(e.type==='essence_pickup') setStatus(`Essence +${e.payload?.amount || 0} (total ${e.payload?.total || 0}).`)
+      if(e.type==='spirit_core_pickup') setStatus(`Spirit core acquired: ${e.payload?.core?.spirit || 'Unknown'} (${e.payload?.core?.modifier || 'pure'}).`)
       if(e.type==='floor_brief' && e.payload?.floor===1) setStatus(`Run start: seed ${seed ?? '-'} · class ${klass} · race ${race}.`)
       if(e.type==='boss_defeated_unlock') setStatus('Boss defeated: stairs unsealed.')
       if(e.type==='chest_opened') setStatus(`Chest opened: spawned ${e.payload?.drop}.`)
@@ -952,6 +957,8 @@ export default function App(){
             <div className='dq-stat'>Boss Charge<b>{(snapshot?.bossCharging ?? 0) > 0 ? 'READY' : '—'}</b></div>
             <div className='dq-stat'>Boss CD<b>{bossChargeCountdown}</b></div>
             <div className='dq-stat'>Score<b>{snapshot?.score ?? '-'}</b></div>
+            <div className='dq-stat'>Essence<b>{snapshot?.essence ?? 0}</b></div>
+            {showAdvancedHud && <div className='dq-stat'>Spirits<b>{snapshot?.spiritCores?.length ?? 0} / {snapshot?.spiritMajorSlots ?? 1}M</b></div>}
             {showAdvancedHud && <div className='dq-stat'>ATK+<b>{snapshot?.attackBonus ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>DEF+<b>{snapshot?.defenseBonus ?? 0}</b></div>}
             {showAdvancedHud && <div className='dq-stat'>Mod<b>{snapshot?.floorModifier ?? 'none'}</b></div>}
