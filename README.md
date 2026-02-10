@@ -111,3 +111,13 @@ Typical forms:
 - Link bundle: multiline export combining key launch/copy variants for sharing
 
 Use these links to relaunch deterministic presets quickly across sessions/devices.
+
+## Visual Modes (In-Run)
+
+Use the in-run **Visual** toggle in the sidebar to cycle:
+
+- `Normal` — strongest atmosphere / darkest mood
+- `Readable` — balanced clarity + atmosphere (**default**)
+- `Crisp` — maximum tactical readability (lowest fog/strongest contrast)
+
+Tip: keep `Readable` for normal play and switch to `Crisp` when testing enemy silhouettes, ranged pressure lanes, or tight FOV fights.
