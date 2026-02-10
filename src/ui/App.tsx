@@ -913,14 +913,14 @@ export default function App(){
         <div className='dq-overlay'>
           <div className='box'>
             <h2 style={{marginTop:0}}>Controls & Goal</h2>
-            <p>Goal: clear floor 10.</p>
+            <p>Goal: descend as deep as you can.</p>
             <p>Move: WASD/Arrows (+ diagonal via numpad 7/9/1/3 or on-screen ↖↗↙↘)</p>
             <p>Dash: Shift + direction</p>
             <p>Rogue: Q backstep</p>
             <p>Knight: B bash, G guard</p>
             <p>Interact: E · Wait: Space · New run: R · Retry seed: T · Copy seed: C · Copy link: V · Pregame: P · Main menu: M</p>
             <p>Tips: Danger meter tracks nearby threat, boss charge warning means slam incoming, and you can click enemies to inspect role/HP details.</p>
-            <p>Run target: Floor 10. Use chests/shrines/fountains/rift orbs to spike power.</p>
+            <p>Use chests/shrines/fountains/rift orbs to spike power and keep pushing deeper.</p>
             <div style={{display:'flex', gap:8}}><button onClick={()=>setShowHelp(false)}>Close</button></div>
           </div>
         </div>
