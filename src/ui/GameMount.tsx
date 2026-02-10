@@ -98,6 +98,7 @@ export default function GameMount(){
           let targetingGraphics: any
           let playerHalo: any
           let visionDebugText: any
+          let forcedVisionRecoveries = 0
           let bossIntroForId: string | null = null
           let playerPos: Coord = {x: Math.floor(eng.width/2), y: Math.floor(eng.height/2)}
 
@@ -330,6 +331,24 @@ export default function GameMount(){
               else if(seen.has(k)) wallDisplays[k].setAlpha(wallSeenAlpha)
               else wallDisplays[k].setAlpha(wallHiddenAlpha)
             })
+
+            // Last-line visual safety net: if almost everything is near-black while state is live,
+            // force a readable baseline once and keep going.
+            const floorKeys = Object.keys(floorDisplays)
+            const wallKeys = Object.keys(wallDisplays)
+            const totalTiles = floorKeys.length + wallKeys.length
+            if(totalTiles > 0){
+              let dim = 0
+              for(const k of floorKeys){ if((floorDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
+              for(const k of wallKeys){ if((wallDisplays[k]?.alpha ?? 0) < 0.12) dim++ }
+              const dimRatio = dim / totalTiles
+              if(dimRatio > 0.92 && forcedVisionRecoveries < 3){
+                forcedVisionRecoveries++
+                for(const k of floorKeys){ floorDisplays[k].setAlpha(Math.max(0.24, floorDisplays[k]?.alpha ?? 0)) }
+                for(const k of wallKeys){ wallDisplays[k].setAlpha(Math.max(0.2, wallDisplays[k]?.alpha ?? 0)) }
+                console.warn('[GameMount] forced vision recovery', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedVisionRecoveries})
+              }
+            }
 
             let activeBoss:any = null
             const p = (state.entities||[]).find((e:any)=>e.id==='p')?.pos || playerPos
