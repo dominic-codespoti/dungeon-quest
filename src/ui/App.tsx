@@ -220,6 +220,7 @@ export default function App(){
       if(e.type==='gear_autoequip') setStatus('Auto-equipped best weapon/armor.')
       if(e.type==='gear_unequipped') setStatus(`Unequipped: ${e.payload?.name || 'item'}.`)
       if(e.type==='gear_unequipped_all') setStatus(`Unequipped all gear (${e.payload?.count || 0}).`)
+      if(e.type==='inventory_sorted') setStatus('Inventory sorted: equipped → slot → rarity.')
       if(e.type==='stairs_spawned') setStatus('Stairs found.')
       if(e.type==='floor_brief'){
         const mod = String(e.payload?.modifier || 'none')
@@ -908,6 +909,7 @@ export default function App(){
             <div style={{display:'flex',gap:6}}>
               <button onClick={()=> (window as any).game?.autoEquipBest?.()} style={{fontSize:11}}>Auto Equip</button>
               <button onClick={()=> (window as any).game?.unequipAll?.()} style={{fontSize:11}}>Unequip All</button>
+              <button onClick={()=> (window as any).game?.sortInventory?.()} style={{fontSize:11}}>Sort</button>
               <button onClick={()=>setShowInventoryPanel(v=>!v)} style={{fontSize:11}}>{showInventoryPanel ? 'Hide' : 'Show'}</button>
             </div>
           </div>

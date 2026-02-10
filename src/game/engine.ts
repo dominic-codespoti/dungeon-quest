@@ -649,6 +649,22 @@ export class Engine{
     return this.getState()
   }
 
+  sortInventory(){
+    const rarityRank: Record<Rarity, number> = {epic:4, rare:3, magic:2, common:1}
+    this.inventory.sort((a,b)=>{
+      if(Boolean(b.equipped)!==Boolean(a.equipped)) return Number(b.equipped)-Number(a.equipped)
+      if(a.itemClass!==b.itemClass) return a.itemClass==='weapon' ? -1 : 1
+      const rr = (rarityRank[b.rarity]||0) - (rarityRank[a.rarity]||0)
+      if(rr!==0) return rr
+      const aScore = a.atkBonus + a.defBonus + a.hpBonus
+      const bScore = b.atkBonus + b.defBonus + b.hpBonus
+      if(bScore!==aScore) return bScore-aScore
+      return a.name.localeCompare(b.name)
+    })
+    this.emit({tick:this.tick,type:'inventory_sorted',payload:{count:this.inventory.length}})
+    return this.getState()
+  }
+
   private equipGear(gear: GeneratedItem, player: Entity){
     const replaced = this.inventory.find(it=>it.itemClass===gear.itemClass && it.equipped)
     if(replaced){

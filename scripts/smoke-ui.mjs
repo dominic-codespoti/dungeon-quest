@@ -74,6 +74,7 @@ const checks = [
   ["inventory section renamed", "<I src={treasureIcon}/>Inventory"],
   ["inventory quick auto-equip button", "Auto Equip"],
   ["inventory quick unequip-all button", "Unequip All"],
+  ["inventory quick sort button", "Sort"],
   ["inventory per-item unequip button", "Unequip"],
   ["skills section header", "<I src={bootsIcon}/>Skills"],
   ["help copy points to skills panel", "Class skills: use the Skills panel"],
@@ -96,6 +97,7 @@ const mountChecks = [
   ["mount exposes auto-equip api", "autoEquipBest: ()=> eng.autoEquipBest()"],
   ["mount exposes unequip api", "unequipInventoryIndex: (index:number)=> eng.unequipInventoryIndex(index)"],
   ["mount exposes unequip-all api", "unequipAll: ()=> eng.unequipAll()"],
+  ["mount exposes sort api", "sortInventory: ()=> eng.sortInventory()"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 
@@ -116,6 +118,7 @@ const engineChecks = [
   ["engine auto-equip helper", "autoEquipBest(){"],
   ["engine unequip helper", "unequipInventoryIndex(index:number){"],
   ["engine unequip-all helper", "unequipAll(){"],
+  ["engine sort helper", "sortInventory(){"],
 ]
 const engineFailures = engineChecks.filter(([, needle]) => !engineSrc.includes(needle))
 
