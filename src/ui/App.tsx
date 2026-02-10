@@ -156,6 +156,7 @@ export default function App(){
   const [snapshot,setSnapshot] = useState<Snapshot | null>(null)
   const [status,setStatus] = useState('Explore, loot, survive.')
   const [actionLog,setActionLog] = useState<string[]>(['Explore, loot, survive.'])
+  const [actionLogFilter,setActionLogFilter] = useState<'all'|'combat'|'loot'|'system'>('all')
   const [seed,setSeed] = useState<number | null>(null)
   const [klass,setKlass] = useState<PlayerClass>(getClassFromUrl())
   const [race,setRace] = useState<Race>(getRaceFromUrl())
@@ -976,6 +977,13 @@ export default function App(){
     if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('copied')) return 'reward'
     return 'neutral'
   }
+  const actionLogKind = (line:string): 'combat'|'loot'|'system' => {
+    const s = line.toLowerCase()
+    if(s.includes('hits for') || s.includes('slam') || s.includes('defeat') || s.includes('spitter') || s.includes('boss')) return 'combat'
+    if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('essence') || s.includes('copied')) return 'loot'
+    return 'system'
+  }
+  const visibleActionLog = actionLog.filter(line=> actionLogFilter==='all' ? true : actionLogKind(line)===actionLogFilter)
 
   return (
     <div className='dq-shell'>
@@ -992,7 +1000,13 @@ export default function App(){
           </div>
           <div className='dq-action-log'>
             <div className='dq-action-log-title'>Action Log</div>
-            {actionLog.slice(0,7).map((line, idx)=>(
+            <div className='dq-action-log-filters'>
+              <button onClick={()=>setActionLogFilter('all')} className={actionLogFilter==='all' ? 'dq-active' : ''}>All</button>
+              <button onClick={()=>setActionLogFilter('combat')} className={actionLogFilter==='combat' ? 'dq-active' : ''}>Combat</button>
+              <button onClick={()=>setActionLogFilter('loot')} className={actionLogFilter==='loot' ? 'dq-active' : ''}>Loot</button>
+              <button onClick={()=>setActionLogFilter('system')} className={actionLogFilter==='system' ? 'dq-active' : ''}>System</button>
+            </div>
+            {visibleActionLog.slice(0,7).map((line, idx)=>(
               <div key={`${idx}-${line}`} className={`dq-action-log-line dq-action-log-${actionLogTone(line)}`}>{line}</div>
             ))}
           </div>
