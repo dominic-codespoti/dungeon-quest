@@ -73,6 +73,8 @@ export default function GameMount(){
           const wallDisplays: Record<string, any> = {}
           const floorDisplays: Record<string, any> = {}
           const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}
+          const enemyNameTags: Record<string, any> = {}
+          let hoveredEnemyId: string | null = null
           let selectedEnemyId: string | null = null
           let enemyInfoWrap: any
           let enemyInfoBg: any
@@ -304,6 +306,24 @@ export default function GameMount(){
               const isEnemy = ent.type==='monster'
               const hasHp = Number.isFinite(ent.hp) && Number.isFinite(ent.maxHp) && ent.maxHp>0
               const shouldShowBar = isEnemy && hasHp && ent.kind!=='boss' && isVisible && ent.hp < ent.maxHp
+              const showNameTag = isEnemy && isVisible && (hoveredEnemyId===ent.id || selectedEnemyId===ent.id)
+              if(showNameTag){
+                if(!enemyNameTags[ent.id]){
+                  enemyNameTags[ent.id] = sc.add.text(d.x, d.y - tileSize*0.76, enemyArchetypeLabel(String(ent.kind||'chaser')), {
+                    fontFamily:'monospace',
+                    fontSize:'10px',
+                    color:'#dce8ff',
+                    stroke:'#0f1320',
+                    strokeThickness:2
+                  }).setOrigin(0.5,1).setDepth(365)
+                }
+                enemyNameTags[ent.id].setPosition(d.x, d.y - tileSize*0.72)
+                enemyNameTags[ent.id].setAlpha(selectedEnemyId===ent.id ? 0.98 : 0.84)
+              } else if(enemyNameTags[ent.id]){
+                try{ enemyNameTags[ent.id].destroy() }catch{}
+                delete enemyNameTags[ent.id]
+              }
+
               if(shouldShowBar){
                 if(!hpBars[ent.id]){
                   const bg = sc.add.rectangle(d.x, d.y + tileSize*0.56, tileSize*0.74, 4, 0x1a1a1a, 0.86).setDepth(360)
@@ -345,6 +365,12 @@ export default function GameMount(){
                 }
               }
             })
+            Object.keys(enemyNameTags).forEach(id=>{
+              if(!(state.entities||[]).some((e:any)=>e.id===id)){
+                try{ enemyNameTags[id].destroy() }catch{}
+                delete enemyNameTags[id]
+              }
+            })
 
             if(activeBoss && Number.isFinite(activeBoss.hp) && Number.isFinite(activeBoss.maxHp) && activeBoss.maxHp>0){
               if(bossIntroForId !== String(activeBoss.id)){
@@ -370,9 +396,11 @@ export default function GameMount(){
           }
 
           function rebuildMapAndEntities(payload:any){
+            hoveredEnemyId = null
             selectedEnemyId = null
             Object.keys(displays).forEach(id=>{ try{ displays[id].destroy() }catch{}; delete displays[id] })
             Object.keys(hpBars).forEach(id=>{ const bar = hpBars[id]; if(bar){ try{ bar.bg.destroy(); bar.fg.destroy() }catch{}; delete hpBars[id] } })
+            Object.keys(enemyNameTags).forEach(id=>{ try{ enemyNameTags[id].destroy() }catch{}; delete enemyNameTags[id] })
             clearBossBar()
             Object.keys(wallDisplays).forEach(k=>{ try{ wallDisplays[k].destroy() }catch{}; delete wallDisplays[k] })
             Object.keys(floorDisplays).forEach(k=>{ try{ floorDisplays[k].destroy() }catch{}; delete floorDisplays[k] })
@@ -409,6 +437,16 @@ export default function GameMount(){
               if(ent.kind==='rift-orb') s.setTint(0xc27dff)
               if(ent.type==='monster'){
                 s.setInteractive({cursor:'pointer'})
+                s.on('pointerover', ()=>{
+                  hoveredEnemyId = ent.id
+                  const st = (window as any).game?.getState?.()
+                  renderEnemyInfo(st)
+                })
+                s.on('pointerout', ()=>{
+                  if(hoveredEnemyId===ent.id) hoveredEnemyId = null
+                  const st = (window as any).game?.getState?.()
+                  renderEnemyInfo(st)
+                })
                 s.on('pointerdown', ()=>{
                   selectedEnemyId = selectedEnemyId===ent.id ? null : ent.id
                   const st = (window as any).game?.getState?.()
@@ -442,6 +480,7 @@ export default function GameMount(){
             } else if(e.type==='die'){
               const id = e.payload.id
               if(selectedEnemyId===id) selectedEnemyId = null
+              if(hoveredEnemyId===id) hoveredEnemyId = null
               const d = displays[id]
               if(d){
                 sc.tweens.add({targets:d, scale:0.1, alpha:0, duration:120, onComplete:()=>{ d.destroy(); delete displays[id] }})
