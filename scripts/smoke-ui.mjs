@@ -91,6 +91,8 @@ const mountChecks = [
   ["fov hidden wall fully dark", "const wallHiddenAlpha = 0"],
   ["mount reads unlock params", "function getUnlocksFromUrl(){"],
   ["engine receives unlocks", "const eng = new Engine(30,30,seed,klass,race,unlocks)"],
+  ["hard renderer reset helper", "const tryHardRendererReset = (reason:string)=>{"],
+  ["dim collapse triggers hard reset", "if(dimRatio > 0.965 && forcedSceneRebuilds >= 2 && forcedVisionRecoveries >= 4){"],
 ]
 const mountFailures = mountChecks.filter(([, needle]) => !mountSrc.includes(needle))
 

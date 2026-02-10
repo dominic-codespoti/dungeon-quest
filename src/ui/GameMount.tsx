@@ -59,6 +59,25 @@ export default function GameMount(){
   useEffect(()=>{
     let unsub:()=>void = ()=>{}
     let cancelled = false
+
+    const tryHardRendererReset = (reason:string)=>{
+      try{
+        const key = 'dq_renderer_hard_resets'
+        const used = Number(sessionStorage.getItem(key) || '0')
+        if(used >= 2) return false
+        sessionStorage.setItem(key, String(used + 1))
+        const u = new URL(window.location.href)
+        u.searchParams.set('_rboot', String(Date.now()))
+        u.searchParams.set('_rreason', reason.slice(0, 24))
+        console.warn('[GameMount] hard renderer reset', {reason, attempt: used + 1})
+        window.location.replace(u.toString())
+        return true
+      }catch(err){
+        console.error('[GameMount] hard renderer reset failed', err)
+        return false
+      }
+    }
+
     if(ref.current){
       const g = createGame(ref.current)
 
@@ -367,6 +386,10 @@ export default function GameMount(){
                 for(const k of floorKeys){ floorDisplays[k].setAlpha(Math.max(0.28, floorDisplays[k]?.alpha ?? 0)) }
                 for(const k of wallKeys){ wallDisplays[k].setAlpha(Math.max(0.24, wallDisplays[k]?.alpha ?? 0)) }
                 console.warn('[GameMount] forced vision recovery', {tick:state.tick, dimRatio: Number(dimRatio.toFixed(3)), count: forcedVisionRecoveries})
+              }
+              if(dimRatio > 0.965 && forcedSceneRebuilds >= 2 && forcedVisionRecoveries >= 4){
+                const didReset = tryHardRendererReset('dim-collapse')
+                if(didReset) return
               }
             }
 
