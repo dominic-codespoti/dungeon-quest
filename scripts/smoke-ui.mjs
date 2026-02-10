@@ -97,6 +97,8 @@ const checks = [
   ["sidebar stat: level", "Level"],
   ["sidebar stat: health", "Health"],
   ["sidebar stat: mana", "Mana"],
+  ["footer strip class", "className='dq-footer'"],
+  ["footer includes seed", "Seed {seed ?? '-'}"],
   ["sidebar stat: visible enemies", "Visible Enemies"],
   ["sidebar stat: enemies left", "Enemies Left"],
   ["sidebar stat: stairs visible", "Stairs"],

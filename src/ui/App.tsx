@@ -1351,6 +1351,13 @@ export default function App(){
             </div>
           )}
         </aside>
+
+        <div className='dq-footer'>
+          <span>{displayName}</span>
+          <span>Seed {seed ?? '-'}</span>
+          <span>Floor {snapshot?.floor ?? '-'}</span>
+          <span>Score {snapshot?.score ?? '-'}</span>
+        </div>
       </div>
 
       {showHelp && (

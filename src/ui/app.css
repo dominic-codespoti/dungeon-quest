@@ -62,7 +62,7 @@ body { background: var(--bg); color: var(--text); font-family: Inter, system-ui,
   position: absolute;
   top: 10px;
   right: 10px;
-  bottom: 10px;
+  bottom: 42px;
   width: 360px;
   z-index: 6;
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
@@ -219,6 +219,23 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
 .dq-overlay { position: fixed; inset: 0; background: rgba(4,8,18,.65); display:flex; align-items:center; justify-content:center; z-index:20; }
 .dq-overlay .box { width: 360px; background: #121a2f; border:1px solid #3b4f86; border-radius: 12px; padding: 14px; }
+
+.dq-footer {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  z-index: 6;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #a9badf;
+  background: rgba(8,12,20,.62);
+  border: 1px solid rgba(124,156,255,.2);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
 
 .dq-menu {
   width: 100vw;
