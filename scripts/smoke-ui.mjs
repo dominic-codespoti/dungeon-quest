@@ -150,6 +150,8 @@ const checks = [
   ["action log panel rendered", "className='dq-action-log'"],
   ["action log stamped by tick", "const stamped = Number(tick||0) > 0 ? `[t${tick}] ${text}` : text"],
   ["action log tone helper", "const actionLogTone = (line:string)=>{"],
+  ["action log markdown renderer", "const renderLogLine = (line:string)=>{"],
+  ["action log bold token parse", "if(part.startsWith('**') && part.endsWith('**'))"],
   ["all events feed action log", "appendActionLog(eventToLogLine(e), e?.tick)"],
   ["action log enemy-id resolver", "const enemyNameFromId = (id:string)=>{"],
   ["action log remembers known enemy kinds", "const knownEnemyKinds = useRef<Record<string,string>>({})"],

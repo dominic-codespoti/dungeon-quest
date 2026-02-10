@@ -1057,6 +1057,14 @@ export default function App(){
     if(s.includes('bought') || s.includes('acquired') || s.includes('reward') || s.includes('copied')) return 'reward'
     return 'neutral'
   }
+  const renderLogLine = (line:string)=>{
+    const parts = line.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean)
+    return parts.map((part, i)=>{
+      if(part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>
+      if(part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>
+      return <React.Fragment key={i}>{part}</React.Fragment>
+    })
+  }
   return (
     <div className='dq-shell'>
       <div className='dq-arena'>
@@ -1072,7 +1080,7 @@ export default function App(){
           </div>
           <div className='dq-action-log'>
             {actionLog.slice(0,8).map((line, idx)=>(
-              <div key={`${idx}-${line}`} className={`dq-action-log-line dq-action-log-${actionLogTone(line)}`}>{line}</div>
+              <div key={`${idx}-${line}`} className={`dq-action-log-line dq-action-log-${actionLogTone(line)}`}>{renderLogLine(line)}</div>
             ))}
           </div>
         </div>
