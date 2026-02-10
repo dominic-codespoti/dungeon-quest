@@ -107,6 +107,7 @@ const mountChecks = [
   ["mount flag: showDamageNumbers", "const showDamageNumbers = getFloatNumbersFromUrl()"],
   ["boss bar phase marker", "const phase = ratio > 0.66 ? 'PHASE I' : ratio > 0.33 ? 'PHASE II' : 'PHASE III'"],
   ["boss intro title card", "showBossIntro('BOSS ENCOUNTER')"],
+  ["boss charge ring pulse telegraph", "const ring = sc.add.circle(boss.x, boss.y, tileSize*0.45, 0xff6a6a, 0.14).setDepth(372)"],
   ["enemy hp bar store tracks last hp", "const hpBars: Record<string, {bg:any, fg:any, lastHp?:number}> = {}"],
   ["damage numbers conditional toggle", "if(showDamageNumbers && Number.isFinite(e.payload?.damage) && e.payload.damage>0) fxDamageNumber(to, e.payload.damage, e.payload.target==='p')"],
   ["fov hidden floor fully dark", "const floorHiddenAlpha = 0"],

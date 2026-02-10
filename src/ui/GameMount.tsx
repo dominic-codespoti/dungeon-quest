@@ -670,6 +670,9 @@ export default function GameMount(){
               if(boss){
                 boss.setTint(0xff3333)
                 sc.tweens.add({targets:boss, scale:1.25, duration:120, yoyo:true, repeat:1, onComplete:()=>boss.setTint(0xff8a66)})
+                const ring = sc.add.circle(boss.x, boss.y, tileSize*0.45, 0xff6a6a, 0.14).setDepth(372)
+                ring.setStrokeStyle(2, 0xff9a9a, 0.82)
+                sc.tweens.add({targets:ring, scale:2.1, alpha:0, duration:320, onComplete:()=>{ try{ ring.destroy() }catch{} }})
               }
             } else if(e.type==='boss_slam'){
               try{ sc.cameras.main.shake(140, 0.005) }catch{}
